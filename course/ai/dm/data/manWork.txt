@@ -1,0 +1,5 @@
+female:		203943 users
+male:		344552 users
+
+train:		8599014 
+test:		3311077

@@ -1,0 +1,43 @@
+#!/bin/bash
+
+getopts d deletefile
+
+for file do
+    if [ -f "$file" ] ; then
+
+		unknowfiletype=false
+
+        case "$file" in
+          *.tar)    tar xvf "$file"   ;; # tared files
+          *.tgz)    tar xzvf "$file"  ;;
+          *.tar.gz) tar xzvf "$file"  ;;
+          *.taz)    tar xZvf "$file"  ;;
+          *.tar.Z)  tar xZvf "$file"  ;;
+          *.tar.z)  tar xZvf "$file"  ;;
+          *.tar.bz2)    tar xjvf "$file"  ;;
+
+          *.Z)      gzip -d "$file"   ;; # compressed files
+          *.z)      gzip -d "$file"   ;;
+          *.gz)     gzip -d "$file"   ;;
+          *.bz2)    bzip2 -d "$file"  ;;
+          *.zip)    unzip -aL "$file" -d "`basename "$file" .zip`" ;;
+          *.ace)    unace x "$file"   ;;
+          *.rar)    mkdir "`basename \"$file\" .rar`" ;
+                  (cd "`basename \"$file\" .rar`" && rar x ../"$file") ;;
+
+          *)        unknowfiletype=true ;;
+        esac
+
+        if [ $? -eq 0 ]; then
+            if [ "$unknowfiletype" = "true" ]; then
+                echo -e "${file}: \t unknown file sufix !"
+            elif [ "$deletefile" = "d" ]; then
+                rm -f "$file" ;
+            fi
+        fi
+
+    else
+        echo -e "${file}: \t file not found !"
+    fi
+done
+

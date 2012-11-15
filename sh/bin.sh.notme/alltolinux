@@ -1,0 +1,11 @@
+#!/bin/bash
+for file do
+    echo $file
+    fromdos < "$file" > "${file}.linux" 
+	if [ $? -eq 0 ]; then
+		rm -f "$file" 
+		mv "${file}.linux" "$file"
+	else
+		rm -f "${file}.linux"
+	fi
+done

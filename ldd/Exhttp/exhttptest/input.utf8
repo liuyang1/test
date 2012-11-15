@@ -1,0 +1,27 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+<title>welcome to hanhaixingyun bbs station</title>
+</head>
+<script>
+document.write('<frameset id="fmain" name="fmain" cols="151, 10, *" framespacing="0" frameborder="no" border="0" >'+
+'   <frameset rows="*, 25" framespacing="0" frameborder="no" border="0">'+
+'         <frame id="f2" name="f2" marginwidth="0" marginheight="0" src="cgi/bbsleft" noresize />'+
+'         <frame id="f2tty" scrolling="NO" marginwidth="0" marginheight="0" name="f2tty" src="tty.html" noresize/>'+
+'  </frameset>'+
+'   <frame src="f5.html" id="f5" name="f5" marginwidth="0" marginheight="0" frameborder="no" scrolling="NO" noresize/>'+
+'   <frameset id="findex" rows="0, *, 20" framespacing="0" frameborder="no" border="0">'+
+'         <frame id="fmsg" scrolling="NO" marginwidth="0" marginheight="0" name="fmsg" src="cgi/bbsgetmsg" noresize/>'+
+'         <frame id="f3" name="f3" marginwidth="0" marginheight="0" src="cgi/bbsindex" noresize/>'+
+'         <frame id="f4" scrolling="NO" marginwidth="0" marginheight="0" name="f4" src="cgi/bbsfoot" noresize/>'+
+'  </frameset>'+
+'</frameset>');
+</script>
+
+<noframes><body>
+sorry,you browser isn't support frames.
+对不起,你的浏览器不支持帧模式.
+</body></noframes>
+</html>

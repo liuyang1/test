@@ -1,0 +1,30 @@
+#include <stdio.h>
+
+int sum(int* food,int n1,int n2){
+	int i,ret=0;
+	for(i=n1;i<=n2;i++){
+		ret+=food[i];
+	}
+	return ret;
+}
+int main(){
+	char c;
+	int k,n;
+	int food[1000000+1];
+	int ret;
+	while(EOF!=scanf("%c%d%d",&c,&k,&n)){
+		switch(c){
+			case 'p':
+				food[k]+=n;break;
+			case 'c':
+				food[k]-=n;break;
+			case 'q':
+				ret=sum(food,k,n);
+				printf("%d\n",ret);
+				break;
+			default:
+				break;
+		}
+	}
+	return 0;
+}

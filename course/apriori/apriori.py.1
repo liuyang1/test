@@ -1,0 +1,207 @@
+#! /usr/bin/python
+import sys
+import math
+import psyco
+from psyco.classes import *
+psyco.full()
+
+my_data=[line.split() for line in file('data.txt')]
+#thres=len(my_data)*0.05
+thres=5
+thresProb=0.7
+thresCosn=0.5
+thresLift=1
+
+class Rule:
+	def __init__(self,cond=(),result=(),prob=0,cosn=0,lift=1):
+		self.cond=cond
+		self.result=result
+		self.prob=prob
+		self.cosn=cosn
+		self.lift=lift
+
+class Log(object):
+	def __init__(self):
+		self.f=file("out.txt","w")
+		sys.stdout=self
+	def write(self,data):
+		self.f.write(data)
+		sys.__stdout__.write(data)
+		sys.__stdout__.flush()
+
+def disp_TupleDict(tupledict):
+	if len(tupledict)==0:
+		print "empty tupledict!"
+	for k in tupledict:
+		print k,;print "\tcnt:",;print tupledict[k]
+
+def disp_ListTupleDict(ltd):
+	for k in ltd:
+		disp_TupleDict(k)
+
+def disp_RuleList(rl):
+	for k in rl:
+		print "cond:\t",;print k.cond,
+		print "\trslt:\t",;print k.result,
+		print "\tprob:\t",;print "%.4f" % k.prob,
+		print "\tcosn:\t",;print "%.4f" % k.cosn,
+		print "\tlift:\t",;print "%.4f" % k.lift
+
+def generate_one(data,nThres):
+	# data list list to data set list
+	data=[set(trans) for trans in data]
+	# ones set
+	ones=set([])
+	for trans in data:
+		ones=ones|trans
+	# onesSet
+	onesSet={}
+	for k in ones:
+		index=0
+		indexset=set([])
+		for trans in data:
+			if k in trans:
+				indexset.add(index)
+			index=index+1
+		onesSet[k,]=indexset
+	oneSet=select_freq(onesSet,nThres)
+	return onesSet
+
+def prefixEqu(item1,item2):
+	return item1[:-1]==item2[:-1]
+
+def merge(item1,item2):
+	ans=item1+item2[-1:]
+	ans=list(ans)
+	ans.sort()
+	return tuple(ans)
+
+def union(item1,item2):
+	hashdict=dict()
+	for k in item1:
+		hashdict[k]=1
+	for k in item2:
+		hashdict[k]=1
+	return hashdict.keys()
+
+# generate candSet from freqSet
+def generate_cand(freqSet):
+	cand_next={}
+	cnt=0
+	for item1 in freqSet:
+		cnt=cnt+1
+		if cnt%10==0:
+			print "=",
+		for item2 in freqSet:
+			if item1!=item2 and prefixEqu(item1,item2):
+				#cand_next[merge(item1,item2)]=freqSet[item1]&freqSet[item2]
+				cand_next[merge(item1,item2)]=union(freqSet[item1],freqSet[item2])
+	print ""
+	return cand_next
+
+def counter(data,candSet):
+	return candSet
+	if 0:
+		cnt=0
+		for trans in data:
+			trans=set(trans)
+			cnt=cnt+1
+			if cnt%10 ==0:
+				print "=",
+			for k in candSet.keys():
+				if set(k).issubset(trans):
+					candSet[k]=candSet[k]+1
+		print ""
+		return candSet
+	if 0:
+		for k in candSet.keys():
+			for trans in data:
+				if set(k).issubset(set(trans)):
+					candSet[k]=candSet[k]+1
+		return candSet
+
+# select candSet to next freqSet
+def select_freq(candSet,nThres):
+	return dict([(k,v) for k,v in candSet.iteritems() if len(v)>=nThres])
+	# >=python 2.7 support
+	# return {k:v for k,v in candSet.iteritems if v>=nThres}
+	if 0:
+		ans={}
+		for k,v in candSet.iteritems():
+			if v>=nThres:
+				ans[k]=v	
+		return ans
+	if 0:
+		for k in candSet.keys():
+			if candSet[k]<nThres:
+				del(candSet[k])
+		return candSet
+
+def loop(data,onesSet,nThres):
+	allSet=[onesSet,]
+	candSet=onesSet
+	cnt=1
+	while 1:
+		print "geneate cand..."
+		next=generate_cand(candSet)
+		if len(next)<1:
+			break
+		print "counter..."
+		next=counter(data,next)
+		print "select freq..."
+		freqSet=select_freq(next,nThres)
+		if len(freqSet)<1:
+			break
+		candSet=freqSet
+		print "freqSet len",;print len(freqSet)
+		print "append..."
+		allSet.append(freqSet)
+		cnt=cnt+1
+		print cnt
+		if cnt==4:
+			sys.exit()
+	disp_ListTupleDict(allSet)
+	return allSet
+
+def calc_Prob(allSet):
+#todowork
+	ruleList=[]
+	for i in range(0,len(allSet)):
+		for j in range(i+1,len(allSet)):
+			print i,j
+			# form i-freqSet to j-freqSet
+			for freqi in allSet[i].keys():
+				freqiSet=set(freqi)
+				for freqj in allSet[j].keys():
+					freqjSet=set(freqj)
+					if freqiSet.issubset(freqjSet):
+						pab=len(allSet[j][freqj])
+						pa=len(allSet[i][freqi])
+						freqsub=freqjSet-freqiSet
+						freqsub=list(freqsub)
+						freqsub.sort()
+						pb=len(allSet[len(freqsub)-1][tuple(freqsub)])
+						prob=pab/(pa+0.0)
+						paMulpb=pa*pb
+						lift=pab/(paMulpb+0.0)
+						cosn=pab/math.sqrt(paMulpb)
+						if prob >= thresProb and cosn >=thresCosn :
+							ruleList.append(Rule(freqi,freqj,prob,cosn,lift))
+	disp_RuleList(ruleList)
+	return ruleList
+
+# delete Negative correlation rule
+def select_Rule(ruleList):
+	return	
+
+if __name__=="__main__":
+	psyco.full()
+	log=Log();
+	print "begin..."
+	print "generate one-frequent itemset...",
+	ones=generate_one(my_data,thres)
+	print "ok";print "loop..."
+	allSet=loop(my_data,ones,thres)
+	print "calc prob..."
+	calc_Prob(allSet)
+	print "DONE!"

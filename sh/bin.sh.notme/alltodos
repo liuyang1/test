@@ -1,0 +1,11 @@
+#!/bin/bash
+for file do
+    echo $file
+    todos < "$file" > "${file}.dos" 
+	if [ $? -eq 0 ]; then
+		rm -f "$file" 
+		mv "${file}.dos" "$file"
+	else
+		rm -f "${file}.dos"
+	fi
+done

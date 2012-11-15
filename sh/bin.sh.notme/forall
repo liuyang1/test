@@ -1,0 +1,10 @@
+#!/bin/sh
+if [ 1 = `expr 2 \> $#` ]
+then
+       echo Usage: $0 dir cmd [optargs]
+       exit 1
+fi
+dir=$1
+shift
+find $dir -type f -print | xargs "$@"
+

@@ -1,0 +1,197 @@
+#! /usr/bin/python
+import sys
+import psyco
+import gc
+from psyco.classes import *
+psyco.full()
+
+my_data=[line.split() for line in file('data.txt')]
+#thres=len(my_data)*0.05
+thres=5
+thresProb=0.5
+Gcnt=0
+
+class Rule:
+	def __init__(self,cond=(),result=(),prob=0):
+		self.cond=cond
+		self.result=result
+		self.prob=prob
+
+class Log(object):
+	def __init__(self):
+		self.f=file("out.txt","w")
+		sys.stdout=self
+	def write(self,data):
+		self.f.write(data)
+		sys.__stdout__.write(data)
+		sys.__stdout__.flush()
+
+class Item:
+	def __init__(self,lst=[],counter=0):
+		self.lst=lst
+		self.counter=counter
+
+def disp_TupleDict(tupledict):
+	if len(tupledict)==0:
+		print "empty tupledict!"
+	for k in tupledict:
+		print k,;print "\tcnt:",;print tupledict[k]
+
+def disp_ListTupleDict(ltd):
+	for k in ltd:
+		disp_TupleDict(k)
+
+def disp_ListItem(itemlst):
+	for k in itemlst:
+		print k.lst,;print k.counter
+def disp_RuleList(rl):
+	for k in rl:
+		print "cond:\t",;print k.cond,
+		print "\trslt:\t",;print k.result,
+		print "\tprob:\t",;print k.prob
+
+def generate_one(data,nThres):
+	ones={}
+	for trans in data:
+		for item in trans:
+			item=int(item)
+			if item in ones:
+				ones[item]=ones[item]+1
+			else:
+				ones[item]=1
+	onesSet=[]
+	for k,v in ones.iteritems():
+		onesSet.append(Item([k],v))
+	onesSet=select_freq(onesSet,nThres)
+	print len(onesSet)
+	return onesSet
+
+def prefixEqu(item1,item2):
+	return item1.lst[:-1]==item2.lst[:-1]
+
+def merge(item1,item2):
+	if item1.lst[-1:]<item2.lst[-1:]:
+		ans=item1.lst+item2.lst[-1:]
+	else:
+		ans=item2.lst+item1.lst[-1:]
+	return ans
+
+# generate candSet from freqSet
+def generate_cand(freqSet):
+	disp_ListItem(freqSet)
+	cand_next=[]
+	cnt=0
+	for i in range(len(freqSet)):
+		item1=freqSet[i]
+		for j in range(i+1,len(freqSet)):
+			item2=freqSet[j]
+			if prefixEqu(item1,item2):
+				#cand_next[merge(item1,item2)]=0
+				cand_next.append(Item(merge(item1,item2),0))
+	if 0:
+		for item1 in freqSet:
+			cnt=cnt+1
+			if cnt%10==0:
+				print "=",
+			for item2 in freqSet:
+				if item1!=item2 and prefixEqu(item1,item2):
+					cand_next[merge(item1,item2)]=0
+	print ""
+	return cand_next
+
+# lst1.isSubLst(lst2)
+def isSubSet(lst1,lst2):
+	lst1.sort()
+	i=0
+	for j in lst2:
+		if i==len(lst1):
+			return True
+		if lst1[i]==j:
+			i=i+1
+	return i==len(lst1)
+
+def counter(data,candSet):
+	cnt=0
+	candList=[]
+	for k in candSet:
+		candList.append(k.lst)
+	for trans in data:
+		trans=list(trans)
+		cnt=cnt+1
+		if cnt%10==0:
+			print "-",
+		i=0
+		for k in candSet:
+			if(isSubSet(candList[i],trans)):
+				candSet[k].counter=candSet[k].counter+1
+			i=i+1
+	print ""
+	return candSet
+
+# select candSet to next freqSet
+def select_freq(candSet,nThres):
+	#return dict([(k,v) for k,v in candSet.iteritems() if v>=nThres])
+	return [i for i in candSet if i.counter>=nThres]
+	# >=python 2.7 support
+	# return {k:v for k,v in candSet.iteritems if v>=nThres}
+
+def loop(data,onesSet,nThres):
+	allSet=[onesSet,]
+	candSet=onesSet
+	cnt=1
+	while 1:
+		print "geneate cand..."
+		next=generate_cand(candSet)
+		if len(next)<1:
+			break
+		print "counter..."
+		next=counter(data,next)
+		print "select freq..."
+		freqSet=select_freq(next,nThres)
+		if len(freqSet)<1:
+			break
+		candSet=freqSet
+		print "freqSet len",;print len(freqSet)
+		print "append..."
+		allSet.append(freqSet)
+		cnt=cnt+1
+		print cnt
+		if cnt==4:
+			sys.exit()
+	#disp_ListTupleDict(allSet)
+	return allSet
+
+def calc_Prob(allSet):
+	print "begin to calc prob..."
+	ruleList=[]
+	for i in range(0,len(allSet)):
+		for j in range(i+1,len(allSet)):
+			print i,j
+			# form i-freqSet to j-freqSet
+			for freqi in allSet[i].keys():
+				for freqj in allSet[j].keys():
+					freqiSet=set(freqi)
+					freqjSet=set(freqj)
+					if freqiSet.issubset(freqjSet):
+						prob=allSet[j][freqj]/(allSet[i][freqi]+0.0)
+						if prob >= thresProb:
+							ruleList.append(Rule(freqi,freqj,prob))
+	disp_RuleList(ruleList)
+	return ruleList
+
+# delete Negative correlation rule
+def select_Rule(ruleList):
+	return	
+
+if __name__=="__main__":
+	psyco.full()
+	gc.disable()
+	log=Log();
+	print "begin..."
+	print "generate one-frequent itemset...",
+	ones=generate_one(my_data,thres)
+	print "ok";print "loop..."
+	allSet=loop(my_data,ones,thres)
+	print "calc prob..."
+	calc_Prob(allSet)
+	print "DONE!"
