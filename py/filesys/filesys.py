@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 import os
-path="/home/liuy/code/py/BeeSys"
+path="/home/liuy/down"
 filelist=os.listdir(path)
 print filelist
 for f in filelist:
