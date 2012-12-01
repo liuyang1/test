@@ -1,4 +1,4 @@
-CFILE=biFib
+CFILE=1335
 SUFFIX=c
 TESTSUFFIX=test
 
