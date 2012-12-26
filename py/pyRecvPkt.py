@@ -13,7 +13,7 @@ import threading
 import sys
 import time
 filename="stream.ts"
-port=12345
+port=10001
 buflen=2048
 ttl=3
 

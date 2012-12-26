@@ -1,10 +1,13 @@
 #! /usr/bin/env python
 from socket import *
 host = 'localhost'
-port = 10000
+port = 8080
+addr=(host,port)
 sock = socket(AF_INET,SOCK_DGRAM)
-sock.bind((host,port))
 while 1:
-	data = sock.recvfrom(1024)
-	print data
+	try:
+		str=raw_input(">>")
+		sock.sendto(str,addr)
+	except:
+		break
 sock.close()
