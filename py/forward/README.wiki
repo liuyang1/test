@@ -1,5 +1,40 @@
 = 转发服务脚本组 =
 
+== 使用 ==
+=== 整体说明 ===
+使用ForwardServer在公网服务器上,负责转发数据.
+使用AccessOnly在视频播放器所在机器上,帮助引流到特定端口上.
+在AccessOnly引流之后,视频播放器可以收到数据,播放.
+关闭AccessOnly,则视频播放器过一段时间,无法收到视频数据.
+
+=== ForwardServer ===
+修改ForwardServer的配置.
+- host为ForwardServer的IP地址
+- inport为数据输入地址
+- outport为数据输出以及接入地址
+
+运行方法
+./ForwardServer.py
+
+=== AccessOnly ===
+暂时可以使用AccessOnly作为接入程序.
+
+修改配置
+- host为视频播放器所在机器的IP地址
+- dstport为视频播放器的接受数据的地址
+
+运行方法
+./AccessOnly.py
+
+== 运行 ==
+在修改配置以适应环境后,运行ForwardServer程序,开始接受小车(视频源数据).
+
+修改配置后,运行AccessOnly程序,引流.打开播放器,在对应端口接收数据,播放视频.
+
+退出,关闭AccessOnly程序即可.
+
+----
+
 == Client ==
 接受输入,发送数据到本机的8080端口
 
