@@ -1,4 +1,4 @@
-TESTC=test.c
+TESTC=shift.c
 
 a.out:${TESTC}
 	gcc -Wall ${TESTC}
