@@ -12,8 +12,8 @@ from dummy_threading import *
 import threading
 import sys
 import time
-filename="stream.ts"
-port=10001
+filename="/tmp/stream.ts"
+port=5000
 buflen=2048
 ttl=3
 
