@@ -1,6 +1,9 @@
+% kvs,key-value server
+% 键值对服务器
 -module(kvs).
 -export([start/0,store/2,lookup/1]).
 
+% 开始服务,注册进程
 start()->register(kvs,spawn(fun()->loop() end)).
 
 store(Key,Value)->
