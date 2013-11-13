@@ -1,0 +1,15 @@
+(define (double a) (* a 2))
+(define (halve a) (/ a 2))
+
+(define (asterisk a b)
+  (cond ((< a 0)    (- (asterisk (- a) b))) 
+        ((< b 0)    (- (asterisk a (- b))))
+        ((= b 0)    0)
+        ((= b 1)    a)
+        ((even? b)  (asterisk (double a) (halve b)))
+        (else       (+ a (* a (- b 1))))))
+
+(displayln (asterisk 2 3))
+(displayln (asterisk -2 3))
+(displayln (asterisk 2 -3))
+(displayln (asterisk -2 -3))
