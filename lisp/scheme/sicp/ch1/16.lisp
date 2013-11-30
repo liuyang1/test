@@ -1,6 +1,0 @@
-(defun fast-expt (b n)
-  (cond ((= n 0)    b)
-        ((even? n)  (* b 2))
-        ((else)     (+ b 1))
-        )
-  )
