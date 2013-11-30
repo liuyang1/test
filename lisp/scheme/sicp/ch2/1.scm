@@ -1,0 +1,21 @@
+(define (make-rat n d)
+  (if (or (and (< n 0) (< d 0)) (and (> n 0) (< d 0)))
+    (make-rat (- n) (- d))
+  (let ((g (gcd n d)))
+   (cons (/ n g) (/ d g)))))
+(define (numer x) (car x))
+(define (denom x) (cdr x))
+(define (print x) (display (numer x)) (display "/") (displayln (denom x)))
+
+(define (add-rat x y)
+  (make-rat (+ (* (numer x) (denom y)) (* (numer y) (denom y)))
+            (* (denom x) (denom y))))
+
+(define rat13 (make-rat 1 -3))
+(print rat13)
+(print (add-rat rat13 rat13))
+
+(print (make-rat 1 3))
+(print (make-rat -1 -3))
+(print (make-rat 1 -3))
+(print (make-rat -1 3))

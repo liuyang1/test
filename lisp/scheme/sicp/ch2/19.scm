@@ -1,0 +1,21 @@
+(define us-coins (list 50 25 10 5 1))
+(define reverse-us-coins (reverse us-coins))
+(define uk-coins (list 100 50 20 10 5 2 1 0.5))
+(define cn-coins uk-coins)
+
+(define (cc amount coin-values)
+  (define (no-more? coin-values) (null? coin-values))
+  (define (except-first-denomination coin-values) (cdr coin-values))
+  (define (first-denomination coin-values) (car coin-values))
+  (cond ((zero? amount) 1)
+        ((or (< amount 0) (no-more? coin-values)) 0)
+        (else (+ (cc amount
+                     (except-first-denomination coin-values))
+                 (cc (- amount (first-denomination coin-values))
+                     coin-values)))))
+
+(displayln (cc 7 us-coins))
+(displayln (cc 27 us-coins))
+(displayln (cc 7 reverse-us-coins))
+(displayln (cc 27 reverse-us-coins))
+(displayln (cc 27 (list 5 1 10)))

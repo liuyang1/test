@@ -1,0 +1,12 @@
+(define (last lst)
+  (define (last-ip lst)
+    (let ((newlst (cdr lst)))
+     (if (null? newlst) (car lst) (last-ip newlst))))
+  (if (null? lst) '() (last-ip lst)))
+
+(displayln (last '()))
+(displayln (last (list 0)))
+(displayln (last (list 1 0)))
+(displayln (last (list 2 1 0)))
+(displayln 1)
+(displayln 'atom)
