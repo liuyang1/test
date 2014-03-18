@@ -22,7 +22,6 @@ def search(pairlist,color,obj):
     return True
 
 
-
 def testcase(seq):
     n = int(raw_input())
     pairlist = []

@@ -1,0 +1,5 @@
+CLIENT
+_REQ    127.0.0.1 9000
+__GET   /               HTTP/1.1
+_WAIT
+END

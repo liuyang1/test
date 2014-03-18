@@ -2,12 +2,6 @@
 
 
 def count(lst):
-    """
-    >>> count([1,2,3])
-    0
-    >>> count([1,3,2])
-    1
-    """
     cnt = 0
     max=lst[0]
     for i in range(1,len(lst)):

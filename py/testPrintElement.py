@@ -2,7 +2,7 @@
 def printEle(lst):
 	for i in lst:
 		if i==lst:
-			print 'loop'
+			raise Exception('loop')
 		elif isinstance(i,list):
 			printEle(i)
 		else:
