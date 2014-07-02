@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "lzw.h"
+#define _TEST_MODE_
 
 void setEntry(Entry* p, int used, unsigned int prev, char c)
 {
@@ -40,9 +41,20 @@ void writeTbl(Entry* pTbl, unsigned int idx, unsigned int prev, char c)
     setEntry(p, USEDFLAG, prev, c);
 }
 
-void output(unsigned int i)
+void outputCom(unsigned int i)
 {
-    // printf("%d\n", i);
+#ifdef _TEST_MODE_
+    printf("%3d 0x%02x%02x\n", i, (i>>8) & 0xff, i & 0xff);
+#else
     printf("%c%c", (i>>8) & 0xff, i & 0xff);
-    //printf("%d %x %x\n", i, (i>>8) & 0xff, i & 0xff);
+#endif
+}
+
+void outputUncom(char c)
+{
+#ifdef _TEST_MODE_
+    printf("%c\n", c);
+#else
+    putchar(c);
+#endif
 }

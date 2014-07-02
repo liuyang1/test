@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <string.h>
+#include <errno.h>
+
 #include "lzw.h"
 
 Entry gTbl[TABLELENGTH];
@@ -10,12 +13,12 @@ void lzwCompress(FILE* fs)
     unsigned int idx;
     char c;
     initTbl(gTbl);
-    output(CLEARFLAG);
+    outputCom(CLEARFLAG);
     while(1)
     {
         while(1){
             if(feof(fs)){
-                output(ENDFLAG);
+                outputCom(ENDFLAG);
                 return;
             }
             c = fgetc(fs);
@@ -25,7 +28,7 @@ void lzwCompress(FILE* fs)
             else
                 break;
         }
-        output(prev);
+        outputCom(prev);
         writeIdx++;
         if(writeIdx == TABLELENGTH)
         {
@@ -37,9 +40,28 @@ void lzwCompress(FILE* fs)
     }
 }
 
-int main()
+void usage(char* name)
 {
-    FILE* fp = fopen("test.txt", "r");
+    printf("usage: %s [filename=stdin]\n", name);
+}
+
+int main(int argc, char** argv)
+{
+    char* fn;
+    FILE* fp;
+    if(argc > 2){
+        usage(argv[0]);
+        return -1;
+    }else if(argc == 2){
+        fn = argv[1];
+        fp = fopen(fn, "r");
+        if(fp == NULL){
+            perror(fn);
+            return errno;
+        }
+    }else{// argc == 1
+        fp = stdin;
+    }
     lzwCompress(fp);
     fclose(fp);
     return 0;

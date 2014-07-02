@@ -12,7 +12,7 @@ typedef struct
 #define UNUSEFLAG               0
 
 #define ORIGINLENGTH            8
-#define CLEARFLAG               (2^ORIGINLENGTH)
+#define CLEARFLAG               (1<<ORIGINLENGTH)
 #define ENDFLAG                 (CLEARFLAG+1)
 #define TABLELENGTH             4096
 #define INVALIDLENGTH           TABLELENGTH
@@ -24,6 +24,8 @@ int searchTbl(Entry* pTbl, unsigned int prev, char c);
 
 void writeTbl(Entry* pTbl, unsigned int idx, unsigned int prev, char c);
 
-void output(unsigned int i);
+void outputCom(unsigned int i);
+
+void outputUncom(char c);
 
 #endif

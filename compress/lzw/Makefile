@@ -6,10 +6,14 @@ OBJS		:= $(patsubst %$(FILE_SUFFIX),%.o,$(SRCS))
 CFLAGS 		:= -Wall -std=c99
 CC			:= gcc
 
+all:com.out uncom.out
+
 com.out:com.o lzw.o
+	$(CC) $^ -o $@
+uncom.out:uncom.o lzw.o
 	$(CC) $^ -o $@
 $(OBJS): %.o : %$(FILE_SUFFIX)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o com.out
+	rm -f *.o *.out
