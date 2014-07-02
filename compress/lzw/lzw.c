@@ -27,18 +27,17 @@ void dispEntry(Entry* pEntry)
     printf("entry: %d %d %c\n", pEntry->used, pEntry->prev, pEntry->c);
 }
 
-#define BEGINENCODING           256
-#define ENDENCODING             257
+#define ORIGINLENGTH            8
+#define CLEARFLAG               (2^ORIGINLENGTH)
+#define ENDFLAG                 (CLEARFLAG+1)
 #define TABLELENGTH             4096
 #define INVALIDLENGTH           TABLELENGTH
 
-Entry gTbl[TABLELENGTH];
-
 void initTbl(Entry* pTbl)
 {
-    for(int i=0; i < ENDENCODING; i++, pTbl++)
+    for(int i=0; i < ENDFLAG; i++, pTbl++)
         setEntry(pTbl, USEDFLAG, INVALIDLENGTH, (char)i);
-    for(int i=ENDENCODING; i < TABLELENGTH; i++, pTbl++)
+    for(int i=ENDFLAG; i < TABLELENGTH; i++, pTbl++)
         setEntry(pTbl, UNUSEFLAG, INVALIDLENGTH, 0);
 }
 
@@ -61,46 +60,4 @@ void output(unsigned int i)
     // printf("%d\n", i);
     printf("%c%c", (i>>8) & 0xff, i & 0xff);
     //printf("%d %x %x\n", i, (i>>8) & 0xff, i & 0xff);
-}
-
-void lzwCompress(FILE* fs)
-{
-    unsigned int prev = fgetc(fs);
-    unsigned int writeIdx = ENDENCODING;
-    unsigned int idx;
-    char c;
-    initTbl(gTbl);
-    output(BEGINENCODING);
-    while(1)
-    {
-        while(1){
-            if(feof(fs)){
-                output(ENDENCODING);
-                return;
-            }
-            c = fgetc(fs);
-            idx = searchTbl(gTbl, prev, c);
-            if(idx != INVALIDLENGTH)
-                prev = idx;
-            else
-                break;
-        }
-        output(prev);
-        writeIdx++;
-        if(writeIdx == TABLELENGTH)
-        {
-            initTbl(gTbl);
-            writeIdx = ENDENCODING + 1;
-        }else
-            writeTbl(gTbl, writeIdx, prev, c);
-        prev = c;
-    }
-}
-
-int main()
-{
-    FILE* fp = fopen("test.txt", "r");
-    lzwCompress(fp);
-    fclose(fp);
-    return 0;
 }
