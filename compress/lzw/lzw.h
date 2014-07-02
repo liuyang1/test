@@ -1,4 +1,5 @@
-#include <stdio.h>
+#ifndef _LZW_H_
+#define _LZW_H_
 
 typedef struct
 {
@@ -24,3 +25,5 @@ int searchTbl(Entry* pTbl, unsigned int prev, char c);
 void writeTbl(Entry* pTbl, unsigned int idx, unsigned int prev, char c);
 
 void output(unsigned int i);
+
+#endif

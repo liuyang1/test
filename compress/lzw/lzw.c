@@ -1,14 +1,5 @@
 #include <stdio.h>
-
-typedef struct
-{
-    char used;
-    unsigned int prev;
-    char c;
-}Entry;
-
-#define USEDFLAG                1
-#define UNUSEFLAG               0
+#include "lzw.h"
 
 void setEntry(Entry* p, int used, unsigned int prev, char c)
 {
@@ -26,12 +17,6 @@ void dispEntry(Entry* pEntry)
 {
     printf("entry: %d %d %c\n", pEntry->used, pEntry->prev, pEntry->c);
 }
-
-#define ORIGINLENGTH            8
-#define CLEARFLAG               (2^ORIGINLENGTH)
-#define ENDFLAG                 (CLEARFLAG+1)
-#define TABLELENGTH             4096
-#define INVALIDLENGTH           TABLELENGTH
 
 void initTbl(Entry* pTbl)
 {
