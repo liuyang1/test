@@ -1,45 +1,60 @@
+#include <string.h>
+#include <stdlib.h>
 #include <stdio.h>
-// totalCoeff, trailingOnes, data
-int NC0_CoeffTokenTbl[17][4][17]=
+
+#define TOKENLEN            2
+#define TOKENSIZELEN        1
+#define TOKENSIZE           (TOKENLEN + TOKENSIZELEN)
+
+#define TRAILINGSONES_MAX   4
+#define TOTALCOEFF_MAX      17
+
+char NC0_CoeffTokenTbl[TOTALCOEFF_MAX * TRAILINGSONES_MAX * TOKENSIZE] =
 {
-    {
-        {1,     1},
-        {0},
-        {0},
-        {0},
-    },{
-        {6,     0, 0, 0, 1,    0, 1},
-        {2,     0, 1},
-        {0},
-        {0}
-    },{
-        {8,     0, 0, 0, 0,    0, 1, 1, 1},
-        {6,     0, 0, 0, 1,    0, 0},
-        {3,     0, 0, 1},
-        {0}
-    },{
-        {9,     0, 0, 0, 0,    0, 0, 1, 1,      1},
-        {8,     0, 0, 0, 0,    0, 1, 1, 0},
-        {7,     0, 0, 0, 0,    1, 0, 1},
-        {5,     0, 0, 0, 1,    1},
-    },{
-        {10,    0, 0, 0, 0,     0, 0, 0, 1,     1, 1},
-        {9,     0, 0, 0, 0,     0, 0, 1, 1,     0},
-        {8,     0, 0, 0, 0,     0, 1, 0, 1},
-        {6,     0, 0, 0, 0,     1, 1},
-    },{
-        {11,    0, 0, 0, 0,     0, 0, 0, 0,     1, 1, 1},
-        {10,    0, 0, 0, 0,     0, 0, 0, 1,     1, 0},
-        {9,     0, 0, 0, 0,     0, 0, 1, 0,     1},
-        {7,     0, 0, 0, 0,     0, 1, 0}
-    }
+    1,      0b10000000,     0,
+    0,      0,              0,
+    0,      0,              0,
+    0,      0,              0,
+
+    6,      0b00010100,     0,
+    2,      0b01000000,     0,
+    0,      0,              0,
+    0,      0,              0,
+
+    8,      0b00000111,     0,
+    6,      0b00010000,     0,
+    3,      0b00100000,     0,
+    0,      0,              0,
+
+    9,      0b00000011,     0b10000000,
+    8,      0b00000110,     0,
+    7,      0b00001010,     0,
+    5,      0b00011000,     0,
+
+    10,     0b00000001,     0b11000000,
+    9,      0b00000011,     0b00000000,
+    8,      0b00000101,     0,
+    6,      0b00001100,     0,
+
+    11,     0b00000000,     0b11100000,
+    10,     0b00000001,     0b10000000,
+    9,      0b00000010,     0b10000000,
+    7,      0b00001000,     0,
+
+    13,     0,              0b01111000,
+    11,     0,              0b11000000,
+    10,     0b00000001,     0b01000000,
+    8,      0b00000100,     0,
 };
 
-//int[4][17][] checkNC2Tbl(int nc)
-int checkNC2Tbl(int nc)
+char*checkNC2Tbl(int nc)
 {
-    int offset = -2;
-    int** tbl[11] ={
+    if (nc < -2) {
+        printf("error, nc < -2\n");
+        nc = -2;
+    } else if (nc > 8)
+        nc = 8;
+    char* tbl[11] = {
         NULL,                                   // NC = -2
         NULL,                                   // NC = -1
         NC0_CoeffTokenTbl, NC0_CoeffTokenTbl,   // 0 <= NC < 2
@@ -47,12 +62,21 @@ int checkNC2Tbl(int nc)
         NULL, NULL, NULL, NULL,                 // 4 <= NC < 8
         NULL                                    // 8 <= NC
     };
-    if(nc<-2){
-        printf("error, nc < -2\n");
-    }else if(nc > 8)
-        nc = 8;
-    int[17][4][17]* ptr = NC0_CoeffTokenTbl;
-    // return tbl[nc+offset];
-    return 0;
+    return tbl[nc + 2];
 }
 
+int twoDim2One(int x, int y, int row)
+{
+    return x + y * row;
+}
+
+int writeCoeffToken(char* buf, int nc, int trailingones, int totalcoeff)
+{
+    char* tbl = checkNC2Tbl(nc);
+    int tbloffset = twoDim2One(trailingones, totalcoeff, TRAILINGSONES_MAX);
+    tbloffset = twoDim2One(0, tbloffset, TOKENSIZE);
+    tbl += tbloffset;
+    int bitoffset = *tbl;
+    memcpy(buf, tbl + TOKENSIZELEN, TOKENLEN);
+    return bitoffset;
+}
