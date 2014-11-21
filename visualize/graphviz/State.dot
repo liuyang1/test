@@ -1,0 +1,15 @@
+digraph VoutEstate{
+    label="eState";
+    font="Ubuntu Mono"
+    rankdir=LR;
+    node [shape = doublecircle fixedsize=true width=1 peripheries=2 fontname="Vera Sans YuanTi Mono"];
+    Load Idle Paused Exec;
+    node [shape = box]; Invalid;
+    Invalid -> Load [label="Create"];
+    Load -> Invalid [label="Destory"];
+    Load -> Idle [label="Open"];
+    Idle -> Load [label="Close"];
+    Idle -> Paused [label="SetState", dir=both];
+    Idle -> Exec [label="SetState", dir=both];
+    Paused -> Exec [label="SetState" dir=both constraint=false]
+}
