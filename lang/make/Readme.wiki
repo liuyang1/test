@@ -1,0 +1,2 @@
+* How to get shell env var into GNU Make?
+shellenv.mk

@@ -1,0 +1,6 @@
+= visualization =
+== graphviz ==
+graphviz is a graph visualization tool.
+using DOT language.
+
+* State             simple example
