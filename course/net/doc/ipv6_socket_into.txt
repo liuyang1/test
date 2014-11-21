@@ -1,0 +1,728 @@
+大家都知道，随着互联网上主机数量的增多，现有的32位IP地址已经不够用了，所以推出了下一代IP地址IPv6，写网络程序的要稍微改变一下现有的网络程序适应IPv6网络是相当容易的事。
+对于我们来说就是IP地址变化了，所以程序里在用到IP地址的地方做相应的改变就可以了。
+
+记住：主要是改变程序里设置IP地址和端口等部分的代码。
+
+服务器端源代码如下：
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <string.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+#define MAXBUF 1024
+/************关于本文档********************************************
+*filename: ipv6-server.c
+*purpose: 演示最基本的IPv6网络编程步骤，开启服务接收客户端连接并和客户端通信，互相收发消息
+*wrote by: zhoulifa(zhoulifa@163.com) 周立发(http://zhoulifa.bokee.com)
+Linux爱好者 Linux知识传播者 SOHO族 开发者 最擅长C语言
+*date time:2007-01-29 13:06
+*Note: 任何人可以任意复制代码并运用这些文档，当然包括你的商业用途
+* 但请遵循GPL
+*Thanks to:Google
+*Hope:希望越来越多的人贡献自己的力量，为科学技术发展出力
+* 科技站在巨人的肩膀上进步更快！感谢有开源前辈的贡献！
+*********************************************************************/
+
+int main(int argc, char **argv)
+{
+    int sockfd, new_fd;
+    socklen_t len;
+
+    /* struct sockaddr_in my_addr, their_addr; */ // IPv4
+    struct sockaddr_in6 my_addr, their_addr; // IPv6
+
+    unsigned int myport, lisnum;
+    char buf[MAXBUF + 1];
+
+    if (argv[1])
+        myport = atoi(argv[1]);
+    else
+        myport = 7838;
+
+    if (argv[2])
+        lisnum = atoi(argv[2]);
+    else
+        lisnum = 2;
+
+    /* if ((sockfd = socket(PF_INET, SOCK_STREAM, 0)) == -1) { */ // IPv4
+    if ((sockfd = socket(PF_INET6, SOCK_STREAM, 0)) == -1) { // IPv6
+        perror("socket");
+        exit(1);
+    } else
+        printf("socket created\n");
+
+    bzero(&my_addr, sizeof(my_addr));
+    /* my_addr.sin_family = PF_INET; */ // IPv4
+    my_addr.sin6_family = PF_INET6;    // IPv6
+    /* my_addr.sin_port = htons(myport); */ // IPv4
+    my_addr.sin6_port = htons(myport);   // IPv6
+    if (argv[3])
+        /* my_addr.sin_addr.s_addr = inet_addr(argv[3]); */ // IPv4
+        inet_pton(AF_INET6, argv[3], &my_addr.sin6_addr);  // IPv6
+    else
+        /* my_addr.sin_addr.s_addr = INADDR_ANY; */ // IPv4
+        my_addr.sin6_addr = in6addr_any;            // IPv6
+
+    /* if (bind(sockfd, (struct sockaddr *) &my_addr, sizeof(struct sockaddr)) */ // IPv4
+    if (bind(sockfd, (struct sockaddr *) &my_addr, sizeof(struct sockaddr_in6))  // IPv6
+        == -1) {
+        perror("bind");
+        exit(1);
+    } else
+        printf("binded\n");
+
+    if (listen(sockfd, lisnum) == -1) {
+        perror("listen");
+        exit(1);
+    } else
+        printf("begin listen\n");
+
+    while (1) {
+        len = sizeof(struct sockaddr);
+        if ((new_fd =
+             accept(sockfd, (struct sockaddr *) &their_addr,
+                    &len)) == -1) {
+            perror("accept");
+            exit(errno);
+        } else
+            printf("server: got connection from %s, port %d, socket %d\n",
+                   /* inet_ntoa(their_addr.sin_addr), */ // IPv4
+                   inet_ntop(AF_INET6, &their_addr.sin6_addr, buf, sizeof(buf)), // IPv6
+                   /* ntohs(their_addr.sin_port), new_fd); */ // IPv4
+                   their_addr.sin6_port, new_fd); // IPv6
+
+        /* 开始处理每个新连接上的数据收发 */
+        bzero(buf, MAXBUF + 1);
+        strcpy(buf,
+               "这是在连接建立成功后向客户端发送的第一个消息\n只能向new_fd这个用accept函数新建立的socket发消息，不能向sockfd这个监听socket发送消息，监听socket不能用来接收或发送消息\n");
+        /* 发消息给客户端 */
+        len = send(new_fd, buf, strlen(buf), 0);
+        if (len < 0) {
+            printf
+                ("消息'%s'发送失败！错误代码是%d，错误信息是'%s'\n",
+                 buf, errno, strerror(errno));
+        } else
+            printf("消息'%s'发送成功，共发送了%d个字节！\n",
+                   buf, len);
+
+        bzero(buf, MAXBUF + 1);
+        /* 接收客户端的消息 */
+        len = recv(new_fd, buf, MAXBUF, 0);
+        if (len > 0)
+            printf("接收消息成功:'%s'，共%d个字节的数据\n",
+                   buf, len);
+        else
+            printf
+                ("消息接收失败！错误代码是%d，错误信息是'%s'\n",
+                 errno, strerror(errno));
+        /* 处理每个新连接上的数据收发结束 */
+    }
+
+    close(sockfd);
+    return 0;
+}
+每行程序后面的 “//IPv4” 表示这行代码是在IPv4网络里用的
+而“//IPv6” 表示这行代码是在IPv6网络里用的，比较一下，会很容易看到差别的。
+
+客户端源代码如下：
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/socket.h>
+#include <resolv.h>
+#include <stdlib.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+#define MAXBUF 1024
+/************关于本文档********************************************
+*filename: ipv6-client.c
+*purpose: 演示最基本的IPv6网络编程步骤，这是个客户端程序，与服务器互相收发消息
+*wrote by: zhoulifa(zhoulifa@163.com) 周立发(http://zhoulifa.bokee.com)
+Linux爱好者 Linux知识传播者 SOHO族 开发者 最擅长C语言
+*date time:2007-01-29 12:56
+*Note: 任何人可以任意复制代码并运用这些文档，当然包括你的商业用途
+* 但请遵循GPL
+*Thanks to:Google
+*Hope:希望越来越多的人贡献自己的力量，为科学技术发展出力
+* 科技站在巨人的肩膀上进步更快！感谢有开源前辈的贡献！
+*********************************************************************/
+int main(int argc, char **argv)
+{
+    int sockfd, len;
+    /* struct sockaddr_in dest; */ // IPv4
+    struct sockaddr_in6 dest;      // IPv6
+    char buffer[MAXBUF + 1];
+
+    if (argc != 3) {
+        printf
+            ("参数格式错误！正确用法如下：\n\t\t%s IP地址 端口\n\t比如:\t%s 127.0.0.1 80\n此程序用来从某个 IP 地址的服务器某个端口接收最多 MAXBUF 个字节的消息",
+             argv[0], argv[0]);
+        exit(0);
+    }
+    /* 创建一个 socket 用于 tcp 通信 */
+    /* if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) { */ // IPv4
+    if ((sockfd = socket(AF_INET6, SOCK_STREAM, 0)) < 0) {      // IPv6
+        perror("Socket");
+        exit(errno);
+    }
+    printf("socket created\n");
+
+    /* 初始化服务器端（对方）的地址和端口信息 */
+    bzero(&dest, sizeof(dest));
+    /* dest.sin_family = AF_INET; */  // IPv4
+    dest.sin6_family = AF_INET6;     // IPv6
+    /* dest.sin_port = htons(atoi(argv[2])); */ // IPv4
+    dest.sin6_port = htons(atoi(argv[2]));     // IPv6
+    /* if (inet_aton(argv[1], (struct in_addr *) &dest.sin_addr.s_addr) == 0) { */ // IPv4
+    if ( inet_pton(AF_INET6, argv[1], &dest.sin6_addr) < 0 ) {                 // IPv6
+        perror(argv[1]);
+        exit(errno);
+    }
+    printf("address created\n");
+
+    /* 连接服务器 */
+    if (connect(sockfd, (struct sockaddr *) &dest, sizeof(dest)) != 0) {
+        perror("Connect ");
+        exit(errno);
+    }
+    printf("server connected\n");
+
+    /* 接收对方发过来的消息，最多接收 MAXBUF 个字节 */
+    bzero(buffer, MAXBUF + 1);
+    /* 接收服务器来的消息 */
+    len = recv(sockfd, buffer, MAXBUF, 0);
+    if (len > 0)
+        printf("接收消息成功:'%s'，共%d个字节的数据\n",
+               buffer, len);
+    else
+        printf
+            ("消息接收失败！错误代码是%d，错误信息是'%s'\n",
+             errno, strerror(errno));
+
+    bzero(buffer, MAXBUF + 1);
+    strcpy(buffer, "这是客户端发给服务器端的消息\n");
+    /* 发消息给服务器 */
+    len = send(sockfd, buffer, strlen(buffer), 0);
+    if (len < 0)
+        printf
+            ("消息'%s'发送失败！错误代码是%d，错误信息是'%s'\n",
+             buffer, errno, strerror(errno));
+    else
+        printf("消息'%s'发送成功，共发送了%d个字节！\n",
+               buffer, len);
+
+    /* 关闭连接 */
+    close(sockfd);
+    return 0;
+}
+
+编译程序用下列命令：
+gcc -Wall ipv6-server.c -o ipv6server
+gcc -Wall ipv6-client.c -o ipv6client
+
+
+你自己的主机有IPv6地址吗？很多人会问，输入ifconfig命令看一下吧：
+eth0      链路封装:以太网  硬件地址 00:14:2A:6D:5B:A5  
+          inet 地址:192.168.0.167  广播:192.168.0.255  掩码:255.255.255.0
+          inet6 地址: fe80::214:2aff:fe6d:5ba5/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  跃点数:1
+          接收数据包:30507 错误:0 丢弃:0 过载:0 帧数:0
+          发送数据包:26797 错误:0 丢弃:0 过载:0 载波:0
+          碰撞:0 发送队列长度:1000 
+          接收字节:31461154 (30.0 MiB)  发送字节:4472810 (4.2 MiB)
+          中断:185 基本地址:0xe400 
+
+lo        链路封装:本地环回  
+          inet 地址:127.0.0.1  掩码:255.0.0.0
+          inet6 地址: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:16436  跃点数:1
+          接收数据包:13 错误:0 丢弃:0 过载:0 帧数:0
+          发送数据包:13 错误:0 丢弃:0 过载:0 载波:0
+          碰撞:0 发送队列长度:0 
+          接收字节:1178 (1.1 KiB)  发送字节:1178 (1.1 KiB)
+
+
+看到“inet6 地址:”这两行了吗？后面就是你的IPv6地址
+关于IPv6地址类型，可以参考一下 惠普主页上的技术文档资料“IPv6地址类型”
+
+启动服务：
+./ipv6server 7838 1
+或者加上IP地址启动服务：
+./ipv6server 7838 1 fe80::214:2aff:fe6d:5ba5/64
+
+启动客户端测试一下：
+./ipv6client ::1/128 7838 
+或
+./ipv6client fe80::214:2aff:fe6d:5ba5/6 7838 
+
+
+在执行程序前,要先对两台机器上的ipv6地址进行配置, 否则, 你会发现在一台机器的两个终端间用本机的ipv6可以进行通讯,但到两台机器上就不可以通讯了.
+
+IPV6配置如下:
+
+(1),以超级用户身份执行命令来加载ipv6模组
+
+            modprobe ipv6 
+
+(2)执行下列两行命令
+
+            ifconfig eth1 add 2001:250:1800:1::11/64 
+            route -A inet6 add default gw 2001:250:1800:1::1
+
+  或者将这两行命令写入/etc/rc.local,可以保证重启后还有效.
+
+
+IPV6程序代码如下
+
+1.服务期端程序:
+
+/******************************
+
+*
+
+* server.c
+
+*开发人,船长,执行编译 gcc server.c -o serv -lpthread 
+
+*
+
+******************************/
+
+#include<stdio.h>
+
+#include<stdlib.h>
+
+#include<sys/socket.h>
+
+#include<sys/types.h>
+
+#include<errno.h>
+
+#include<string.h>
+
+#include<netinet/in.h>
+
+#include<sys/wait.h>
+
+#include<unistd.h>
+
+#include<arpa/inet.h>
+
+#include<pthread.h>
+
+
+
+
+
+#define MAXBUF 1024
+
+#define LISNUM 10
+
+#define DEFULT_PORT 8787
+
+
+
+void *connect_to_client(void *data);
+
+struct sockaddr_in6 serv_addr,client_addr;
+
+/**************************/
+
+int main(int argc,char *argv[])
+
+{
+
+       int sockfd,new_fd;
+
+       unsigned int serv_port;
+
+       unsigned int lisnum;
+
+       char buf[MAXBUF+1];
+
+       //------------------------
+
+       printf("the command is %s [port] [listen_num]\n",argv[0]);
+
+       //----------port-----------
+
+       if(argv[1]!=NULL)
+
+              serv_port=atoi(argv[1]);
+
+       else 
+
+              serv_port=DEFULT_PORT;
+
+       //-----------lisnum-----------
+
+       if(argv[2]!=NULL)
+
+              lisnum=atoi(argv[2]);
+
+       else
+
+              lisnum=LISNUM;
+
+       //------------creat socket--------
+
+       if((sockfd=socket(AF_INET6,SOCK_STREAM,0))<0){
+
+              perror("creat socket");
+
+              exit(1);
+
+       }
+
+       //------------set serveraddr ipv6---------------void connect_to_client(void *data);
+
+       bzero(&serv_addr,sizeof(serv_addr));
+
+       serv_addr.sin6_family=AF_INET6;
+
+       serv_addr.sin6_port=htons(serv_port);
+
+       serv_addr.sin6_addr=in6addr_any;
+
+       //--------------bind--------------------------
+
+       if(bind(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr))<0){
+
+              perror("bind");
+
+              exit(1);
+
+       }
+
+       //-------------listen----------------------
+
+       if(listen(sockfd,lisnum)<0){
+
+              perror("listen");
+
+              exit(1);
+
+       }
+
+       //-------------acceept------------------
+
+       while(1){
+
+              int len=sizeof(struct sockaddr_in6);
+
+              if((new_fd=accept(sockfd,(struct sockaddr *)&client_addr,&len))<0){
+
+                     perror("accept");
+
+                     exit(errno);
+
+              }
+
+              printf("receive the request form %s\n",inet_ntop(AF_INET6,&client_addr,buf,sizeof(buf)));
+
+              //---------------------creat the pthread--------------------------------
+
+              pthread_t child_thread;
+
+              if(pthread_create(&child_thread,NULL,connect_to_client,(void *)new_fd)<0){
+
+                     perror("create thread");
+
+                     continue;
+
+              }
+
+              //-------------------------
+
+       }
+
+       //close(sockfd);
+
+       return(0);
+
+}//end main();
+
+/************************************
+
+*
+
+* 子程序:用于处理一个与客户端的连接,由一个线程来执行
+
+*
+
+************************************/
+
+void *connect_to_client(void *data)
+
+{
+
+       int i;
+
+       int client_fd=(int)data;
+
+       char recv_buf[MAXBUF+1];
+
+       char send_buf[MAXBUF+1];
+
+       char buf[MAXBUF+1];
+
+       while(1){
+
+              sprintf(send_buf,">>");
+
+              if(send(client_fd,send_buf,strlen(send_buf),0)<0){
+
+                     perror("send");
+
+                     continue;//break;
+
+              }
+
+              //----------receive---------
+
+              //bzero(&recv_buf,sizeof(recv_buf));
+
+              while(i<MAXBUF-1){
+
+                     if(recv(client_fd,&recv_buf[i],1,0)<0){
+
+                            perror("recv");
+
+                            break;
+
+                     }
+
+                     if(recv_buf[i]=='\n')
+
+                            break;
+
+                     i++;
+
+              }
+
+              recv_buf[i]='\0';
+
+              i=0;
+
+              printf("receive message from '%s':%s\n",inet_ntop(AF_INET6,&client_addr.sin6_addr,buf,sizeof(buf)),recv_buf);
+
+              //-----------send------------
+
+       }
+
+}//end sub_function
+
+
+
+2.客户机端程序:
+
+/***********************************
+
+*
+
+*client.h
+
+*
+
+**********************************/
+
+
+
+#include<stdio.h>
+
+#include<stdlib.h>
+
+#include<errno.h>
+
+#include<string.h>
+
+#include<sys/types.h>
+
+#include<netinet/in.h>
+
+#include<sys/socket.h>
+
+#include<sys/wait.h>
+
+#include<unistd.h>
+
+#include<arpa/inet.h>
+
+#include<resolv.h>
+
+
+
+#define MAXSIZE 1024
+
+//**************main()**************
+
+int main(int argc,char *argv[])
+
+{
+
+       int sockfd;
+
+       int n;
+
+       struct sockaddr_in6 serv_addr;
+
+       char recv_buf[MAXSIZE+1];
+
+       char send_buf[MAXSIZE+1];
+
+       struct timeval tv;
+
+       fd_set readfd;
+
+       //----------------------------------------
+
+       if(argc!=3)
+
+       {
+
+              printf("%s [serv_address][serv_port]\n",argv[0]);
+
+              exit(1);
+
+       }
+
+       //------------------creat socket-----------
+
+       if((sockfd=socket(AF_INET6,SOCK_STREAM,0))<0)
+
+       {
+
+              perror("socket");
+
+              exit(1);
+
+       }
+
+       //------------------set ip address-------------
+
+       bzero(&serv_addr,sizeof(serv_addr));
+
+       serv_addr.sin6_family=AF_INET6;
+
+       serv_addr.sin6_port=htons(atoi(argv[2]));
+
+       if(inet_pton(AF_INET6,argv[1],&serv_addr.sin6_addr)<0)
+
+       {
+
+              perror(argv[1]);
+
+              exit(1);
+
+       }
+
+       //-----------------creat connetc--------------
+
+       if(connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr))<0)
+
+       {
+
+              perror("connect");
+
+              exit(1);
+
+       }
+
+       printf("Connected to server\n");
+
+       while(1)
+
+       {
+
+              //----------set last time---------
+
+              tv.tv_sec=600;
+
+              tv.tv_usec=0;
+
+              //----------
+
+              FD_ZERO(&readfd);
+
+              FD_SET(0,&readfd);
+
+              FD_SET(sockfd,&readfd);
+
+              //---------
+
+              if(select(sockfd+1,&readfd,NULL,NULL,&tv)<=0)
+
+              {
+
+                     fprintf(stderr,"\n time out\n");
+
+                     break;
+
+              }
+
+              //---------
+
+              if(FD_ISSET(0,&readfd))
+
+              {
+
+                     if((n=read(0,send_buf,MAXSIZE-1))<=0)
+
+                            break;
+
+                     send_buf[n]='\n';
+
+                     if(send(sockfd,send_buf,n,0)<=0)
+
+                     {
+
+                            perror("send");
+
+                            break;
+
+                     }
+
+              }
+
+              if(FD_ISSET(sockfd,&readfd))
+
+              {
+
+                     if((n=recv(sockfd,recv_buf,MAXSIZE-1,0))<=0)
+
+                     {
+
+                            fprintf(stderr,"connection closed.\n");
+
+                            exit(1);
+
+                     }
+
+                     recv_buf[n]='\0';
+
+                     printf("recved:%s",recv_buf);
+
+                     fflush(stdout);
+
+              }
+
+       }
+
+       close(sockfd);
+
+       return 0;
+
+}
+
+
+
+本文来自CSDN博客，转载请标明出处：http://blog.csdn.net/ywl_cz/archive/2009/06/30/4308452.aspx
+

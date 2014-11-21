@@ -1,0 +1,8 @@
+#!/bin/bash
+for FILENAME in $*
+do
+    filename="`dirname "$FILENAME"`/`basename "$FILENAME" | tr A-Z a-z`";
+    if [ ! "$filename" = "$FILENAME" ]; then
+         mv "$FILENAME" "$filename"
+    fi
+done

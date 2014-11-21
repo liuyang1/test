@@ -1,0 +1,3 @@
+#! /usr/bin/env bash
+rdesktop -g 1360x740 -a 16 -u Administrator -p ustcedu10@ 192.168.1.$1
+#rdesktop -g 1360x740 -a 16 -u liuy -p ustcedu10@ 192.168.1.$1

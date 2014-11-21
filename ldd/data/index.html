@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title>欢迎光临瀚海星云BBS站</title>
+<link rel="icon" href="/favicon.ico" type="image/x-icon" />
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+<style type="text/css">
+*{padding :0; margin :0; border :0;font:12px Verdana,Verdana, Arial, Helvetica, 新宋体, 黑体, sans-serif;}
+
+body{text-align:center;background:#FFF;padding-top:20px;}
+
+#main{text-align:center;margin:0 auto;}
+
+#loginform{text-align:center;width:620px;border-bottom:1px solid #999;padding:10px 0 5px;color:#666;margin:0 auto;} 
+#loginform input{border:1px solid; border-color:#CCC #EEE #EEE #CCC;width:80px;margin-right:5px;font:bold 11px Verdana;background:#EEE;color:#666;}
+#loginform input:hover,#loginform input:focus{background:#FFF;}
+#loginform a{color:#666;padding:1px 10px;border:1px solid; border-color:#EEE #CCC #CCC #EEE;line-height:12px;margin:0 5px;text-decoration:none;background:#EEE;}
+/* \*/
+* html #loginform a.telnet{padding:0 10px 3px;}
+/* */
+#loginform a:hover,#loginform a:focus{background:#FFF;}
+
+#foot{text-align:right;width:650px;color:#999;margin:0 auto;}
+#foot .logo{display:inline;float:right;margin-left:5px;margin-top:10px;width:224px;height:73px;line-height:73px;text-align:center;font-size:20px;}
+#foot .intro{padding-top:8px;}
+#foot a{margin:0px 3px;color:#999;font-size:9px;text-decoration:none;font-weight:bold;}
+#foot a:hover{color:#666;}
+#foot .copyright{font-family:Arial, Helvetica, 新宋体, 黑体, sans-serif;}
+#foot .icp{ display:block;}
+#foot .cn{font-size:12px;}
+
+</style>
+</head>
+
+
+<body>
+  
+  <div id="main">
+  <script type="text/javascript">
+    var str = new Array();
+    var ents = new Array(
+		{
+        start:new Date('2011/12/4'),
+        end:new Date('2011/12/8'),
+        html:'<img src="i_images/tf.jpg" alt="" /></a>'
+        },
+		{
+        start:new Date('2011/12/9'),
+        end:new Date('2011/12/10'),
+        html:'<img src="i_images/KStar2.jpg" alt="" /></a>'
+        },
+		{
+        start:new Date('2011/12/9'),
+        end:new Date('2011/12/18'),
+        html:'<a href="/cgi/go?cgi=bbscon&bid=0&fn=M4EE0EB4A"><img src="i_images/zwtp2011.jpg" alt="" /></a>'
+        },
+		{
+        start:new Date('2011/12/9'),
+        end:new Date('2011/12/10'),
+        html:'<img src="i_images/gc.gif" alt="" /></a>'
+        },
+		{
+        start:new Date('2011/12/9'),
+        end:new Date('2011/12/11'),
+        html:'<a href="/cgi/bbsmain?var=Drama.b"><img src="i_images/kwrx.jpg" alt="" /></a>'
+        },
+		{
+        start:new Date('2011/12/9'),
+        end:new Date('2011/12/11'),
+        html:'<img src="i_images/USTCAAA.jpg" alt="" /></a>'
+        },
+		{
+        start:new Date('2011/12/9'),
+        end:new Date('2011/12/11'),
+        html:'<img src="i_images/qxs.gif" alt="" /></a>'
+        },
+		{
+        start:new Date('2011/12/13'),
+        end:new Date('2011/12/17'),
+        html:'<img src="i_images/newy.jpg" alt="" /></a>'
+        },
+		{
+        start:new Date('2011/12/9'),
+        end:new Date('2011/12/18'),
+        html:'<a href="/cgi/go?cgi=bbscon&bid=0&fn=M4EE0EB4A"><img src="i_images/zwtp2011.jpg" alt="" /></a>'
+        },
+		{
+        start:new Date('2011/12/10'),
+        end:new Date('2011/12/11'),
+        html:'<img src="i_images/lup.jpg" alt="" /></a>'
+        },
+		{
+        start:new Date('2011/12/8'),
+        end:new Date('2011/12/10'),
+        html:'<img src="i_images/1292.jpg" alt="" /></a>'
+        },
+		{
+        start:new Date('2011/12/5'),
+        end:new Date('2011/12/9'),
+        html:'<img src="i_images/wysl.gif" alt="" /></a>'
+        },
+		{
+        start:new Date('2011/12/5'),
+        end:new Date('2011/12/9'),
+        html:'<img src="i_images/snb.jpg" alt="" /></a>'
+        },
+		{
+        start:new Date('2011/12/7'),
+        end:new Date('2011/12/11'),
+        html:'<img src="i_images/cxht.gif" alt="" /></a>'
+        },
+		{
+        start:new Date('2011/12/6'),
+        end:new Date('2011/12/10'),
+        html:'<a href="http://mail.ustc.edu.cn/~liaodl/"  target="_blank"><img src="i_images/es.gif" alt="" /></a>'
+        },
+		{
+        start:new Date('2011/12/9'),
+        end:new Date('2011/12/18'),
+        html:'<a href="/cgi/go?cgi=bbscon&bid=0&fn=M4EE0EB4A"><img src="i_images/zwtp2011.jpg" alt="" /></a>'
+        },
+		{
+        start:new Date('2011/12/6'),
+        end:new Date('2011/12/10'),
+        html:'<a href="/cgi/bbsmain?var=Exploration.b"><img src="i_images/kf15.jpg" alt="" /></a>'
+        },
+		{
+        start:new Date('2011/12/7'),
+        end:new Date('2011/12/11'),
+        html:'<img src="i_images/wq.jpg" alt="" /></a>'
+        }
+      	);
+    var ents_lengh = ents.length;
+    var defaultHtml = '<img src="i_images/default.jpg" alt="" />';
+    var today = new Date();
+    //today = new Date("2010/12/12"); //for debug
+
+
+    for (var i = 0; i < ents_lengh; i++){
+      if(ents[i].end < ents[i].start) alert('error: '+(i+1));
+      if(today <= new Date(ents[i].end.getTime()+86400000) && today >= ents[i].start){
+        str.push(ents[i].html);
+      }
+    }
+
+    var r = Math.floor(Math.random()*str.length);
+    if(str.length > 0) document.write(str[r]);
+    else document.write(defaultHtml);
+  </script>
+  </div>
+
+  <div id="loginform">
+    <form name="login" action="/cgi/bbslogin" method="post">
+      用户名：<input onfocus="this.select()" type="text" name="id" />
+      密码：<input onfocus="this.select()" type="password" name="pw" />
+      <span class="actioins">
+        <a class="login" href="javascript:document.login.submit();">登 录</a>
+        <a class="guest" href="/main.html">匿名</a>
+        <a class="telnet" href="telnet:bbs.ustc.edu.cn">Telnet</a>
+        <a class="reg_info" href="/cgi/go?cgi=bbscon&bid=0&fn=T4A3CC665">注册</a>
+	 <a class="reg_info" href="http://weibo.com/hhxybbs/" target="_blank">官方微博</a>
+      </span>
+    </form>
+  </div>
+  <div id="foot">
+    <img class="logo" alt="瀚海星云logo" src="i_images/logo.gif" />
+    <div class="intro">本站教育网访问地址<a href="http://bbs.ustc.edu.cn">bbs.ustc.edu.cn(202.38.64.3)</a></div>
+    <div>非中国教育网用户请使用本站<a class="cn" href="http://bbs2.ustc.edu.cn" target="_blank" title="bbs2.ustc.edu.cn">电信线路</a>或<a class="cn" href="http://bbs3.ustc.edu.cn" target="_blank" title="bbs3.ustc.edu.cn">网通线路</a></div>
+    <div>IPV6用户可通过本站IPV6地址访问<a href="http://bbs6.ustc.edu.cn" target="_blank">bbs6.ustc.edu.cn(2001:da8:d800::3)</a></div>
+    <span class="copyright">&copy; 1996-2011 bbs.ustc.edu.cn All Rights Reserved.</span><span class="icp">ICP备案号：皖ICP备05002528号-1</span>
+  </div>
+
+
+
+<script type="text/javascript">
+    function login_enter(keypressed){
+        var key;
+        if (document.all) {
+            key=window.event.keyCode;
+        }
+        else {
+            key=keypressed.which;
+        };
+       if (key==13) {
+           document.login.submit();
+        }
+    }
+    document.login.pw.onkeypress=login_enter;
+    document.login.id.focus();
+ </script>
+
+</body>
+
+</html>

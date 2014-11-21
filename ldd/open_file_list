@@ -1,0 +1,12 @@
+zlib-1.2.5
+opendpi-1.3.0
+opendpi-netfilter-wrapper-1.2
+libiconv-1.14
+libchardet-0.0.4
+total 348
+drwxrwxr-x 2 liuy liuy   4096 Dec  4  2011 kiconvtool-0.96
+-rwx------ 1 liuy liuy   7119 Dec  4  2011 kiconvtool-0.96.tar.gz
+-rwx------ 1 liuy liuy   4370 Dec  4  2011 kiconv_utf8_20060813.tar.bz2
+drwxr-xr-x 6 liuy liuy   4096 Apr 27  2012 libticonv-1.1.2
+-rwx------ 1 liuy liuy 325224 Dec  4  2011 libticonv-1.1.2.tar.bz2
+-rw-rw-r-- 1 liuy ustc 288149 Nov 24  2011 libchardet-0.0.4-1.i386.rpm

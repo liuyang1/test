@@ -1,0 +1,173 @@
+/**
+* @file horse.c
+* @brief 跳马问题,也就是求棋盘按跳马规则,寻找哈密顿回路的问题.
+		参考了http://blog.csdn.net/eshow/article/details/1780999找到了一个算法复杂度相对较低的思路O(N^2)
+		这是可以接受了,就采用这种方法
+* @author liuyang1
+* @version 
+* @date 2012-03-26
+*/
+#include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
+
+struct Pos{
+	int x;
+	int y;
+};
+
+struct ArouseRule{
+	int orein;
+	int x;
+	int y;
+	int val;
+};
+
+#define ORIENN	8
+// 从x轴逆时针枚举
+const int RuleX[ORIENN]={1,2,-1,-2,-2,-1,1,2};
+const int RuleY[ORIENN]={2,1,2,1,-1,-2,-2,-1};
+// 启发式规则	
+#define AROUSEN	2
+const int ArouseRuleFromX[]={0,1};
+const int ArouseRuleFromY[]={1,0};
+const int ArouseRuleToX[]=	{2,0};
+const int ArouseRuleToY[]=	{0,2};
+
+inline int ChkFinish(int width,int height,int count){
+	return count==width*height-1;
+}
+inline int ChkPos(int width,int height,struct Pos pos){
+	return pos.x>=0&&pos.y>=0&&pos.x<width&&pos.y<height;
+}
+inline int ChkPassed(int width,int height,struct Pos pos,int *PassedFlag){
+	return *(PassedFlag+width*pos.x+pos.y);
+}
+inline void SetPassedFlag(int width,int height,struct Pos pos,int *PassedFlag){
+	*(PassedFlag+width*pos.x+pos.y)=1;
+}
+inline void UnsetPassedFlag(int width,int height,struct Pos pos,int *PassedFlag){
+	*(PassedFlag+width*pos.x+pos.y)=0;
+}
+int DepSearchHalmitonHorse(int width,int height,struct Pos *seq,int count,int *PassedFlag);
+
+void AddPos(int width,int height,struct Pos *seq,int count,int *PassedFlag,struct Pos PosNew){
+	if(ChkPos(width,height,PosNew)&&(0==ChkPassed(width,height,PosNew,PassedFlag))){
+		//printf("search from %d %d to %d %d\n",PosNow.x,PosNow.y,PosNew.x,PosNew.y);
+		SetPassedFlag(width,height,PosNew,PassedFlag);
+		*(seq+count)=PosNew;
+		DepSearchHalmitonHorse(width,height,seq,count+1,PassedFlag);
+		UnsetPassedFlag(width,height,PosNew,PassedFlag);
+	}
+}
+inline void swap(int *a,int *b){
+	int t=*a;		*a=*b;		*b=t;
+}
+inline int min(int a,int b){
+	return a<b?a:b;
+}
+inline int max(int a,int b){
+	return a>b?a:b;
+}
+		//ar[i].val=*(ArouseBoard+width*ar[i].x+ar[i].y);
+static int *ArouseBoard;
+int getArouseBoard(int x,int y,int width,int height){
+	if(x<0||x>width||y<0||y>height)
+		return width;
+	return *(ArouseBoard+width*x+y);
+}
+int rulecomp(const void *a,const void *b){
+	return ((struct ArouseRule *)a)->val-((struct ArouseRule *)b)->val;
+}
+// 深度优先搜索计算一个结果出来
+// 输入,高和宽,以及点序列的指针,这里指针需要预先申请足够的空间
+// 返回,成功与否
+// 点序列的内容到点序列的指针
+static int tick=0;
+int DepSearchHalmitonHorse(int width,int height,struct Pos *seq,int count,int *PassedFlag)
+{
+	tick++;
+	if(tick%1000000==0){
+		putchar('-');
+		if(tick%(1000000*100)==0)
+			printf("\ndepth: %d\n",count);
+		fflush(stdout);
+	}
+	if(ChkFinish(width,height,count))
+		return 1;//找到了
+	struct Pos PosNow=*(seq+count-1);
+	struct Pos PosNew;
+
+	struct ArouseRule ar[8];
+	int i;
+	for(i=0;i<8;i++){
+		ar[i].orein=i;
+		ar[i].x=PosNow.x+RuleX[i];
+		ar[i].y=PosNow.y+RuleY[i];
+		//ar[i].val=*(ArouseBoard+width*ar[i].x+ar[i].y);
+		ar[i].val=getArouseBoard(ar[i].x,ar[i].y,width,height);
+	}
+	qsort(ar,8,sizeof(struct ArouseRule),rulecomp);
+	/*
+	for(i=0;i<8;i++){
+		printf("x: %d y: %d val: %d\n",ar[i].x,ar[i].y,ar[i].val);
+	}
+	*/
+	for(i=0;i<ORIENN;i++){
+		//PosNew.x=PosNow.x+RuleX[[i]];
+		//PosNew.y=PosNow.y+RuleY[testseq[i]];
+		PosNew.x=ar[i].x;
+		PosNew.y=ar[i].y;
+		AddPos(width,height,seq,count,PassedFlag,PosNew);
+	}
+	return 0;//找不到
+}
+
+inline int ChkSize(int width,int height){
+	return width%2==0&&height%2==0&&(width==height||abs(width-height)==2);
+}
+int HalmitionHorse(int width,int height){
+	if(!ChkSize(width,height)){
+		printf("could not find!\n");
+		return 0;
+	}
+	struct Pos *seq=(struct Pos*)malloc(sizeof(struct Pos)*width*height);
+	int *PassedFlag=(int *)malloc(sizeof(int)*width*height);
+	ArouseBoard=(int *)malloc(sizeof(int)*width*height);
+	int i;
+	for(i=0;i<width*height;i++)
+		*(PassedFlag+i)=0;
+	int j;
+	for(i=0;i<width;i++){
+		for(j=0;j<height;j++){
+			*(ArouseBoard+i*width+j)=min(min(i,width-i),min(j,height-j));
+		}
+	}
+	
+	struct Pos origin;
+	origin.x=0;		origin.y=0;
+	SetPassedFlag(width,height,origin,PassedFlag);
+	*(seq+0)=origin;
+	int ret=DepSearchHalmitonHorse(width,height,seq,1,PassedFlag);
+	if(ret==1){
+		printf("bingo!\n");
+	}else{
+		printf("could not find!\n");
+	}
+
+	free(seq);
+	free(PassedFlag);
+	return 0;
+}
+// 计算特定大小的接口函数
+// 首次调用,进行计算,之后将结果保存在内部,直接返回
+
+// 对特别大的情况,进行划分
+
+// 对已经进行的划分,进行拼接
+
+int main(){
+	srand(time(NULL));
+	HalmitionHorse(6,6);
+	return 0;
+}

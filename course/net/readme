@@ -1,0 +1,22 @@
+说明
+	第三次实验内容在路径ver0.2下,第四次实验代码在路径ver0.4下
+
+编译
+	直接在对应文件下下make
+	补充说明
+		第四次实验内容,需要libevent库和libncursesw库.
+		请安装对应的库,
+		另外在实验室机器上,libncursesw库没有链接完全.运行下面命令,增加软连接即可
+		cd /usr/lib
+		ln -s libncursesw.so.5 libncursesw.so
+
+运行
+	首先运行./np_server
+	之后运行./np_client ::1或者服务器程序的其他ipv6地址
+
+分工
+	自己独立完成
+
+代码说明
+	关于程序的具体说明,见代码的注释
+

@@ -1,0 +1,9 @@
+liuyang1,2012-04-17 14:59:13
+AlgoImpl homework @ AlgoDesign
+chapter 4
+4-1		meeting
+4-7		queue
+
+using Python language
+Usage:
+	python *.py < input.txt > output.txt

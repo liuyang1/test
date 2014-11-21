@@ -1,0 +1,6 @@
+#!/bin/bash
+for dir do
+    if [ -d $dir ] ; then
+	tar -czvf `basename $dir`.tgz $dir  &&  rm -fr $dir ;
+    fi
+done

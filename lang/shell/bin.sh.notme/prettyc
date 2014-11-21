@@ -1,0 +1,21 @@
+#!/bin/bash
+indent --k-and-r-style \
+	   --break-before-boolean-operator \
+       --braces-after-struct-decl-line \
+       --braces-after-if-line \
+       --brace-indent0 \
+       --dont-cuddle-else \
+       --blank-lines-after-declarations \
+	   --blank-lines-after-procedures \
+       --declaration-indentation5 \
+       --tab-size4 \
+	   --continue-at-parentheses \
+	   --blank-before-sizeof \
+	   --space-after-cast \
+	   --space-special-semicolon \
+	   --leave-optional-blank-lines \
+	   --start-left-side-of-comments \
+	   --honour-newlines \
+       $*
+
+#	   --line-length60 \

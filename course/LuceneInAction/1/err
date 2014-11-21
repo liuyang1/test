@@ -1,0 +1,66 @@
+Indexer.java:1: error: package org.apache.lucene.index does not exist
+import org.apache.lucene.index.IndexWriter;
+                              ^
+Indexer.java:2: error: package org.apache.lucene.analysis.standard does not exist
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+                                          ^
+Indexer.java:3: error: package org.apache.lucene.document does not exist
+import org.apache.lucene.document.Document;
+                                 ^
+Indexer.java:4: error: package org.apache.lucene.document does not exist
+import org.apache.lucene.document.Field;
+                                 ^
+Indexer.java:43: error: cannot find symbol
+	private static void indexDirectory(IndexWriter writer,File dir)
+	                                   ^
+  symbol:   class IndexWriter
+  location: class Indexer
+Indexer.java:56: error: cannot find symbol
+	private static void indexFile(IndexWriter writer,File f)
+	                              ^
+  symbol:   class IndexWriter
+  location: class Indexer
+Indexer.java:20: error: cannot find symbol
+		long start = new Data().getTime();
+		                 ^
+  symbol:   class Data
+  location: class Indexer
+Indexer.java:22: error: package Data does not exist
+		long end = new Data.getTime();
+		                   ^
+Indexer.java:33: error: cannot find symbol
+		IndexWrite writer = new IndexWriter(indexDir,new StandardAnalyzer(),true);
+		^
+  symbol:   class IndexWrite
+  location: class Indexer
+Indexer.java:33: error: cannot find symbol
+		IndexWrite writer = new IndexWriter(indexDir,new StandardAnalyzer(),true);
+		                        ^
+  symbol:   class IndexWriter
+  location: class Indexer
+Indexer.java:33: error: cannot find symbol
+		IndexWrite writer = new IndexWriter(indexDir,new StandardAnalyzer(),true);
+		                                                 ^
+  symbol:   class StandardAnalyzer
+  location: class Indexer
+Indexer.java:63: error: cannot find symbol
+		Document doc = new Document();
+		^
+  symbol:   class Document
+  location: class Indexer
+Indexer.java:63: error: cannot find symbol
+		Document doc = new Document();
+		                   ^
+  symbol:   class Document
+  location: class Indexer
+Indexer.java:64: error: cannot find symbol
+		doc.add(Field.Text("contents",new FileReader(f)));
+		        ^
+  symbol:   variable Field
+  location: class Indexer
+Indexer.java:65: error: cannot find symbol
+		doc.add(Field.Keyword("filename",f.getCanonicalPath()));
+		        ^
+  symbol:   variable Field
+  location: class Indexer
+15 errors

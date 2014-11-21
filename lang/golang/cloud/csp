@@ -1,0 +1,9 @@
+Communicaiting Sequential Process
+同步通信
+
+go:		去程
+chan:	程道
+
+这点和erlang很相似.
+
+
