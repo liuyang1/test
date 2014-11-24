@@ -4,3 +4,14 @@ graphviz is a graph visualization tool.
 using DOT language.
 
 * State             simple example
+
+== echarts ==
+Baidu's open source javascript charts library.
+
+more details, check its website.
+
+* simple bar
+* sitemap
+Using "Force" mode, plot sitemap as bigraph.
+
+Auto generate page with template file, dfsvw.py and bigraph.py.

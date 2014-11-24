@@ -16,7 +16,7 @@ require(['echarts', 'echarts/chart/force'],
 var option = {
     title : {
         text: 'sitemap',
-        subtext: 'as liuyang\'s wiki',
+        subtext: 'liuyang1\'s wiki',
         x:'right',
         y:'bottom'
     },
@@ -62,7 +62,7 @@ var option = {
             maxRadius : 25,
             gravity: 1.1,
             scaling: 1.1,
-            roam: 'move',
+            roam: 'true',
 FAKEDATA
         }
     ]

@@ -25,19 +25,16 @@ class bigraph():
         for s, t in self.edges:
             nodes.add(s)
             nodes.add(t)
-        import StringIO
-        ret = StringIO.StringIO()
-        print >> ret, "nodes: ["
+        ret = ""
+        ret += "nodes: ["
         for n in nodes:
-            print >> ret, "\t{{name: '{0}'}},".format(n)
-        print >> ret, "],"
-        print >> ret, "links: ["
+            ret += "\t{{name: '{0}'}},".format(n)
+        ret += "],"
+        ret += "links: ["
         for e in self.edges:
-            print >> ret, "\t{{source: '{0}', target: '{1}'}},".format(*e)
-        print >> ret, "]"
-        r = ret.getvalue()
-        ret.close()
-        return r
+            ret += "\t{{source: '{0}', target: '{1}'}},".format(*e)
+        ret += "]"
+        return ret
 
 
 def applyTpl(tpl, trans):
