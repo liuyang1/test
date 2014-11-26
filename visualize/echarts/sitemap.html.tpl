@@ -24,6 +24,14 @@ var option = {
         trigger: 'item',
         formatter: '{a} : {b}'
     },
+    toolbox: {
+        show: true,
+        feature: {
+            restore: {show: true},
+            saveAsImage: {show: true},
+            // dataZoom: {show: true,}
+        }
+    },
     series : [
         {
             type:'force',
@@ -62,12 +70,27 @@ var option = {
             maxRadius : 25,
             gravity: 1.1,
             scaling: 1.1,
-            roam: 'true',
+            roam: 'scale',
+            draggable: false,
+
 FAKEDATA
         }
     ]
 };
             mychart.setOption(option);
+            var ecConfig = require('echarts/config');
+            function focus(param) {
+                var data = param.data;
+                var links = option.series[0].links;
+                if (data.source == undefined || data.target == undefined) {
+                    console.log('select node ' + data.name +' ' + data.link);
+                    // location.href = data.link; // open in currently tab
+                    open(data.link); // open new window or new tab
+                } else {
+                    console.log('select edge');
+                }
+            }
+            mychart.on(ecConfig.EVENT.CLICK, focus)
         }
        );
     </script>
