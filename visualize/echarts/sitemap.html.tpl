@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <head>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="sitemap.css" type="text/css">
     <title>sitemap</title>
 </head>
 
 <body>
     <!-- <div id="main" style="width:1300px; height:650px"></div> -->
-    <div id="main" style="width:1300px; height:650px"></div>
+    <div id="main" style="width:100%; height:100%"></div>
     <script src="http://echarts.baidu.com/build/dist/echarts.js"></script>
     <script type="text/javascript">
 require.config({paths: {echarts:'http://echarts.baidu.com/build/dist'}});
@@ -71,7 +72,7 @@ var option = {
             gravity: 1.1,
             scaling: 1.1,
             roam: 'scale',
-            draggable: false,
+            draggable: true,
 
 FAKEDATA
         }
