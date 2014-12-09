@@ -22,16 +22,15 @@ class bigraph():
         linksuffix = ".html"
         ret = ""
         ret += "nodes: ["
-        # TODO
-        # echarts not support LABEL, so have to use name as LABEL and key
         for link, name in self.nodes.iteritems():
             rlink = linkprefix + link + linksuffix
-            ret += "{{name: '{0}', link: '{1}'}},\n".format(name, rlink)
+            ret += "{{name: '%s', link: '%s', label: '%s'}},\n" \
+                   % (link, rlink, name)
         ret += "],\n"
         ret += "links: ["
         for s, t in self.edges:
             ret += "{{source: '{0}', target: '{1}'}},\n" \
-                .format(self.nodes[s], self.nodes[t])
+                .format(s, t)
         ret += "]"
         return ret
 

@@ -15,6 +15,7 @@ require(['echarts', 'echarts/chart/force'],
         function (ec) {
             var mychart = ec.init(document.getElementById('main'));
 var option = {
+    animation: false,
     title : {
         text: 'sitemap',
         subtext: 'liuyang1\'s wiki',
@@ -66,13 +67,15 @@ var option = {
                     linkStyle : {}
                 }
             },
-            useWorker: false,
-            minRadius : 15,
+            large: true,
+            useWorker: true,
+            steps: 1,
+            minRadius : 10,
             maxRadius : 25,
-            gravity: 1.1,
+            gravity: 1,
             scaling: 1.1,
             roam: 'scale',
-            draggable: true,
+            draggable: false,
 
 FAKEDATA
         }
