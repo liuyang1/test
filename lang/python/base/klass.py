@@ -22,6 +22,11 @@ class B(A):
         """
         self.g()
 
+    def h(self):
+        print("call super method g")
+        print("this only python 3 style")
+        super().g()
+
 if __name__ == "__main__":
     print("super class")
     a = A()
@@ -32,3 +37,4 @@ if __name__ == "__main__":
     b.f()
     print("virtual call method in super class")
     b.g()
+    b.h()

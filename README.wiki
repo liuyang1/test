@@ -1,7 +1,16 @@
 = test =
-== language ==
-=== python ===
+just some test or learning code
+
+= language =
+== python ==
 * centos_process    display CentOS process figure
 
-== visualization ==
+=== issuse ===
+* doctest           rawstring detail
+
+= compress =
+* cavlc
+* Columbus
+* lzw
+= visualization =
 [[visualize/Readme]]
