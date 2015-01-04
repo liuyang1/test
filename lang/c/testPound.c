@@ -10,6 +10,10 @@
 // double pounds macro
 // string concat,  obj -> Fkobj, without whitespace
 #define b(x) printf("%d", FK##x);
+//
+// double pounds using concat, so only produce a single token,
+// result must be a valid SINGLE token, so this style is error
+// error like this: pasting XX and XX does not give a valid preprocessing token
 
 int main(int argc, char *argv[])
 {
