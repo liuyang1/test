@@ -6,7 +6,7 @@ class Magnifier(fw.Gen):
         wid = 2
         xx, yy = x // wid, y // wid
         v = (xx + yy) % 3
-        print (xx, yy, v)
+        # print (xx, yy, v)
         if v == 0:
             return 0
         elif v == 1:
