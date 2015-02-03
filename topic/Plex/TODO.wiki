@@ -1,0 +1,4 @@
+* [X] feh pgm display error??
+feh 2.12 version fix this bug
+
+ppm/pgm/pbm format not suited for grahpic programming, as will rendering.
