@@ -1,20 +1,19 @@
 #include <stdio.h>
-void func(void *ptr)
-{
-    *ptr = 1;
-}
+#define intptr_t long
 void func2(void **ptr)
 {
-    *ptr = 3;
+    *ptr = (char *)3;
 }
 
 int main(void)
 {
-    int *ptr = 2;
-    void *t;
+    void *ptr = (int *)-1;
+    int *intp = (int *)-2;
     printf("ptr: %p\n", ptr);
-    func(&t);
-    ptr = t;
+    func2(&ptr);
+    intp = ptr;
     printf("ptr: %p\n", ptr);
+    printf("intp: %p\n", intp);
+    func2(&intp);
     return 0;
 }
