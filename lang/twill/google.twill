@@ -1,0 +1,8 @@
+setlocal query "python automation"
+
+go http://www.google.com/
+
+fv 1 q $query
+submit btnI
+
+show
