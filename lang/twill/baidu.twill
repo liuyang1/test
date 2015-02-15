@@ -1,0 +1,8 @@
+setlocal query "python automation"
+
+go http://www.baidu.com/
+
+# wd scope(name)
+fv 1 wd $query
+# use default submit class
+submit None
