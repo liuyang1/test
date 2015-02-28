@@ -10,6 +10,9 @@
 // double pounds macro
 // string concat,  obj -> Fkobj, without whitespace
 #define b(x) printf("%d", FK##x);
+
+// start with macro param
+#define d(x) printf("%d", x##_abc);
 //
 // double pounds using concat, so only produce a single token,
 // result must be a valid SINGLE token, so this style is error
@@ -20,5 +23,6 @@ int main(int argc, char *argv[])
     o(obj);
     a(obj);
     b(obj);
+    d(obj);
     return 0;
 }
