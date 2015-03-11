@@ -80,3 +80,4 @@ target/
 *.pbm
 *.pgm
 *.ppm
+buildreport
