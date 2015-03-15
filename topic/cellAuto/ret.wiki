@@ -1,0 +1,17 @@
+18 Sierpinski triangle
+22 Sierpinski triangle
+26 Sierpinski triangle
+82 Sierpinski triangle
+90 Sierpinski triangle
+126 Sierpinski triangle
+
+60 Half Sierpinski triangle
+102 Left Half Sierpinski triangle
+
+105 Sierpinski triangle
+
+110 Sierpinski triangle
+124 Sierpinski triangle
+
+30 Rule 30
+45 89
