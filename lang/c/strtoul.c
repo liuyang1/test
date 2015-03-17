@@ -31,7 +31,9 @@ void test3(char *s)
 int testloop(void (*fn)(char*))
 {
     char s[][20] = {
+        "abc",
         "1000",
+        "0xff",
         "0x1000",
         "01000",
         "10000000",

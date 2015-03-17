@@ -2,13 +2,17 @@
 #include "stdio.h"
 void test(const char* fmt, ...)
 {
-#define LEN     16
+#define LEN     20
     char s[LEN];
     va_list args;
+    int ret = 0;
     va_start(args, fmt);
-    vsnprintf(s, LEN, "%s", args);
+    ret = vsnprintf(s, LEN, "%s", args);
     va_end(args);
-    puts(s);
+    printf("%s %d\n", s, ret);
+    if (ret > LEN - 1) {
+        printf("exception\n");
+    }
 }
 int main(int argc, char* argv[])
 {
