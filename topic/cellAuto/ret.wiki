@@ -11,7 +11,7 @@
 105 Sierpinski triangle
 
 110 Sierpinski triangle
-124 Sierpinski triangle
+124 Left Sierpinski triangle
 
 30 Rule 30
 45 89
