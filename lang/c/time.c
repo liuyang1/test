@@ -9,5 +9,8 @@ int main(){
 	printf("%d\n",now);
 	timenow=localtime(&now);
 	printf("local time is %d\t%s\n",now,asctime(timenow));
+    char buf[40];
+    strftime(buf, 40, "%H%M%S.%Y%m%d", timenow);
+    printf("strftime: %s\n", buf);
 	return 0;
 }

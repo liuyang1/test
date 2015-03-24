@@ -6,6 +6,6 @@ for f in "$d"/* ; do
     fi
     echo "$f"
     set -o errexit
-    cat "$f" | head -n $(($LINES - 8))
+    cat "$f" | head -n "$(($LINES - 8))"
     read
 done
