@@ -4,7 +4,7 @@
 //typedef signed char CHAR;
 #define LEN     16
 typedef struct sct {
-    CHAR s[LEN];
+    char s[LEN];
 } sct_t;
 int main(int argc, char *argv[])
 {
