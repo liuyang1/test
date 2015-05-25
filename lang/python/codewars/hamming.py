@@ -1,21 +1,21 @@
-def hammingg():
-    lst = [1]
-    while 1:
-        ret = lst[0]
-        newlst = [ret * i for i in [2, 3, 5]]
-        lst = lst[1:] + newlst
-        lst = set(lst)
-        lst = sorted(list(lst))
-        yield ret
+# final speedy solution
+def mergeList2(l0, l1):
+    lst = l0 + l1
+    lst = set(lst)
+    return sorted(list(lst))
 
 
+glst = [1]
+glst1 = []
 def hamming(n):
-    h = hammingg()
-    idx = 1
-    while idx < n:
-        v = next(h)
-        idx += 1
-    return v
-
-
-print(hamming(2000))
+    global glst, glst1
+    n -= 1
+    while 1:
+        ret = glst[0]
+        # store result at another list, easy
+        glst1.append(ret)
+        newlst = [ret * i for i in [2, 3, 5]]
+        # only merge short list, fast
+        glst = mergeList2(glst[1:], newlst)
+        if n < len(glst1):
+            return glst1[n]
