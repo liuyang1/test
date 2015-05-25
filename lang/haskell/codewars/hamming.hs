@@ -1,5 +1,8 @@
-module Hamming where
+dive a b
+  | rem a b == 0 = dive (a `div` b) b
+  | otherwise = a
 
-hamming :: String -> String -> Int
-hamming a b = sum . map differ $ zip a b
-  where differ (aa, bb) = if aa == bb then 0 else 1
+divl a [] = a
+divl a (x:xs) = divl (dive a x) xs
+
+n235 idx = (filter (\x -> (divl x [2,3,5]) == 1) [2..]) !! idx
