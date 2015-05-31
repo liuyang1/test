@@ -4,6 +4,6 @@ echo "first"
 read ans
 echo "first -> $ans"
 
-echo "second"
+echo "next first"
 read ans1
 echo "second -> $ans1"

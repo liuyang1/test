@@ -2,7 +2,7 @@
 spawn bash test.sh
 expect "first"
 send "hello\n"
-expect "second"
+expect "first"
 send "world\n"
 
 # interact command with keep user process continue to run
