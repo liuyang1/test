@@ -1,4 +1,8 @@
-sort [] = []
-sort (x: xs) = sort [y | y <- xs, y < x] ++ [x] ++ sort [y | y <- xs, y >= x]
+import Data.List (partition)
 
-main = print $ sort [1, 4, 2, 7, 4]
+qsort :: Ord a => [a] -> [a]
+qsort [] = []
+qsort (x:xs) = qsort lhs ++ [x] ++ qsort rhs
+               where (lhs, rhs) = partition (< x) xs
+
+main = print $ qsort [1, 4, 2, 7, 4]
