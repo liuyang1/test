@@ -1,0 +1,7 @@
+digraph {
+    "learn-animal";
+    "make-guess" -> "learn-animal";
+    "ask-question" -> "animals";
+    "animals" -> {"ask-question" "make-guess"};
+    "play-animals" -> "animals";
+}

@@ -1,0 +1,15 @@
+(defun piglatin (word)
+  (concatenate 'string (subseq word 1) (subseq word 0 1) "ay"))
+
+(piglatin "pig")
+
+; warning: member return rest of list when match
+(defun isVowel (c) (member c '("a" "e" "i" "o" "u") :test #'equal))
+(defun locVowel (str) (find-if #'isOwel str))
+; reverse first vowel
+; (defun piglatin-1 (str))
+
+(isVowel "a")
+(isVowel "e")
+(locVowel "ant")
+(locVowel "pig")
