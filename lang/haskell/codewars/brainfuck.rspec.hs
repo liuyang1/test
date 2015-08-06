@@ -13,8 +13,13 @@ import Brainfuck (executeString)
 main = hspec $ do
 
     describe "basic programs" $ do
-        -- ok
+        it "output A" $ let is = "+++++ +++[>+++++ +++<-]>+." in executeString is "" `shouldBe` Just "A"
+        it "output input" $ let input = "testinput" ++ [chr 0] in executeString "+[,.]" input `shouldBe` Just input
         it "output until inclusive 0" $ let s = map (chr . fromIntegral) $ [1 :: Word8 .. 255] ++ [0] in executeString "+[,.]" s `shouldBe` Just s
+        it "output n w exclamation marks" $
+            let plusThirtyThree = replicate (ord '!') '+'
+                w = 0
+            in (executeString (">" ++ plusThirtyThree ++ "<,[>.<-]") [chr $ fromIntegral w]) `shouldBe` Just (replicate w '!')
         it "output n exclamation marks" $ property $ \w ->
             let plusThirtyThree = replicate (ord '!') '+'
             in (executeString (">" ++ plusThirtyThree ++ "<,[>.<-]") [chr $ fromIntegral w]) `shouldBe` Just (replicate (fromIntegral (w :: Word8)) '!')
@@ -26,7 +31,6 @@ main = hspec $ do
         it "loops" $ property $ \w -> executeString "[>.<],[>.<-]" [toChar w] `shouldBe` Just (toChars $ replicate (fromIntegral w) (0 :: Word8))
 
     describe "complex programs" $ do
-        -- ok
         it "Hello World!" $ executeString helloWorldBF "" `shouldBe` Just "Hello World!"
         it "Numbers" $ executeString numbersBF [chr 10] `shouldBe` Just "1, 1, 2, 3, 5, 8, 13, 21, 34, 55"
 
