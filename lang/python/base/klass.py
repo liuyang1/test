@@ -27,6 +27,11 @@ class B(A):
         print("this only python 3 style")
         super().g()
 
+    def gg(self):
+        print("directly call base class name")
+        print("this is BAD style")
+        A.g(self)
+
 if __name__ == "__main__":
     print("super class")
     a = A()
@@ -38,3 +43,4 @@ if __name__ == "__main__":
     print("virtual call method in super class")
     b.g()
     b.h()
+    b.gg()
