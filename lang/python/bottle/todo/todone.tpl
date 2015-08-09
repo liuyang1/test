@@ -12,6 +12,14 @@ if (window.XMLHttpRequest) {
   xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
 }
 
+function addRow(jsonobj) {
+    var tbl = document.getElementById("tbl");
+    var newrow = tbl.insertRow(0); // default, -1, insert to last row
+    var newcell = newrow.insertCell();
+    newcell.innerHTML = jsonobj.id;
+    var newcell = newrow.insertCell();
+    newcell.innerHTML = jsonobj.task;
+}
 function newItems() {
     if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
         console.log('data: |' + xmlhttp.responseText + '|');
@@ -19,6 +27,8 @@ function newItems() {
         console.log('test');
         var output = xmlhttp.responseText;
         document.getElementById("raw").innerHTML = output;
+        addRow(jsonobj);
+        document.getElementById("newtask").value = "";
     } else {
         alert("no data");
     }
@@ -26,10 +36,11 @@ function newItems() {
 function sendData()
 {
     xmlhttp.onload = newItems;
-    var FD  = new FormData(form);
-    xmlhttp.open("GET", "/new", true);
-    xmlhttp.send("123");
-    console.log(FD)
+    var task=document.getElementById("newtask").value;
+    console.log("input text: " + task);
+    var uri="/new?task=" + task;
+    xmlhttp.open("GET", uri, true);
+    xmlhttp.send();
 }
 var form = document.getElementById("newtaskform");
 
@@ -53,7 +64,7 @@ var form = document.getElementById("newtaskform");
 
 
 <p>The open items are as follows:</p>
-<table border="1">
+<table border="1" id="tbl">
 %for row in rows:
   <tr>
   %for col in row:

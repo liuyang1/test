@@ -23,7 +23,7 @@ def pretty_print_POST(req):
 
 items = {1: 'first item', 2: 'second item'}
 
-@route('/new')
+@route('/new', method="GET")
 def new_item():
     print request
     # req = request.prepare()
@@ -36,16 +36,18 @@ def new_item():
         newid = c.lastrowid
         conn.commit()
         c.close()
-        return '{id: %s}' % (newid)
+        return '{"id": %s, "task": "%s"}' % (newid, new)
     else:
         return "nothing"
 
 
+recent10 = "SELECT * FROM todo ORDER BY id DESC LIMIT 10;"
 @route('/')
 def index():
     conn = sqlite3.connect('todo.db')
     c = conn.cursor()
-    c.execute("SELECT id, task FROM todo WHERE status LIKE '1'")
+    # c.execute("SELECT id, task FROM todo WHERE status LIKE '1'")
+    c.execute(recent10)
     result = c.fetchall()
     c.close()
     output = template('todone', rows=result)
