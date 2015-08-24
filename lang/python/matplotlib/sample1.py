@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib
+# matplotlib.use('GTK')
 import matplotlib.pyplot as plot
 
 x=np.linspace(0,10,1000)
@@ -14,3 +16,6 @@ plot.title("PyPlot first example")
 plot.ylim(-1.2,1.2)
 plot.legend()
 plot.show()
+import pylab
+pylab.savefig('1.png')
+
