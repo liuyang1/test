@@ -4,10 +4,10 @@ class myCtxMgr():
         self.val = val
     def __enter__(self):
         print "enter"
-        return self.val + 1, self.val
+        return self.val
     def __exit__(self, type, value, traceback):
         print "leave"
         return
 
-with myCtxMgr(5) as (val, val2):
+with myCtxMgr(5) as val:
     print val
