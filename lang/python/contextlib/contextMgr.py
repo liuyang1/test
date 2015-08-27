@@ -5,7 +5,7 @@ class myCtxMgr():
     def __enter__(self):
         print "enter"
         return self.val
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, typ, value, traceback):
         print "leave"
         return
 

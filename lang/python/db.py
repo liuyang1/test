@@ -18,11 +18,11 @@ class openDB():
 
     def __enter__(self):
         self.conn = sqlite3.connect(self.db)
-        self.c = self.conn.cursor()
-        return self.conn, self.c
+        self.csr = self.conn.cursor()
+        return self.conn, self.csr
 
-    def __exit__(self, type, value, trackback):
-        self.c.close()
+    def __exit__(self, typ, value, trackback):
+        self.csr.close()
 
 
 def insertHist(clnum, jsonobj):
