@@ -1,3 +1,4 @@
+import sys
 import ctypes
 
 tab = "  "
@@ -15,7 +16,7 @@ class IvfHeader(ctypes.LittleEndianStructure):
     _fields_ = [
         ("signature", ctypes.c_char * 4),
         ("version", ctypes.c_ushort),
-        ("lenght", ctypes.c_ushort),
+        ("length", ctypes.c_ushort),
         ("fourcc", ctypes.c_char * 4),
         ("width", ctypes.c_ushort),
         ("height", ctypes.c_ushort),
@@ -56,4 +57,4 @@ def parseIVF(fn):
             data = data[FrmLen + frm.size:]
 
 if __name__ == "__main__":
-    parseIVF("720x480-dvDesk_420_br2048_p0_IP.ivf")
+    parseIVF(sys.argv[1])
