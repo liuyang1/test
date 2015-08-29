@@ -1,6 +1,6 @@
 #include <stdio.h>
+#include <ctype.h>
 #include "lzw.h"
-#define _TEST_MODE_
 
 void setEntry(Entry* p, int used, unsigned int prev, char c)
 {
@@ -35,26 +35,38 @@ int searchTbl(Entry* pTbl, unsigned int prev, char c)
     return INVALIDLENGTH;
 }
 
+void showTblEntry(Entry *pTbl, unsigned int prev, char c)
+{
+    if (prev < 256) {
+        LOG(" %2x %c", prev, isprint(prev)? prev: '.');
+    } else {
+        showTblEntry(pTbl, pTbl[prev].prev, pTbl[prev].c);
+    }
+    LOG(" %2x %c", c, isprint(c)? c: '.');
+}
+
 void writeTbl(Entry* pTbl, unsigned int idx, unsigned int prev, char c)
 {
     Entry *p = pTbl + idx;
     setEntry(p, USEDFLAG, prev, c);
+#ifdef _TEST_MODE_
+    LOG("# set idx=%#04x", idx);
+    showTblEntry(pTbl, prev, c);
+    LOG("\n");
+#endif
 }
 
 void outputCom(unsigned int i)
 {
-#ifdef _TEST_MODE_
-    printf("%3d 0x%02x%02x\n", i, (i>>8) & 0xff, i & 0xff);
-#else
     printf("%c%c", (i>>8) & 0xff, i & 0xff);
-#endif
 }
 
-void outputUncom(char c)
+void outputUncom(Entry *pTbl, unsigned int i)
 {
-#ifdef _TEST_MODE_
-    printf("%c\n", c);
-#else
-    putchar(c);
-#endif
+    if (i < 256) {
+        putchar(i);
+    } else {
+        outputUncom(pTbl, pTbl[i].prev);
+        putchar(pTbl[i].c);
+    }
 }
