@@ -1,0 +1,54 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["treemap"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['module', 'Parent', 'LOC', 'None'],
+          ['All',    null,                 0,                               0],
+          ['a',   'All',             0,                               0],
+          ['b',    'All',             11942797,                               0],
+          ['c',      'All',             98016,                               0],
+          ['d', 'All',         2947708,                               0],
+          ['e',    'All',             1855,                               0],
+          ['f',     'a',               989087,                              -12],
+          ['g',     'a',               9283,                              63],
+          ['m',      'a',               1150619,                               34],
+          ['o',  'a',               10816,                               -5],
+          ['p',    'a',               17805,                              24],
+        ]);
+
+        tree = new google.visualization.TreeMap(document.getElementById('chart_div'));
+
+        var options = {
+highlightOnMouseOver: true,
+                      maxDepth: 1,
+                      maxPostDepth: 2,
+                      minHighlightColor: '#8c6bb1',
+                      midHighlightColor: '#9ebcda',
+                      maxHighlightColor: '#edf8fb',
+                      minColor: '#009688',
+                      midColor: '#f7f7f7',
+                      maxColor: '#ee8100',
+                      headerHeight: 15,
+                      showScale: true,
+                      height: 500,
+                      useWeightedAverageForAggregation: true
+        };
+
+        tree.draw(data, options);
+      }
+
+    </script>
+  </head>
+  <body>
+  <h1>Treemap Example</h1>
+  <h3>click to do deep</h3>
+  <h3>right click to return</h3>
+    <div id="chart_div" style="width: 900px; height: 500px;"></div>
+  <p>Power by google chart, treemap struct</p>
+  </body>
+</html>
+

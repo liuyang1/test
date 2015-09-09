@@ -46,22 +46,17 @@ parseNumber :: Parser LispVal
 --                  return . Number $ read num
 -- parseNumber = (many1 digit) >>= (return . Number . read)
 
-parseNumber = parseDec <|> parseHex <|> parseOct -- <|> parseDecPrefix
+parseNumber = parseDec <|> parsePrefix
   where parseDec = (many1 digit) >>= (return . Number . read)
-        ppFunc c fn = do char '#' >> char c
-                         s <- many1 digit
-                         return . Number . fst. head $ fn s
-        parseHex = do string "#x"
-                      s <- many1 hexDigit
-                      return . Number . fst. head $ readHex s
-        parseOct = do string "#o"
-                      s <- many1 octDigit
-                      return . Number . fst. head $ readOct s
-        -- parseDecPrefix = ppFunc 'd' readDec
-        -- TODO: parseBin
-        -- parseHex = do char '#'; char 'x'
-        --               s <- many1 digit
-        --               return . Number . fst . head $ readHex s
+        parsePrefix = do char '#'
+                         ptype <- oneOf "xod"
+                         case ptype of
+                           'x' -> (many1 hexDigit) >>= (return . Number . nstrip . readHex)
+                           'o' -> (many1 octDigit) >>= (return . Number . nstrip . readOct)
+                           'd' -> (many1 digit) >>= (return . Number . read)
+                           where nstrip = fst . head
+-- Exercise 1.1.4
+-- radix prefix number with Numeric lib
 
 parseExpr :: Parser LispVal
 parseExpr = parseNumber <|> parseAtom <|> parseString
