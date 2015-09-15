@@ -3,5 +3,10 @@ dragon:dragon.hs
 	./dragon > dragon.logo
 	ucblogo dragon.logo
 
+hilbert:HilbertC.hs
+	ghc $< -o $@
+	./hilbert > hilbert.logo
+	ucblogo hilbert.logo
+
 clean:
-	rm -rf *.hi *.logo dragon *.o
+	rm -rf *.hi *.logo dragon *.o hilbert
