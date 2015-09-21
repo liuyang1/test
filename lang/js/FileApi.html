@@ -1,0 +1,68 @@
+<html>
+<head>
+<script>
+// Check for the various File API support.
+if (window.File && window.FileReader && window.FileList && window.Blob) {
+  // Great success! All the File APIs are supported.
+    // alert('Good, support File APIs');
+} else {
+  alert('The File APIs are not fully supported in this browser.');
+}
+</script>
+</head>
+<body>
+<h1>
+dummy test page for File API
+</h1>
+<p> This `input` form support select local file <p>
+<input type="file">
+
+<br>
+
+<p>drag zone example</p>
+<style>
+#drop_zone {
+    width: 600px;
+    height: 100px;
+    border: 2px dashed #BBB;
+    text-align: center;
+    color: #BBB;
+}
+</style>
+<div id="drop_zone">
+    Drop your file here
+</div>
+<output id="fileList"></output>
+<script>
+  function handleFileSelect(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+
+    var files = evt.dataTransfer.files; // FileList object.
+
+    // files is a FileList of File objects. List some properties.
+    var output = [];
+    for (var i = 0, f; f = files[i]; i++) {
+      output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+                  f.size, ' bytes, last modified: ',
+                  f.lastModifiedDate.toLocaleDateString(), '</li>');
+    }
+    document.getElementById('fileList').innerHTML = '<ul>' + output.join('') + '</ul>';
+  }
+
+  function handleDragOver(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    evt.dataTransfer.dropEffect = 'move'; // Explicitly show this is a copy.
+    /*
+       `dropEffect` could be copy, move, link or none.
+     */
+  }
+
+  // Setup the dnd listeners.
+  var dropZone = document.getElementById('drop_zone');
+  dropZone.addEventListener('dragover', handleDragOver, false);
+  dropZone.addEventListener('drop', handleFileSelect, false);
+</script>
+</body>
+</html>
