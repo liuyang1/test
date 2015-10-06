@@ -1,3 +1,10 @@
+/*
+ * testJump.c
+ * use setjmp, longjmp function to catch except in C
+ *
+ * This style allows only a single non-local jump up the stack
+ * Use longjmp, which enable jump to point which saved in setjmp
+ */
 #include <stdio.h>
 #include <setjmp.h>
 
