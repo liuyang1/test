@@ -1,4 +1,6 @@
 envtest="third"
+sndtest="more"
+RET="default option"
 ifeq ($(envtest), "first")
 	RET="first option"
 else ifeq ($(envtest), "second")
@@ -6,11 +8,13 @@ else ifeq ($(envtest), "second")
 else
 ifeq ($(envtest), "third")
 	RET="third option"
-else
-	RET="default option"
+ifeq ($(sndtest), "more")
+	RETMORE="more return"
+endif
 endif
 endif
 
 
 main:
 	@echo $(RET)
+	@echo $(RETMORE)
