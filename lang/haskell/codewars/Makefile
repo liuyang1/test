@@ -1,3 +1,7 @@
+Dice:Dice.hs
+	ghc $<
+	time ./Dice
+
 dragon:dragon.hs
 	ghc $< -o $@
 	./dragon > dragon.logo
