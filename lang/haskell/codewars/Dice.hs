@@ -25,6 +25,6 @@ cdice s n kk = sum $ map (sum . (zipWith (*) lst0)) lst1
 rollDice :: Integer -> Integer -> Integer -> Double
 rollDice n s k
   | 2 * k > thr = 1 - rollDice n s (thr - k)
-  | otherwise = 1 - (toDouble (cdice s n k)) / (toDouble s) ** (toDouble n)
+  | otherwise = 1 - toDouble (cdice s n k) / toDouble s ** toDouble n
   where thr = n * (s + 1)
         toDouble = fromRational . fromIntegral
