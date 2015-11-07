@@ -1,0 +1,17 @@
+= sync =
+== semaphore ==
+=== named semaphore ===
+- sem_open
+- sem_close
+- sem_unlink
+
+=== unmaed semaphore ===
+- sem_init
+- sem_destory
+
+=== operation ===
+- sem_getvalue
+- sem_post
+- sem_wait
+- sem_trywait
+- sem_timedwait
