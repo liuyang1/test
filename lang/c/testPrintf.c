@@ -1,7 +1,8 @@
 #include <stdio.h>
 #define TAG "012345"
 #define PID 3593
-int main(void)
+
+int test_align(void)
 {
     printf("%-8s(%5d)\n", TAG, PID);
     // left align
@@ -12,5 +13,45 @@ int main(void)
     // it will output full string.
     printf("%-8s\n", "0123456789");
     printf("%8s\n", "0123456789");
+    return 0;
+}
+
+int test_seq(void)
+{
+    char weekday[] = "Mon";
+    char month[] = "Nov";
+    int day = 14, hour = 15, min = 46;
+
+    char fmt0[] = "%s, %s %d, %.2d:%.2d\n";
+    printf(fmt0, weekday, month, day, hour, min);
+
+    // %m$
+    // decimal integer M denotes the postion in the argument list of desired
+    // argument, indexed strating from 1.
+    // C99 standard does NOT include the style using `$`.
+    //
+    // switch to another format, but with same arguments sequence
+    // This feature is seen in Python, but C also support it.
+    char fmt1[] = "%1$s, %3$d. %2$s, %4$d:%5$.2d\n";
+    printf(fmt1, weekday, month, day, hour, min);
+    return 0;
+}
+
+int test_var_width()
+{
+    int width = 10;
+    printf("%*d\n", width, 4);
+    printf("%*s\n", width, "abc");
+    printf("%2$*1$s\n", width, "abc");
+    // switch position
+    printf("%1$*2$s\n", "abc", width);
+    return 0;
+}
+
+int main()
+{
+    test_align();
+    test_seq();
+    test_var_width();
     return 0;
 }
