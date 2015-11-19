@@ -10,13 +10,11 @@ import sys
 
 fn = sys.argv[1]
 with open(fn) as fp:
-    s = ""
+    lines = []
     for line in fp.readlines():
         line = line.strip()
         if line == "":
-            print(s + "\n")
-            s = ""
+            print(" ".join(lines) + "\n")
+            lines = []
         else:
-            if s != " ":
-                s += " "
-            s += line
+            lines.append(line)
