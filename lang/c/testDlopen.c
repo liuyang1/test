@@ -3,13 +3,15 @@
 #include <dlfcn.h>
 
 #define Log         printf
-int main(int argc, char **argv) {
+
+int main()
+{
     void *handle;
     double (*cosine)(double);
     char *error;
 
     // handle = dlopen ("/lib/i386-linux-gnu/libm.so.6", RTLD_LAZY);
-    char *dlfn = "/lib/x86_64-linux-gnu/libm.so.6";
+    const char *dlfn = "/lib/x86_64-linux-gnu/libm.so.6";
     Log("loading dl=%s\n", dlfn);
     handle = dlopen (dlfn, RTLD_LAZY);
     if (!handle) {
@@ -17,7 +19,7 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-    char *symstr = "cos";
+    const char *symstr = "cos";
     Log("loading symbol=%s\n", symstr);
     cosine = dlsym(handle, symstr);
     if ((error = dlerror()) != NULL)  {
