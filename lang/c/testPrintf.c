@@ -48,10 +48,25 @@ int test_var_width()
     return 0;
 }
 
+int test_repeat_char()
+{
+    int width = 10;
+    // only work repeat 0 or whitespace
+    printf("%0*d\n", width, 0);
+    printf("%*d\n", width, 0);
+    // better, but limit length
+#define BAR "========="
+    printf("[%.*s]\n", 0, BAR);
+    printf("[%.*s]\n", 5, BAR);
+    printf("[%.*s]\n", 20, BAR);
+    return 0;
+}
+
 int main()
 {
     test_align();
     test_seq();
     test_var_width();
+    test_repeat_char();
     return 0;
 }
