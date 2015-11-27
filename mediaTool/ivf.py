@@ -6,9 +6,10 @@ tab = "  "
 
 def showFields(obj, name, prefix=tab):
     s = name
-    w = max([len(i) for i, _ in obj._fields_])
+    # w = max([len(i) for i, _ in obj._fields_])
+    w = 0
     for k, _ in obj._fields_:
-        s += "\n%s%s: %s" % (prefix, k.ljust(w), getattr(obj, k))
+        s += "\t%s%s: %s" % (prefix, k.ljust(w), getattr(obj, k))
     return s
 
 
@@ -39,22 +40,29 @@ class IvfFrmHeader(ctypes.LittleEndianStructure):
     ]
 
     def __str__(self):
-        return showFields(self, "IVF Header")
+        s = showFields(self, "IVF Header")
+        s += "\t%x" % (self.size)
+        return s
 
 HdrLen = ctypes.sizeof(IvfHeader)
 FrmLen = ctypes.sizeof(IvfFrmHeader)
 
 
 def parseIVF(fn):
+    offset = 0
+    framecnt = 0
     with open(fn, "rb") as fp:
         data = fp.read()
         hdr = IvfHeader.from_buffer_copy(data)
         data = data[HdrLen:]
+        offset += HdrLen
         print hdr
         while len(data) > 0:
             frm = IvfFrmHeader.from_buffer_copy(data)
-            print frm
+            offset += FrmLen + frm.size
+            print "%d  %s %x" % (framecnt, frm, offset)
             data = data[FrmLen + frm.size:]
+            framecnt += 1
 
 if __name__ == "__main__":
     parseIVF(sys.argv[1])
