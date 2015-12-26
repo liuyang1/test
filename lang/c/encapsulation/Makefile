@@ -1,5 +1,6 @@
 CC=gcc
 
+# How to warning everything
 CFLAGS=-g -Wall -Werror -Wextra # -Wpedantic
 ifeq ($(CC), clang)
 CFLAGS+=-Weverything
