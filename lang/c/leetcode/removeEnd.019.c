@@ -57,10 +57,9 @@ int case0(int *a, int n, int nth)
         lst = NULL;
         goto test;
     }
-    ListNode *head = malloc(sizeof(ListNode));
-    lst = head;
+    ListNode *head;
     int i;
-    for (i = 0;
+    for (i = 0, head = malloc(sizeof(ListNode)), lst = head;
          i != n - 1;
          i++, head->next = malloc(sizeof(ListNode)), head = head->next) {
         head->val = a[i];
