@@ -1,5 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
+
+// XXX
+// Pass.
+// Reference code cannot handling invalid `nth`
+
 // #define LOG(...) printf(__VA_ARGS__);
 #define LOG(...)
 typedef struct ListNode {
