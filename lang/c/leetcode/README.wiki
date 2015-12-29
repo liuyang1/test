@@ -2,45 +2,69 @@
 Leetcode is a platform for coding interviews. Practice on this platform for
 interviews.
 
-- Basic exercise
-- Corner case
-    - Overflow
-    - Empty array, empty linked list
-- Practice NOT using IDE, compiler, editor to finish problem
+    - Basic exercise
+    - Corner case
+        - Overflow
+        - Empty array, empty linked list
+    - Practice NOT using IDE, compiler, editor to finish problem
 
 Progress:: 50/305
 
 = review =
 == basic ==
-# 1. Two Sum
+* 1. Two Sum
 Given an array of integers, find two numbers such that they add up to a
 specific target number.
 
 Requirement: complexity O(n * log(n))
 
-- quicksort this array with memorize origin index( as we must return origin
-index)
-- cursor moving, one from left, one from right.
-    - when sum is less, moving left cursor
-    - when sum is greater, moving right cursor
+    - quicksort this array with memorize origin index( as we must return origin
+    index)
+    - cursor moving, one from left, one from right.
+        - when sum is less, moving left cursor
+        - when sum is greater, moving right cursor
 
 NOTICE: qsort return list with ascending sequence, comparing function return
 1 when A GREATER than B.
 
-# 2. Add Two Numbers
+* 2. Add Two Numbers
 linked-list represent numbers, one node contains a single digit. Digits are
 stored in reverse order.
 
-- Adding number with manually adding digit and carry
+    - Adding number with manually adding digit and carry
 
-# 67. add Binary strings, return sum
+* 67. add Binary strings, return sum
 
-- remove extra leading zero, but keep it if only one zero
+    - remove extra leading zero, but keep it if only one zero
 
 == math ==
+* 168. Excel Sheet Column Title
+
+    remember minus one first as it's biased.
+
+* 171. Excel Sheet Column Number
+
+This problem look like 26-base number, but must notice A is not zero, but ONE.
+
+=== Probability ===
+* 169. majority element in array
+
+    Just guess any random one, then check it is majority. As Probability, in
+    average, only need guess twice, so this complexity is O(n)
+    We even can avoid re-guess wrong one, so guess less times.
+
 == struct ==
+=== array ===
 === linklist ===
 === tree ===
-=== array ===
+* 100. Same Tree
+
+    - Travese on tree
+
 == algorithm ==
 === binary search ===
+
+= Issues =
+== runtime error, but local run good ==
+runtime checking different, may read or write out of bound, but local don't
+warning this, double check it.
