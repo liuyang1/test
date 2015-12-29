@@ -46,6 +46,9 @@ stored in reverse order.
 
 This problem look like 26-base number, but must notice A is not zero, but ONE.
 
+* 169. majority element in array
+
+    Moore's Voting Algorithm! very cool idea!
 === Probability ===
 * 169. majority element in array
 
