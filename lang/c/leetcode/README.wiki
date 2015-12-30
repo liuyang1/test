@@ -8,7 +8,7 @@ interviews.
         - Empty array, empty linked list
     - Practice NOT using IDE, compiler, editor to finish problem
 
-Progress:: 55/305
+Progress:: 58/305
 
 = review =
 == basic ==
@@ -49,6 +49,12 @@ This problem look like 26-base number, but must notice A is not zero, but ONE.
 * 169. majority element in array
 
     Moore's Voting Algorithm! very cool idea!
+
+* 229. Majority element in array II
+
+Support find all element that appear more than [n / K] times.
+
+    Misra-Geries Algorithm, inspired by Moore's Voting Algorithm.
 
 * 258. Digit Root
 Repeatedly add all digits until reuslt has only one digit.

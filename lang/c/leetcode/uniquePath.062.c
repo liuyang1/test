@@ -1,6 +1,6 @@
 int combination(int m, int n) {
     if (m - n < n) {
-        return combination(m, m - n);
+        n = m - n;
     }
     int i, j;
     unsigned long long p0 = 1;
@@ -22,5 +22,6 @@ int uniquePaths(int m, int n) {
 
 int main() {
     CASE(10, 15, 817190);
+    CASE(15, 10, 817190);
     return 0;
 }

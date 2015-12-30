@@ -4,11 +4,14 @@
  * This simple algorithm, find majority just ONE pass.
  * > Awesome!
  */
+// Warning:
+// This function only works when ensure there's one element are majority.
+// If we cannot ensure this, must count return value again to make sure it's
+// majority.
 int majorityElement(int* nums, int numsSize) {
-    int v = nums[0], c = 1;
-    int i;
-    for (i = 0; i != numsSize; i++) {
-        // if c == 0, select one as majority
+    int v, c, i;
+    for (i = 0, c = 0; i != numsSize; i++) {
+        // if c == 0, select this one as majority
         if (c == 0) {
             c = 1;
             v = nums[i];
