@@ -8,7 +8,7 @@ interviews.
         - Empty array, empty linked list
     - Practice NOT using IDE, compiler, editor to finish problem
 
-Progress:: 50/305
+Progress:: 55/305
 
 = review =
 == basic ==
@@ -49,6 +49,13 @@ This problem look like 26-base number, but must notice A is not zero, but ONE.
 * 169. majority element in array
 
     Moore's Voting Algorithm! very cool idea!
+
+* 258. Digit Root
+Repeatedly add all digits until reuslt has only one digit.
+
+    All number roundly map to [1, 9] , except zero map to zero. Then get
+    beautiful function.
+
 === Probability ===
 * 169. majority element in array
 
@@ -56,11 +63,22 @@ This problem look like 26-base number, but must notice A is not zero, but ONE.
     average, only need guess twice, so this complexity is O(n)
     We even can avoid re-guess wrong one, so guess less times.
 
+=== Combination ===
+* 62. Unique paths
+
+m x n grid, from left-upper corner move to bottom-right corner, How many
+possible unique paths?
+
+    Just `combination(m + n - 2, m - 1)`.
+    Mind not overflow when calulate combination
+
 == struct ==
 === array ===
 === linklist ===
 === tree ===
+==== Travese on tree ====
 * 100. Same Tree
+* 112. Path Sum
 
     - Travese on tree
 
