@@ -108,43 +108,33 @@ struct TreeNode *buildTree(int *nums, int numsSize) {
         return NULL;
     }
     struct TreeNode **a = malloc(sizeof(struct TreeNode *) * numsSize);
-    int cnt, i;
+    int i, j;
     for (i = 0; i != numsSize; i++) {
         if (nums[i] != NIL) {
             a[i] = malloc(sizeof(struct TreeNode));
             a[i]->val = nums[i];
+            a[i]->left = NULL; // add default NULL first
+            a[i]->right = NULL;
         } else {
             a[i] = NULL;
         }
     }
-    Q qq, *q = &qq;
-    q_init(q, numsSize);
-    q_put(q, a[0]);
-    i = 1;
-    struct TreeNode *p;
-    while (1) {
-        q_get(q, &p);
-        if (p == NULL) {
-            break;
+    // i, parent pointer move one step
+    // j, child pointer move two steps
+    // inspried by StefanPochmann's python code
+    // ref: https://leetcode.com/discuss/41182/tree-deserializer-and-visualizer-for-python
+    for (i = 0, j = 1; i != numsSize; i++) {
+        if (a[i] == NULL) {
+            continue;
         }
-        if (i >= numsSize) {
-            p->left = NULL;
-            p->right = NULL;
-        } else {
-            p->left = a[i];
-            p->right = a[i + 1];
-            i += 2;
+        if (j < numsSize) {
+            a[i]->left = a[j++];
         }
-        if (p->left) {
-            q_put(q, p->left);
-        }
-        if (p->right) {
-            q_put(q, p->right);
+        if (j < numsSize) {
+            a[i]->right = a[j++];
         }
     }
-
-    q_deinit(q);
-    p = a[0];
+    struct TreeNode *p = a[0];
     free(a);
     return p;
 }
