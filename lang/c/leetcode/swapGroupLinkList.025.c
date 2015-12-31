@@ -6,15 +6,13 @@
  * };
  */
 struct ListNode* reverseKGroup(struct ListNode* head, int k) {
+    if (head == NULL || k <= 1) {
+        free(p);
+        return head;
+    }
     struct ListNode *pp = NULL, *ret = head, *ori = head;
     struct ListNode **p = malloc(sizeof(struct ListNode *) * k);
     int i, j;
-    if (head == NULL) {
-        return NULL;
-    }
-    if (k <= 1) {
-        return head;
-    }
     // PrevGroup Node0 Node1 Node2 NextGroup
     // pp       p0     p1    p2/head
     //          p2     p1    p0/head/pp
@@ -34,5 +32,6 @@ struct ListNode* reverseKGroup(struct ListNode* head, int k) {
             pp = p[0];
         }
     }
+    free(p);
     return ret;
 }

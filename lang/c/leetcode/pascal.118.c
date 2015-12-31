@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 /**
  * Return an array of arrays of size *returnSize.
  * The sizes of the arrays are returned as *columnSizes array.
@@ -54,5 +55,7 @@ int main() {
     int returnSize;
     int **ret = generate(5, &columnSizes, &returnSize);
     showArrArr(ret, columnSizes, returnSize);
+    free(ret);
+    free(columnSizes);
     return 0;
 }

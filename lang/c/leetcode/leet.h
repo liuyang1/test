@@ -1,14 +1,26 @@
 #ifndef LEET_H_
 #define LEET_H_
 
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 struct ListNode {
     int val;
     struct ListNode *next;
 };
 
+struct TreeNode {
+    int val;
+    struct TreeNode *left;
+    struct TreeNode *right;
+};
+
 void showArr(int *nums, int numsSize);
 void showLst(struct ListNode *head);
 struct ListNode *buildLst(int *nums, int numsSize);
+void reallocM(void *pp, int sz);
+
 #ifndef NO_IMPL
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,5 +67,19 @@ void showLst(struct ListNode *p) {
     }
     printf("]\n");
 }
+
+void reallocM(void *pp, int sz) {
+    void *origin = *(void **)pp;
+    void *p = origin;
+    p = realloc(origin, sz);
+    *(void **)pp = p;
+    if (p == NULL) {
+        // when realloc fail, return p == NULL
+        // directly p = realloc(p, sz); will memory leak
+        free(origin);
+        abort();
+    }
+}
+
 #endif
 #endif

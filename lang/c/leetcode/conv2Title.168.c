@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 char *convertToTitle(int n) {
     int l, ori = n;
     for (l = 1; n != 0; n = (n - 1) / 26, l++) {
@@ -11,9 +15,10 @@ char *convertToTitle(int n) {
     return r;
 }
 
-#include <stdio.h>
-#define CASE(n, e) {char *s = convertToTitle(n); printf("%d %s ?= %s %s\n", \
-                                                     n, s, e, strcmp(s, e) == 0 ? "PASS" : "fail"); }
+#define CASE(n, e) {char *s = convertToTitle(n); \
+    printf("%d %s ?= %s %s\n", \
+           n, s, e, strcmp(s, e) == 0 ? "PASS" : "fail"); \
+    free(s); }
 int main()
 {
     CASE(0, "");

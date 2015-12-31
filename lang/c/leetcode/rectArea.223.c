@@ -13,13 +13,22 @@ line overlap1(line a, line b) {
         return overlap1(b, a);
     }
     line r;
-    if (a.origin + a.length <= b.origin) { // no overlap
+    // 1. no overlap
+    // a --------
+    //                b ----
+    // 2. b in a
+    // a --------
+    //   b ----
+    // 3. a, b overlap
+    // a --------
+    //       b ----
+    if (a.origin + a.length <= b.origin) {
         r.origin = 0;
         r.length = 0;
-    } else if (a.origin + a.length >= b.origin + b.length) { // b in a
+    } else if (a.origin + a.length >= b.origin + b.length) {
         r.origin = b.origin;
         r.length = b.length;
-    } else { // a, b overlap
+    } else {
         r.origin = b.origin;
         r.length = a.origin + a.length - b.origin;
     }

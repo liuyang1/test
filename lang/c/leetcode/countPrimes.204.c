@@ -24,5 +24,6 @@ int countPrimes(int n) {
             cnt++;
         }
     }
+    free(f);
     return cnt;
 }

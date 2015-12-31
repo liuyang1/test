@@ -110,6 +110,7 @@ void vrfy(int *nums, int numsSize, int thresh, int *cand, int *candSize) {
         }
     }
     *candSize = i;
+    free(c);
 }
 
 /**

@@ -8,7 +8,7 @@ interviews.
         - Empty array, empty linked list
     - Practice NOT using IDE, compiler, editor to finish problem
 
-Progress:: 58/305
+Progress:: 60/305
 
 = review =
 == basic ==
@@ -33,7 +33,7 @@ stored in reverse order.
 
     - Adding number with manually adding digit and carry
 
-* 67. add Binary strings, return sum
+* 67. Add Binary strings, return sum
 
     - remove extra leading zero, but keep it if only one zero
 
@@ -46,9 +46,9 @@ stored in reverse order.
 
 This problem look like 26-base number, but must notice A is not zero, but ONE.
 
-* 169. majority element in array
+* 169. Majority element in array
 
-    Moore's Voting Algorithm! very cool idea!
+    Moore's Voting Algorithm! Very cool idea!
 
 * 229. Majority element in array II
 
@@ -57,13 +57,13 @@ Support find all element that appear more than [n / K] times.
     Misra-Geries Algorithm, inspired by Moore's Voting Algorithm.
 
 * 258. Digit Root
-Repeatedly add all digits until reuslt has only one digit.
+Repeatedly add all digits until result has only one digit.
 
     All number roundly map to [1, 9] , except zero map to zero. Then get
     beautiful function.
 
 === Probability ===
-* 169. majority element in array
+* 169. Majority element in array
 
     Just guess any random one, then check it is majority. As Probability, in
     average, only need guess twice, so this complexity is O(n)
@@ -72,26 +72,30 @@ Repeatedly add all digits until reuslt has only one digit.
 === Combination ===
 * 62. Unique paths
 
-m x n grid, from left-upper corner move to bottom-right corner, How many
+m * n grid, from left-upper corner move to bottom-right corner, How many
 possible unique paths?
 
     Just `combination(m + n - 2, m - 1)`.
-    Mind not overflow when calulate combination
+    Mind not overflow when calculate combination
 
 === Computational Geometry ===
-* 223. Find total area covered by two rectagnles which may overlap.
+* 223. Find total area covered by two rectangles which may overlap.
 
     simply start calc on 1-D line, then easily and elegant extend to 2-D
 
 == struct ==
 === array ===
-=== linklist ===
+=== linked list ===
 === tree ===
-==== Travese on tree ====
+==== Traverse on tree ====
 * 100. Same Tree
 * 112. Path Sum
 
-    - Travese on tree
+    - Traverse on tree
+
+* 144. Binary Tree Preorder Traversal
+
+    - use stack to iteratively on tree
 
 == algorithm ==
 === binary search ===
@@ -100,3 +104,6 @@ possible unique paths?
 == runtime error, but local run good ==
 runtime checking different, may read or write out of bound, but local don't
 warning this, double check it.
+
+== memory leak ==
+Online Judge system won't check memory leak, fix them all with `cppcheck`.

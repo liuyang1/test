@@ -9,7 +9,7 @@ struct NumArray* NumArrayCreate(int* nums, int numsSize) {
     numArray->len = numsSize;
     if (numsSize <= 0) {
         numArray->acc = NULL;
-        return;
+        return numArray;
     }
     numArray->acc = (int *)malloc(sizeof(int) * numsSize);
     int i;
