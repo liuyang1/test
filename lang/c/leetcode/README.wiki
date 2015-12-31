@@ -86,8 +86,12 @@ possible unique paths?
 == struct ==
 === array ===
 === linked list ===
-=== tree ===
-==== Traverse on tree ====
+=== Tree ===
+==== Traverse on Tree ====
+* 94. Inorder Traverse on Tree
+
+    - use recursion and realloc as need return as array
+
 * 100. Same Tree
 * 112. Path Sum
 
@@ -96,6 +100,11 @@ possible unique paths?
 * 144. Binary Tree Preorder Traversal
 
     - use stack to iteratively on tree
+
+* Level Traverse on Tree
+NOT problem, but serial/deserail tree in OJ, implment one for local test
+
+    - use queue
 
 == algorithm ==
 === binary search ===
