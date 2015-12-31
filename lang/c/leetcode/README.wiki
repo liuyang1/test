@@ -78,6 +78,11 @@ possible unique paths?
     Just `combination(m + n - 2, m - 1)`.
     Mind not overflow when calulate combination
 
+=== Computational Geometry ===
+* 223. Find total area covered by two rectagnles which may overlap.
+
+    simply start calc on 1-D line, then easily and elegant extend to 2-D
+
 == struct ==
 === array ===
 === linklist ===
