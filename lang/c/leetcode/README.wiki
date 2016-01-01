@@ -38,9 +38,10 @@ stored in reverse order.
     - remove extra leading zero, but keep it if only one zero
 
 == math ==
+=== Basic ===
 * 168. Excel Sheet Column Title
 
-    remember minus one first as it's biased.
+    Remember minus one first as it's biased.
 
 * 171. Excel Sheet Column Number
 
@@ -62,6 +63,10 @@ Repeatedly add all digits until result has only one digit.
     All number roundly map to [1, 9] , except zero map to zero. Then get
     beautiful function.
 
+* 268. Missing One Number
+One number not in [0 .. n] array, find it.
+
+    Just sum then get it. However, this problem should consider overflow.
 === Probability ===
 * 169. Majority element in array
 
@@ -81,7 +86,12 @@ possible unique paths?
 === Computational Geometry ===
 * 223. Find total area covered by two rectangles which may overlap.
 
-    simply start calc on 1-D line, then easily and elegant extend to 2-D
+    Simply start calc on 1-D line, then easily and elegant extend to 2-D
+
+=== Bitwise operation ===
+* 191. Number of 1 bits.
+
+    n &= (n - 1)
 
 == struct ==
 === array ===
@@ -102,7 +112,7 @@ possible unique paths?
     - use stack to iteratively on tree
 
 * Level Traverse on Tree
-NOT problem, but serial/deserail tree in OJ, implment one for local test
+NOT problem, but serial/deserial tree in OJ, implement one for local test
 
     - use queue
 
