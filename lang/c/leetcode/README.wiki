@@ -8,7 +8,7 @@ interviews.
         - Empty array, empty linked list
     - Practice NOT using IDE, compiler, editor to finish problem
 
-Progress:: 60/305
+Progress:: 64/307
 
 = review =
 == basic ==
@@ -32,6 +32,10 @@ linked-list represent numbers, one node contains a single digit. Digits are
 stored in reverse order.
 
     - Adding number with manually adding digit and carry
+
+* 38. Count and Say
+
+    - easy, one detail, is only occur 1, 2 or 3 in string.
 
 * 67. Add Binary strings, return sum
 

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #ifndef __cplusplus // to pass compile under pure C
 typedef int bool;
@@ -57,26 +58,26 @@ typedef struct {
 } Q;
 
 // basicly queue, but not full test, espcially when queue is full
-inline void q_init(Q *q, int sz) {
+static inline void q_init(Q *q, int sz) {
     q->a = malloc(sizeof(void *) * sz);
     q->sz = sz;
     q->b = q->e = 0;
 }
-inline void q_deinit(Q *q) {
+static inline void q_deinit(Q *q) {
     if (q->a) {
         free(q->a);
     }
 }
-inline int q_next(Q *q, int idx) {
+static inline int q_next(Q *q, int idx) {
     return (idx + 1) % (q->sz);
 }
-inline bool q_empty(Q *q) {
+static inline bool q_empty(Q *q) {
     return q->e == q->b;
 }
-inline bool q_full(Q *q) {
+static inline bool q_full(Q *q) {
     return q_next(q, q->e) == q->b;
 }
-inline bool q_put(Q *q, void *p) {
+static inline bool q_put(Q *q, void *p) {
     if (q_full(q)) {
         return false;
     }
@@ -86,7 +87,7 @@ inline bool q_put(Q *q, void *p) {
 }
 // check is q_get fail by return value, may get NULL pointer,
 //      it may good if had push NULL to Q
-inline bool q_get(Q *q, void **pp) {
+static inline bool q_get(Q *q, void **pp) {
     if (q_empty(q)) {
         *pp = NULL;
         return false;
@@ -149,7 +150,7 @@ void showTree(struct TreeNode *t) {
     int nilcnt = 0, i, start = 1;
     printf("[");
     while (1) {
-        if (!q_get(q, &p)) {
+        if (!q_get(q, (void **)&p)) {
             break;
         }
         // use nilcnt to lazy print NIL, this will help not show trail NIL
