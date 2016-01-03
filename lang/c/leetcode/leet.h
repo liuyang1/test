@@ -187,6 +187,15 @@ void showArr(int *nums, int numsSize) {
     printf("]\n");
 }
 
+void showArr2(int **mat, int m, int n) {
+    int i;
+    printf("[\n");
+    for (i = 0; i != m; i++) {
+        showArr(mat[i], n);
+    }
+    printf("]\n");
+}
+
 void showLst(struct ListNode *p) {
     printf("[");
     int start;

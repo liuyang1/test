@@ -37,6 +37,10 @@ stored in reverse order.
 
     - easy, one detail, is only occur 1, 2 or 3 in string.
 
+* 48. Rotate Image
+
+    - clockwise assign value in grid
+
 * 67. Add Binary strings, return sum
 
     - remove extra leading zero, but keep it if only one zero
@@ -123,6 +127,10 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
 == algorithm ==
 === binary search ===
 
+=== sort ===
+- 088. Merge sorted array locally
+
+    Just copy data to end first
 = Issues =
 == runtime error, but local run good ==
 runtime checking different, may read or write out of bound, but local don't
