@@ -45,6 +45,10 @@ stored in reverse order.
 
     - remove extra leading zero, but keep it if only one zero
 
+* 318. Maximum Product of Word Length
+
+    - easy, remember using statistic map array
+
 == math ==
 === Basic ===
 * 168. Excel Sheet Column Title

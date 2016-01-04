@@ -28,12 +28,25 @@ void showLst(struct ListNode *head);
 struct ListNode *buildLst(int *nums, int numsSize);
 void reallocM(void *pp, int sz);
 
+#define COLORFUL
+#ifdef COLORFUL
+#define RED     "\033[1;31m"
+#define GREEN   "\033[1;32m"
+#define RESET   "\033[0;m"
+#else
+#define RED
+#define GREEN
+#define RESET
+#endif
+static inline const char *expect(bool v) {
+    return v ? (GREEN "PASS"RESET) : (RED "FAIL"RESET);
+}
+
 #ifndef NO_IMPL
 #include <stdio.h>
 #include <stdlib.h>
 
-struct ListNode *buildLst(int *nums, int numsSize)
-{
+struct ListNode *buildLst(int *nums, int numsSize) {
     struct ListNode *lst, *p;
     if (numsSize == 0) {
         return NULL;
@@ -63,20 +76,25 @@ static inline void q_init(Q *q, int sz) {
     q->sz = sz;
     q->b = q->e = 0;
 }
+
 static inline void q_deinit(Q *q) {
     if (q->a) {
         free(q->a);
     }
 }
+
 static inline int q_next(Q *q, int idx) {
     return (idx + 1) % (q->sz);
 }
+
 static inline bool q_empty(Q *q) {
     return q->e == q->b;
 }
+
 static inline bool q_full(Q *q) {
     return q_next(q, q->e) == q->b;
 }
+
 static inline bool q_put(Q *q, void *p) {
     if (q_full(q)) {
         return false;
@@ -85,6 +103,7 @@ static inline bool q_put(Q *q, void *p) {
     q->e = q_next(q, q->e);
     return true;
 }
+
 // check is q_get fail by return value, may get NULL pointer,
 //      it may good if had push NULL to Q
 static inline bool q_get(Q *q, void **pp) {

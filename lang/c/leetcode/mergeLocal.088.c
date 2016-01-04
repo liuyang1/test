@@ -43,9 +43,8 @@ int test(int *nums1, int m, int *nums2, int n) {
     return r;
 }
 #define CASE(a, b) { \
-    printf("%s\n", \
-           test(a, sizeof(a) / sizeof(int), \
-                b, sizeof(b) / sizeof(int)) ? "PASS" : "fail"); }
+    printf("%s\n", expect(test(a, sizeof(a) / sizeof(int), \
+                               b, sizeof(b) / sizeof(int)))); }
 int main() {
     CASE(((int []){1}), ((int []){}));
     CASE(((int []){}), ((int []){1, 2}));
