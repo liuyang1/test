@@ -130,7 +130,9 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
 === sort ===
 - 088. Merge sorted array locally
 
-    Just copy data to end first
+    ~~Just copy data to end first~~
+    merge from tail, as data is consuming
+
 = Issues =
 == runtime error, but local run good ==
 runtime checking different, may read or write out of bound, but local don't

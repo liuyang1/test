@@ -1,32 +1,18 @@
 #include "leet.h"
 
 void merge(int* nums1, int m, int* nums2, int n) {
-    int i;
-    // move all data in nums1 from n till to end
-    for (i = m - 1; i >= 0; i--) {
-        nums1[n + i] = nums1[i];
-    }
-    int i1 = n, i2 = 0, j;
-    i = 0;
-    while (1) {
-        if (i1 == m + n) {
-            for (j = i2; j != n; j++, i++) {
-                nums1[i] = nums2[j];
-            }
-            break;
-        } else if (i2 == n) {
-            break;
-        }
-        // Just work like merge with extra m + n size
-        if (nums1[i1] <= nums2[i2]) {
+    int i1, i2, i;
+    for (i = m + n - 1, i1 = m - 1, i2 = n - 1; i1 >= 0 && i2 >= 0; i--) {
+        if (nums1[i1] > nums2[i2]) {
             nums1[i] = nums1[i1];
-            i++;
-            i1++;
+            i1--;
         } else {
             nums1[i] = nums2[i2];
-            i++;
-            i2++;
+            i2--;
         }
+    }
+    for (; i2 >= 0; i--, i2--) {
+        nums1[i] = nums2[i2];
     }
 }
 

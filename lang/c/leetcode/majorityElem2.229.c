@@ -122,7 +122,7 @@ void vrfy(int *nums, int numsSize, int thresh, int *cand, int *candSize) {
 #define K   3
 
 int *majorityElement(int *nums, int numsSize, int *returnSize) {
-    Ctx ctx, *pctx = &ctx;;
+    Ctx ctx, *pctx = &ctx;
     // at most K - 1 elements ocurr greater than [n / K] times.
     initCtx(pctx, K - 1);
     int i, j;
