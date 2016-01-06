@@ -1,0 +1,34 @@
+== C ==
+- full experience
+- ten-thousand line coding per year
+- full-time work
+- complexity framework experience
+- 5000+ line test code
+
+== python ==
+- 2000+ line test code
+- 100+ problem @ projecteuler.com
+- plenty script experience
+
+== haskell ==
+- 1000+ line test code
+- 80+ kuta @ codewars
+- 50+ H99 exercise
+
+== bash ==
+- 1000+ line test code
+- plenty script experience
+
+== C++ ==
+== erlang ==
+== lisp ==
+=== racket ===
+=== scheme ===
+- 1000- line test code
+- 18+ problem @ projecteuler.com
+
+=== clojure ===
+- 10+ problem @ projecteuler.com
+
+= ChangeHistory =
+- 2016-01-05 init
