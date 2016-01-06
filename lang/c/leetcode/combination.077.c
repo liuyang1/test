@@ -1,7 +1,7 @@
 #include "leet.h"
 int combination(int n, int k) {
     if (n - k < n) {
-        n = n - k;
+        k = n - k;
     }
     int i, j;
     unsigned long long p0 = 1;
@@ -59,13 +59,61 @@ bool next(Ctx *ctx) {
     return true;
 }
 
+void snapshot(Ctx *ctx, int *save) {
+    int i;
+    for (i = 0; i != ctx->k; i++) {
+        save[i] = ctx->st[i];
+    }
+}
 
-int main() {
+void finitCtx(Ctx *ctx) {
+    free(ctx->st);
+}
+
+int** combine(int n, int k, int** columnSizes, int* returnSize) {
+    Ctx ctx, *p = &ctx;
+    initCtx(p, n, k);
+
+    int cmb = combination(n, k), i;
+    int *colsz = malloc(sizeof(int) * cmb);
+    int **r = malloc(sizeof(int *) * cmb);
+    for (i = 0; i != cmb; i++) {
+        colsz[i] = k;
+        r[i] = malloc(sizeof(int) * k);
+        next(p);
+        snapshot(p, r[i]);
+    }
+
+    finitCtx(p);
+
+    *returnSize = cmb;
+    *columnSizes = colsz;
+    return r;
+}
+
+int testCtx() {
     Ctx ctx, *p = &ctx;
     initCtx(p, 6, 4);
     while(next(p)) {
         printf("%d:\t", p->cnt);
         showArr(p->st, 4);
     }
+    return 0;
+}
+int testCmb(int n, int k) {
+    int *colsz, retsz;
+    int **r = combine(n, k, &colsz, &retsz);
+    int i;
+    printf("retsz=%d\n", retsz);
+    for (i = 0; i != retsz; i++) {
+        printf("%d:\t", i);
+        showArr(r[i], colsz[i]);
+    }
+    return 0;
+}
+
+int main() {
+    testCmb(1, 1);
+    testCmb(6, 4);
     return 0;
 }

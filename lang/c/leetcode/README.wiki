@@ -95,6 +95,10 @@ possible unique paths?
     Just `combination(m + n - 2, m - 1)`.
     Mind not overflow when calculate combination
 
+* 77. Combinations
+
+    Generator combinations
+
 === Computational Geometry ===
 * 223. Find total area covered by two rectangles which may overlap.
 
