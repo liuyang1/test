@@ -87,6 +87,10 @@ One number not in [0 .. n] array, find it.
     We even can avoid re-guess wrong one, so guess less times.
 
 === Combination ===
+* 46. Permutations
+
+    Generator permutations
+
 * 62. Unique paths
 
 m * n grid, from left-upper corner move to bottom-right corner, How many
