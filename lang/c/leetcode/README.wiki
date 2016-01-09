@@ -83,6 +83,10 @@ Repeatedly add all digits until result has only one digit.
 One number not in [0 .. n] array, find it.
 
     Just sum then get it. However, this problem should consider overflow.
+
+* 326. Power of Three
+
+    Simple but really awesome!
 === Probability ===
 * 169. Majority element in array
 

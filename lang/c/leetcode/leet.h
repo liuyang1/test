@@ -5,12 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
-
-#ifndef __cplusplus // to pass compile under pure C
-typedef int bool;
-#define true 1
-#define false 0
-#endif
+#include <stdbool.h>
 
 struct ListNode {
     int val;
