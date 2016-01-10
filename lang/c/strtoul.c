@@ -44,6 +44,7 @@ int testloop(void (*fn)(char*))
         "10000000000",
         "100000000000",
         "1000000000000000",
+        "123 abc",
     };
     unsigned int i;
     for (i = 0; i < sizeof(s)/sizeof(s[0]); i++) {

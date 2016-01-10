@@ -8,7 +8,7 @@ interviews.
         - Empty array, empty linked list
     - Practice NOT using IDE, compiler, editor to finish problem
 
-Progress:: 70 / 307
+Progress:: 72 / 307
 
 = review =
 == basic ==
@@ -153,6 +153,12 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
     ~~Just copy data to end first~~
     merge from tail, as data is consuming
 
+== Parser / Compiler ==
+- 224. Basic calculate
+
+    - recursion from tail, so calculate from head
+    - parentheses is key problem
+    - avoid duplicate string, but calculate in-place
 = Issues =
 == runtime error, but local run good ==
 runtime checking different, may read or write out of bound, but local don't

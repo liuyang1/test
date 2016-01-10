@@ -6,6 +6,11 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <ctype.h>
+
+// #define LOG(fmt, ...) printf("%s:%d "fmt, __FUNCTION__, __LINE__, __VA_ARGS__);
+#define LOG(...)
+#define DIE(...) fprintf(stderr, ">>> " __VA_ARGS__);
 
 struct ListNode {
     int val;
