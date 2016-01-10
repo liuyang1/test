@@ -12,6 +12,8 @@
 #define LOG(...)
 #define DIE(...) fprintf(stderr, ">>> " __VA_ARGS__);
 
+#define SBOOL(x) ((x) ? "true" : "false")
+
 struct ListNode {
     int val;
     struct ListNode *next;
