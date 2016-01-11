@@ -8,7 +8,7 @@ interviews.
         - Empty array, empty linked list
     - Practice NOT using IDE, compiler, editor to finish problem
 
-Progress:: 72 / 307
+Progress:: 76 / 307
 
 = review =
 == basic ==
@@ -48,7 +48,7 @@ stored in reverse order.
 * 141. Linked List Cycle
 * 141. Linked List Cycle II
 
-    - This is classical problem. just use fast / slow pointer
+    - This is classical problem. Just use fast / slow pointer
     - Moveing fowarder A step to get cycle begin node
 
 * 238. Product of Array Except Self

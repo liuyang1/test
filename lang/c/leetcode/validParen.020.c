@@ -49,6 +49,8 @@ bool isValid(char* s) {
                   (*s == ']' && c == '['))) {
                 return false;
             }
+        } else {
+            return false;
         }
     }
     r = pop(p, &c);
@@ -65,5 +67,6 @@ int main() {
     CASE("[{()}()]", true);
     CASE("[{()()]", false);
     CASE("[{([{()}])}]", true);
+    CASE("a", false);
     return 0;
 }
