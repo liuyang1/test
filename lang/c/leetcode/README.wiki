@@ -45,6 +45,12 @@ stored in reverse order.
 
     - remove extra leading zero, but keep it if only one zero
 
+* 141. Linked List Cycle
+* 141. Linked List Cycle II
+
+    - This is classical problem. just use fast / slow pointer
+    - Moveing fowarder A step to get cycle begin node
+
 * 238. Product of Array Except Self
 
     - accumulate
