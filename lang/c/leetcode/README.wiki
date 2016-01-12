@@ -45,12 +45,6 @@ stored in reverse order.
 
     - remove extra leading zero, but keep it if only one zero
 
-* 141. Linked List Cycle
-* 141. Linked List Cycle II
-
-    - This is classical problem. Just use fast / slow pointer
-    - Moveing fowarder A step to get cycle begin node
-
 * 238. Product of Array Except Self
 
     - accumulate
@@ -58,6 +52,22 @@ stored in reverse order.
 * 318. Maximum Product of Word Length
 
     - easy, remember using statistic map array
+
+=== range sum ===
+* 303. Range Sum Query (Immutable)
+* 304. Range Sum Query 2D (Immutable)
+
+    - Accmulate
+> This accumulate solution also works to find median of range
+
+* 307. Range Sum Query (Mutable)
+
+    - Tree
+
+| struct | update    | range sum |
+| array  | O(1)      | O(m)      |
+| accum  | O(n)      | O(1)      |
+| Tree   | O(log(n)) | O(log(n)) |
 
 == math ==
 === Basic ===
@@ -130,6 +140,22 @@ possible unique paths?
 == struct ==
 === array ===
 === linked list ===
+* 125. Valid Palindrome
+
+    - checking is palindrome string, only consider alphanumeric char and
+    ignore cases
+
+* 234. Palindrome Linked List
+
+    - reverse half end linked list, then compare, then reverse it back
+
+* 141. Linked List Cycle
+* 141. Linked List Cycle II
+
+    - This is classical problem. Just use fast / slow pointer
+    - Moveing fowarder A step to get cycle begin node
+
+* 206. Reverse Linked List
 === Tree ===
 ==== Traverse on Tree ====
 * 94. Inorder Traverse on Tree
