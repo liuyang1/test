@@ -185,6 +185,11 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
 - 69. Sqrt
 
     binary search on [1, 65535] as limit of INT range
+
+- 319. Blub switcher
+
+    find regular pattern first, increase with sqrt(n)
+    implement binary search sqrt as #69
 === sort ===
 - 088. Merge sorted array locally
 
