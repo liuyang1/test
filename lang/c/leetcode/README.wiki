@@ -8,7 +8,7 @@ interviews.
         - Empty array, empty linked list
     - Practice NOT using IDE, compiler, editor to finish problem
 
-Progress:: 76 / 307
+Progress:: 81 / 307
 
 = review =
 == basic ==
@@ -182,6 +182,10 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
 
 == algorithm ==
 === binary search ===
+- 35. Search Insert Position
+
+    binary search, and handle not find case
+
 - 69. Sqrt
 
     binary search on [1, 65535] as limit of INT range
