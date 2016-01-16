@@ -184,6 +184,10 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
 
     - Add sibling, this is not complex, familar with pointer is enough
 
+* 173. Binary Search Tree Iterator
+
+    - implement an iterator on Tree use stack, DFS and Left node first
+
 == algorithm ==
 === binary search ===
 - 35. Search Insert Position
