@@ -25,6 +25,11 @@ struct TreeNode {
     struct TreeNode *right;
 };
 
+struct TreeLinkNode {
+ int val;
+ struct TreeLinkNode *left, *right, *next;
+};
+
 void showArr(int *nums, int numsSize);
 void showLst(struct ListNode *head);
 struct ListNode *buildLst(int *nums, int numsSize);
@@ -242,6 +247,34 @@ void reallocM(void *pp, int sz) {
         free(origin);
         abort();
     }
+}
+
+void showTreeLink(struct TreeLinkNode *n) {
+    struct TreeLinkNode *bro, *sibling, *nbro;
+    for (bro = n; bro != NULL; bro = nbro) {
+        nbro = NULL;
+        for (sibling = bro; sibling != NULL; sibling = sibling->next) {
+            if (nbro == NULL) {
+                if (sibling->left) {
+                    nbro = sibling->left;
+                } else if (sibling->right) {
+                    nbro = sibling->right;
+                }
+            }
+
+            printf("%d, ", sibling->val);
+        }
+        printf("\n");
+    }
+}
+
+void initTreeLink(struct TreeLinkNode *n, int val,
+                  struct TreeLinkNode *left,
+                  struct TreeLinkNode *right) {
+    n->val = val;
+    n->left = left;
+    n->right = right;
+    n->next = NULL;
 }
 
 #endif

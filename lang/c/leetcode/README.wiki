@@ -8,7 +8,7 @@ interviews.
         - Empty array, empty linked list
     - Practice NOT using IDE, compiler, editor to finish problem
 
-Progress:: 81 / 307
+Progress:: 84 / 307
 
 = review =
 == basic ==
@@ -179,6 +179,10 @@ possible unique paths?
 NOT problem, but serial/deserial tree in OJ, implement one for local test
 
     - use queue
+
+* 116, 117. Sibling of Tree
+
+    - Add sibling, this is not complex, familar with pointer is enough
 
 == algorithm ==
 === binary search ===
