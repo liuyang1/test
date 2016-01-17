@@ -193,6 +193,8 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
 
     - implement an iterator on Tree use stack, DFS and Left node first
 
+* 235. Lowest Common Ancestor of a Binary Search Tree
+
 == algorithm ==
 === binary search ===
 - 35. Search Insert Position
@@ -203,7 +205,7 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
 
     binary search on [1, 65535] as limit of INT range
 
-- 319. Blub switcher
+- 319. Bulb switcher
 
     find regular pattern first, increase with sqrt(n)
     implement binary search sqrt as #69

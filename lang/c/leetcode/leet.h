@@ -272,6 +272,12 @@ void showTreeLink(struct TreeLinkNode *n) {
     }
 }
 
+void initTreeNode(struct TreeNode *n, int val,
+              struct TreeNode *left, struct TreeNode *right) {
+    n->val = val;
+    n->left = left;
+    n->right = right;
+}
 void initTreeLink(struct TreeLinkNode *n, int val,
                   struct TreeLinkNode *left,
                   struct TreeLinkNode *right) {
