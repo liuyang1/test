@@ -49,6 +49,10 @@ stored in reverse order.
 
     - accumulate
 
+* 299. Bulls and Cows
+
+    - count
+
 * 318. Maximum Product of Word Length
 
     - easy, remember using statistic map array
@@ -204,6 +208,10 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
     find regular pattern first, increase with sqrt(n)
     implement binary search sqrt as #69
 === sort ===
+- 075. Sort Color
+
+    sort on enumerate domain
+
 - 088. Merge sorted array locally
 
     ~~Just copy data to end first~~
