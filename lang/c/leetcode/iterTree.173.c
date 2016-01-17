@@ -1,5 +1,9 @@
 #include "leet.h"
 // use O(h) memory, so use DFS
+/* define STACK with template type T
+ * This version for complex type T, it will save T pointer at stack, not value.
+ * so NOT save simple type T, such as INT to stack.
+ */
 typedef struct TreeNode *T;
 const int stack_step = 1;
 typedef struct {
@@ -8,16 +12,34 @@ typedef struct {
     int len;
 } Stack;
 
+// #define MEMLOG(...)     TLOG("MEM", __VA_ARGS__);
+#ifndef MEMLOG
+#define MEMLOG
+#endif
+// simple STACK, only increase stack size, never decrease.
+void stack_in_extend(Stack *p) {
+    p->len += stack_step;
+    T *op = p->stk;
+    p->stk = realloc(p->stk, sizeof(T *) * p->len);
+    if (p->stk == NULL) {
+        free(op);
+        DIE("fail realloc, free old p->stk=%p\n", op);
+        // memory not enough, should not here
+    }
+    MEMLOG("realloc p->stk=%p size=%lu\n", p->stk, sizeof(T *) * p->len);
+}
+
 Stack *stack_create() {
     Stack *p = malloc(sizeof(Stack));
-    p->stk = malloc(sizeof(T *) * stack_step);
-    p->len = stack_step;
+    p->stk = NULL;
+    p->len = 0;
     p->dep = 0;
     return p;
 }
 
 void stack_destroy(Stack *p) {
-    if(p->stk) {
+    if (p->stk) {
+        MEMLOG("free p->stk=%p\n", p->stk);
         free(p->stk);
     }
     free(p);
@@ -28,18 +50,12 @@ bool stack_empty(Stack *p) {
 }
 
 void stack_push(Stack *p, T t) {
-    p->dep++;
     if (p->dep == p->len) {
-        p->len += stack_step;
-        T *rp = realloc(p->stk, sizeof(T *) * p->len);
-        if (rp == NULL) {
-            free(p->stk);
-            // should not here
-        }
-        p->stk = rp;
+        stack_in_extend(p);
     }
-    LOG("push %d at %d\n", t->val, p->dep);
     p->stk[p->dep] = t;
+    LOG("push %d at %d %p\n", t->val, p->dep, p->stk + p->dep);
+    p->dep++;
 }
 
 bool stack_pop(Stack *p, T *t) {
@@ -49,11 +65,11 @@ bool stack_pop(Stack *p, T *t) {
         }
         return false;
     }
+    p->dep--;
     if (t != NULL) {
         *t = p->stk[p->dep];
     }
-    LOG("pop  %d at %d\n", p->stk[p->dep]->val, p->dep);
-    p->dep--;
+    LOG("pop  %d at %d %p\n", p->stk[p->dep]->val, p->dep, p->stk + p->dep);
     return true;
 }
 
@@ -115,14 +131,14 @@ int iterTree(struct TreeNode *t) {
 }
 
 #define CASE(a) {struct TreeNode *t = buildTree(a, sizeof(a) / sizeof(int)); \
-    printf("show: "); showTree(t); \
-    printf("iter: "); iterTree(t); }
+                 printf("show: "); showTree(t); \
+                 printf("iter: "); iterTree(t); }
 int main() {
-    CASE(((int []){}));
-    CASE(((int []){1, 2}));
-    CASE(((int []){1, 2, 3}));
-    CASE(((int []){1, 2, NIL, 3}));
-    CASE(((int []){1, 2, 3, NIL, 4}));
-    CASE(((int []){4, 2, 5, 1, 3}));
+    CASE(((int[]) {}));
+    CASE(((int[]) {1, 2}));
+    CASE(((int[]) {1, 2, 3}));
+    CASE(((int[]) {1, 2, NIL, 3}));
+    CASE(((int[]) {1, 2, 3, NIL, 4}));
+    CASE(((int[]) {4, 2, 5, 1, 3}));
     return 0;
 }
