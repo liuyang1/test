@@ -165,6 +165,10 @@ possible unique paths?
 
 * 206. Reverse Linked List
 * 328. Odd Even Linked List
+=== Stack ===
+* 232. Implement Queue using Stacks
+=== Queue ===
+* 225. Implement Stack using Queues
 === Tree ===
 ==== Traverse on Tree ====
 * 94. Inorder Traverse on Tree
