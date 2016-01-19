@@ -224,11 +224,15 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
     merge from tail, as data is consuming
 
 == dynamic program ==
-- 198. Houser Robber
+- 198. House Robber
 
     f(0) = 0
     f(1) = r[0];
     f(n) = max(f(n - 2) + r[n - 1], f(n - 1))
+
+- 213. House Robber II
+
+    c(n) = max(f(n - 1, 0), f(n - 1, 1))
 
 == Parser / Compiler ==
 - 224. Basic calculate
