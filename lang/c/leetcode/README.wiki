@@ -45,6 +45,8 @@ stored in reverse order.
 
     - remove extra leading zero, but keep it if only one zero
 
+* 120. Minimum Path in Triangle
+
 * 238. Product of Array Except Self
 
     - accumulate
@@ -162,6 +164,10 @@ possible unique paths?
 
     - This is classical problem. Just use fast / slow pointer
     - Moveing fowarder A step to get cycle begin node
+
+* 160. Intersection of Two Linked List
+
+    - using difference of node counts
 
 * 206. Reverse Linked List
 * 328. Odd Even Linked List
