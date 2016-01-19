@@ -73,6 +73,15 @@ struct ListNode *buildLst(int *nums, int numsSize) {
     return lst;
 }
 
+bool cmpLst(struct ListNode *a, struct ListNode *b) {
+    for (; a && b; a = a->next, b = b->next) {
+        if (a->val != b->val) {
+            return false;
+        }
+    }
+    return a == NULL && b == NULL;
+}
+
 // As C is static-typed, adding this magic number to represent as NIL
 #define NIL         (0x0eadbeef)
 typedef struct {
