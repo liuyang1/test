@@ -1,4 +1,10 @@
 #include <stdio.h>
+/*
+ * define interface for line(1-D) or rect(2-D)
+ * # stretch
+ * # overlap
+ * # area
+ */
 typedef struct {
     int origin;
     int length;

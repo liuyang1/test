@@ -75,6 +75,13 @@ stored in reverse order.
 | accum  | O(n)      | O(1)      |
 | Tree   | O(log(n)) | O(log(n)) |
 
+== string ==
+* 14. longestCommonPrefix
+
+* 290. Word Pattern
+
+    - prepare test case first, then try it.
+
 == math ==
 === Basic ===
 * 50. Pow
