@@ -182,6 +182,12 @@ possible unique paths?
 
 * 141. Linked List Cycle
 === Stack ===
+* 155. Min Stack
+
+    space-time tradeoff
+    - Simple solution is just store every min value when push one.
+    - Use one more min-stack, this style use less memory
+
 * 232. Implement Queue using Stacks
 === Queue ===
 * 225. Implement Stack using Queues
