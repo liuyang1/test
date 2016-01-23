@@ -78,6 +78,10 @@ stored in reverse order.
 == string ==
 * 14. longestCommonPrefix
 
+* 28. strstr
+
+    - Rabin-Karp algo, key is rolling hash
+
 * 290. Word Pattern
 
     - prepare test case first, then try it.
