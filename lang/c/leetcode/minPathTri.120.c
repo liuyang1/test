@@ -26,6 +26,7 @@ int minimumTotal(int** triangle, int triangleRowSize, int *triangleColSizes) {
             min = r[i];
         }
     }
+    free(r);
     return min;
 }
 

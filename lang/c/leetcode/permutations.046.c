@@ -108,6 +108,10 @@ int testPerm(int *nums, int sz) {
     int i;
     for (i = 0; i != retsz; i++) {
         showArr(r[i], sz);
+        free(r[i]);
+    }
+    if (r) {
+        free(r);
     }
     return 0;
 }

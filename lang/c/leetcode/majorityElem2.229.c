@@ -151,7 +151,8 @@ int *majorityElement(int *nums, int numsSize, int *returnSize) {
             if (r[i] != e[i]) { flag = false; break; } \
         } \
     } \
-    printf("%s\n", flag ? "PASS" : "fail"); }
+    printf("%s\n", flag ? "PASS" : "fail"); \
+    free(r); }
 
 int main() {
     CASE(((int[]) {1, 1, 1, 2, 2, 3, 3, 2, 2, 2, 3, 2, 2}), ((int[]) {2}));

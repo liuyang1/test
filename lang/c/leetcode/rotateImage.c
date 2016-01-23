@@ -34,6 +34,11 @@ int test(int n) {
     // showArr2(m, n, n);
     rotate(m, n, n);
     showArr2(m, n, n);
+    int i;
+    for (i = 0; i != n; i++) {
+        free(m[i]);
+    }
+    free(m);
 }
 
 int main() {

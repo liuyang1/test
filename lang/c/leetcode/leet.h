@@ -18,6 +18,8 @@
 
 #define SBOOL(x) ((x) ? "true" : "false")
 
+#define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
+
 struct ListNode {
     int val;
     struct ListNode *next;
@@ -224,6 +226,19 @@ void showArr(int *nums, int numsSize) {
         printf("%d", nums[i]);
     }
     printf("]\n");
+}
+
+bool cmpArr(int *a0, int n0, int *a1, int n1) {
+    if (n0 != n1) {
+        return false;
+    }
+    int i;
+    for (i = 0; i != n0; i++) {
+        if (a0[i] != a1[i]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void showArr2(int **mat, int m, int n) {

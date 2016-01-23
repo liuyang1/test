@@ -108,6 +108,10 @@ int testCmb(int n, int k) {
     for (i = 0; i != retsz; i++) {
         printf("%d:\t", i);
         showArr(r[i], colsz[i]);
+        free(r[i]);
+    }
+    if (r) {
+        free(r);
     }
     return 0;
 }

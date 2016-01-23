@@ -128,9 +128,12 @@ One number not in [0 .. n] array, find it.
     We even can avoid re-guess wrong one, so guess less times.
 
 === Combination ===
+* 31. Next Permutations
 * 46. Permutations
+* 47. Permutations II
 
-    Generator permutations
+    - Generator permutations
+    - support duplicate
 
 * 62. Unique paths
 

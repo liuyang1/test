@@ -22,8 +22,8 @@ void stack_in_extend(Stack *p) {
     T *op = p->stk;
     p->stk = realloc(p->stk, sizeof(T *) * p->len);
     if (p->stk == NULL) {
-        free(op);
         DIE("fail realloc, free old p->stk=%p\n", op);
+        free(op);
         // memory not enough, should not here
     }
     MEMLOG("realloc p->stk=%p size=%lu\n", p->stk, sizeof(T *) * p->len);

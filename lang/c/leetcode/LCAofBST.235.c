@@ -71,6 +71,7 @@ int test0() {
     EXPECT(0, 1, 2, 0);
     EXPECT(0, 2, 1, 0);
 
+    free(at);
     return 0;
 }
 
