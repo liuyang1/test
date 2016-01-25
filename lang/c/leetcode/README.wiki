@@ -92,6 +92,10 @@ stored in reverse order.
 
     binary recursion
 
+* 89. Gray code
+
+    reflect binary code
+
 * 168. Excel Sheet Column Title
 
     Remember minus one first as it's biased.
