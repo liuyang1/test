@@ -175,7 +175,12 @@ possible unique paths?
 
 == struct ==
 === array ===
+* 162. Find Peak Element
+
+    - easy, but mind bound condition
 === linked list ===
+* 61. Rotate List
+
 * 92. Reverse Part of Linked List II
 
 * 125. Valid Palindrome
