@@ -125,6 +125,10 @@ One number not in [0 .. n] array, find it.
 
     Just sum then get it. However, this problem should consider overflow.
 
+* 313. Super Ugly Number
+
+    `deque` is efficent than `List`
+
 * 326. Power of Three
 
     Simple but really awesome!
@@ -154,6 +158,10 @@ possible unique paths?
 * 77. Combinations
 
     Generator combinations
+
+* 78. Subset
+
+    enumerate in [0, 2 ** n)
 
 === Computational Geometry ===
 * 223. Find total area covered by two rectangles which may overlap.
