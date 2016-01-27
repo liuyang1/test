@@ -51,6 +51,10 @@ stored in reverse order.
 
     - accumulate
 
+* 239. Sliding Window Maximum
+
+    - iterate to increase window size
+
 * 299. Bulls and Cows
 
     - count
