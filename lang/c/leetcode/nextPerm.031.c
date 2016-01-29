@@ -39,7 +39,7 @@ void nextPermutation(int *nums, int numsSize) {
     reverse(nums + i, numsSize - i);
 }
 
-#define CASE(a, e) { int *b = malloc(sizeof(a)); memcpy(b, a, sizeof(a)); \
+#define CASE(a, e) { int *b = a;  \
                      nextPermutation(b, COUNT_OF(a)); \
                      showArr(b, COUNT_OF(a)); \
                      printf("%s\n", expect(cmpArr(b, COUNT_OF(a), e, COUNT_OF(e)))); }

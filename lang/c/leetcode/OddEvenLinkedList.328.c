@@ -37,7 +37,7 @@ struct ListNode* oddEvenList(struct ListNode* head) {
 }
 
 #define CASE(a) {struct ListNode *lst = buildLst(a, sizeof(a) / sizeof(int)); \
-    lst = oddEvenList(lst); showLst(lst); }
+    lst = oddEvenList(lst); showLst(lst); freeLst(lst); }
 int main() {
     CASE(((int []) {1, 2, 3, 4}));
     CASE(((int []) {1, 2, 3}));

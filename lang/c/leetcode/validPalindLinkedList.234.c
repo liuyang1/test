@@ -45,7 +45,8 @@ bool isPalindrome(struct ListNode *head) {
 #define CASE(a, e) {struct ListNode *lst = buildLst(a, sizeof(a) / sizeof(int)); \
     showLst(lst); \
     bool r = isPalindrome(lst); \
-    printf("%s ?= %s %s\n", SBOOL(r), SBOOL(e), expect(r == e)); }
+    printf("%s ?= %s %s\n", SBOOL(r), SBOOL(e), expect(r == e)); \
+    freeLst(lst); }
 
 int main() {
     CASE(((int []){}), true);

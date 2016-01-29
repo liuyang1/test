@@ -216,6 +216,19 @@ struct TreeNode *buildTree(int *nums, int numsSize) {
     return p;
 }
 
+void freeTree(struct TreeNode *root) {
+    if (root == NULL) {
+        return;
+    }
+    if (root->left) {
+        free(root->left);
+    }
+    if (root->right) {
+        free(root->right);
+    }
+    free(root);
+}
+
 // showTree with level order, may omit NIL
 // reverse function of buildTree
 void showTree(struct TreeNode *t) {

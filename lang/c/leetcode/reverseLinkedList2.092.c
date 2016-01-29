@@ -42,7 +42,8 @@ struct ListNode *reverseBetween(struct ListNode *head, int m, int n) {
         showLst(la); \
         la = reverseBetween(la, m, n); \
         showLst(la); showLst(lb); \
-        printf("%s\n", expect(cmpLst(la, lb))); }
+        printf("%s\n", expect(cmpLst(la, lb))); \
+        freeLst(la); freeLst(lb); }
 
 int main() {
     CASE(((int[]) {1, 2, 3, 4, 5}), 2, 4, ((int[]) {1, 4, 3, 2, 5}));

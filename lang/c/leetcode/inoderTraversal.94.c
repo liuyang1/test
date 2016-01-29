@@ -44,7 +44,7 @@ int *inorderTraversal(struct TreeNode *root, int *returnSize) {
     struct TreeNode *t = buildTree(a, sizeof(a) / sizeof(int)); \
     showTree(t); \
     int sz, *r = inorderTraversal(t, &sz); \
-    showArr(r, sz); free(r); \
+    showArr(r, sz); free(r); freeTree(t); \
 }
 int main() {
     CASE(((int []){1, 2, NIL, 3}));

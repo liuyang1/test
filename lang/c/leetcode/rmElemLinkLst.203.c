@@ -22,7 +22,7 @@ struct ListNode* removeElements(struct ListNode* head, int val) {
 
 #define CASE(a, v) {struct ListNode *l = buildLst(a, sizeof(a) / sizeof(int)); \
     showLst(l); \
-    l = removeElements(l, v); showLst(l);}
+    l = removeElements(l, v); showLst(l); freeLst(l); }
 int main()
 {
     CASE(((int []){0, 1, 2}), 0);

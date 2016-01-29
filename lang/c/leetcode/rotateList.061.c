@@ -35,6 +35,7 @@ void case0() {
         h = rotateRight(h, 2);
         printf("rorate %2d: ", i); showLst(h);
     }
+    freeLst(h);
 }
 
 void case1() {
@@ -42,6 +43,7 @@ void case1() {
     struct ListNode *h = buildLst(nums, COUNT_OF(nums));
     showLst(h);
     h = rotateRight(h, 0); showLst(h);
+    freeLst(h);
 }
 
 int main() {
