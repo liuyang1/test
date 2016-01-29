@@ -72,7 +72,8 @@ stored in reverse order.
 
 * 307. Range Sum Query (Mutable)
 
-    - Tree
+    - Array Tree
+    Ref: [[https://webdocs.cs.ualberta.ca/~holte/T26/tree-as-array.html]]
 
 | struct | update    | range sum |
 | array  | O(1)      | O(m)      |
@@ -272,6 +273,10 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
 
     ~~Just copy data to end first~~
     merge from tail, as data is consuming
+
+- 148. Sort List
+
+    Merge sort
 
 == dynamic program ==
 - 198. House Robber

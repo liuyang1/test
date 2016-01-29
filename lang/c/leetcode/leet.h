@@ -74,6 +74,41 @@ struct ListNode *buildLst(int *nums, int numsSize) {
     p->next = NULL;
     return lst;
 }
+void freeLst(struct ListNode* head) {
+    if (head == NULL) {
+        return;
+    }
+    struct ListNode *next;
+    for (; head; head = next) {
+        next = head->next;
+        free(head);
+    }
+}
+
+int isSortedLst(struct ListNode *ls) {
+    if (ls == NULL) {
+        return true;
+    }
+    int val = ls->val;
+    for (ls = ls->next; ls; ls = ls->next) {
+        if (val > ls->val) {
+            return false;
+        } else {
+            val = ls->val;
+        }
+    }
+    return true;
+}
+
+struct ListNode *buildRandLst(int size) {
+    int i, *r = malloc(sizeof(int) * size);
+    for (i = 0; i != size; i++) {
+        r[i] = rand();
+    }
+    free(r);
+    struct ListNode *ls = buildLst(r, size);
+    return ls;
+}
 
 bool cmpLst(struct ListNode *a, struct ListNode *b) {
     for (; a && b; a = a->next, b = b->next) {
