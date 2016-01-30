@@ -1,0 +1,10 @@
+= Percolation =
+
+- [[http://coursera.cs.princeton.edu/algs4/assignments/percolation.html|specication]]
+- [[http://coursera.cs.princeton.edu/algs4/checklists/percolation.html|checklist]]
+
+== key point ==
+- Basic Java Language Programming
+- Tools: java, javac, checkstyle, findbugs
+- API programming Accomplishment
+- Virtual-Top, Virtual-Bottom
