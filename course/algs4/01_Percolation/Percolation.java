@@ -76,7 +76,6 @@ public class Percolation {
             mOpenBottom[mOpenBottomNum] = j;
             mOpenBottomNum++;
         }
-        // if (!percolates() && i == mHeight - 1) {
         if (isFullI(i, j) && isConnectBottom(i, j)) {
             mUnionUF.union(pos, bottomIndex());
             mIsPercolates = true;

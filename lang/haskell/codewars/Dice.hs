@@ -1,4 +1,5 @@
-module Dice where
+module Main where
+-- module Dice where
 
 -- non-rec faster 50%
 choose n 0 = 1
@@ -28,3 +29,5 @@ rollDice n s k
   | otherwise = 1 - toDouble (cdice s n k) / toDouble s ** toDouble n
   where thr = n * (s + 1)
         toDouble = fromRational . fromIntegral
+
+main = print $ map (rollDice 20 99) [1000..1200]

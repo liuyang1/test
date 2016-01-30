@@ -10,7 +10,7 @@
 
 #define TLOG(tag, fmt, ...) printf("%s:%d %s " fmt, \
                                    __FUNCTION__, __LINE__, tag, __VA_ARGS__);
-// #define LOG(fmt, ...) printf("%s:%d "fmt, __FUNCTION__, __LINE__, __VA_ARGS__);
+#define LOG(fmt, ...) printf("%s:%d "fmt, __FUNCTION__, __LINE__, __VA_ARGS__);
 #ifndef LOG
 #define LOG(...)
 #endif

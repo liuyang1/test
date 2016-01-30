@@ -30,14 +30,13 @@ check: PercolationStats.class
 	$(TOP)/bin/checkstyle-algs4 *.java
 	$(TOP)/bin/findbugs-algs4 *.class
 
-perf:
+perf: PercolationStats.class
 	java -cp $(JARS) PercolationStats 200 1000
 
 zip:
 	zip percolation.zip Percolation.java PercolationStats.java && mv percolation.zip $(HOME)
-	scp $(HOME)/percolation.zip pc:~/
 
-regression:
+regression: PercolationVisualizer
 	java -cp $(JARS) PercolationVisualizer $(TEST)/input10.txt
 	java -cp $(JARS) PercolationVisualizer $(TEST)/input20.txt
 	java -cp $(JARS) PercolationVisualizer $(TEST)/input2.txt

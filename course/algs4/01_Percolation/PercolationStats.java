@@ -95,7 +95,10 @@ public class PercolationStats {
         PercolationStats stat = new PercolationStats(N, T);
         System.out.printf("elapsed time            = %f seconds\n",
                 sw.elapsedTime());
-        System.out.printf("mean                    = %f\n", stat.mean());
+        double expect = 0.59, thresh = 0.01;
+        double mean = stat.mean();
+        System.out.printf("mean                    = %f(expect: %f)\n",
+                mean, expect);
         System.out.printf("stddev                  = %f\n", stat.stddev());
         System.out.printf("95%% confidence interval = %f %f\n",
                 stat.confidenceLo(), stat.confidenceHi());

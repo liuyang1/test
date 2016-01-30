@@ -1,6 +1,9 @@
 Dice:Dice.hs
-	ghc $<
-	time ./Dice
+	ghc $< -rtsopts
+	./Dice +RTS -sstderr
+
+test:
+	./Dice +RTS -p -K100M -sstderr
 
 dragon:dragon.hs
 	ghc $< -o $@
