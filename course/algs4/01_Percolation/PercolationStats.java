@@ -1,3 +1,4 @@
+import edu.princeton.cs.algs4.Stopwatch;
 import edu.princeton.cs.algs4.StdStats;
 import edu.princeton.cs.algs4.StdRandom;
 
@@ -6,14 +7,15 @@ public class PercolationStats {
     private int mTime;
     private double mSize2;
     public PercolationStats(int N, int T) {
+        if (N <= 0 || T <= 0) {
+            throw new java.lang.IllegalArgumentException();
+        }
         mTime = T;
         mSize2 = N * N;
         mSimuResult = new double[T];
         int rs, r, i, j;
         for (i = 0; i != T; i++) {
             mSimuResult[i] = simuPercolation(N) / mSize2;
-            System.out.printf("simu T=%d/%d N=%d Ret=%f\n",
-                    i, T, N, mSimuResult[i]);
         }
     }
     private static class Shuffle2 {
@@ -89,7 +91,10 @@ public class PercolationStats {
             usage();
             return;
         }
+        Stopwatch sw = new Stopwatch();
         PercolationStats stat = new PercolationStats(N, T);
+        System.out.printf("elapsed time            = %f seconds\n",
+                sw.elapsedTime());
         System.out.printf("mean                    = %f\n", stat.mean());
         System.out.printf("stddev                  = %f\n", stat.stddev());
         System.out.printf("95%% confidence interval = %f %f\n",

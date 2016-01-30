@@ -8,3 +8,8 @@
 - Tools: java, javac, checkstyle, findbugs
 - API programming Accomplishment
 - Virtual-Top, Virtual-Bottom
+
+== backwash ==
+- more memory
+- one more UnionUF
+- careful when union to virtual-top, virtual-bottom, careful about neighbors
