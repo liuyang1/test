@@ -2,12 +2,10 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
     private WeightedQuickUnionUF mUnionUF;
-    private boolean []mIsOpen;
+    private char []mGridSt;
     private int mHeight;
     private int mWidth;
     private boolean mIsPercolates;
-    private int []mOpenBottom;
-    private int mOpenBottomNum;
     public Percolation(int N) {
         if (N <= 0) {
             throw new java.lang.IllegalArgumentException();
@@ -17,12 +15,10 @@ public class Percolation {
         mHeight = N;
         mWidth = N;
         mIsPercolates = false;
-        mIsOpen = new boolean[size];
-        mOpenBottom = new int[N];
-        mOpenBottomNum = 0;
+        mGridSt = new char[size];
         int i;
-        for (i = 0; i != N * N; i++) {
-            mIsOpen[i] = false;
+        for (i = 0; i != size; i++) {
+            mGridSt[i] = 0;
         }
     }
     private static int oneOffset(int x) {
@@ -48,42 +44,61 @@ public class Percolation {
     }
     private void chkConnect(int pos1, int i, int j) {
         if (isBound2D(i, j) && isOpenI(i, j)) {
-            mUnionUF.union(pos1, xyTo1D(i, j));
-        }
-    }
-    private boolean isConnectBottom(int y, int x) {
-        int comp = xyTo1D(y, x);
-        int i;
-        for (i = 0; i != mOpenBottomNum; i++) {
-            if (mUnionUF.connected(comp, xyTo1D(mHeight - 1, mOpenBottom[i]))) {
-                return true;
+            int neb = xyTo1D(i, j);
+            int nebcomp = mUnionUF.find(neb);
+            mUnionUF.union(pos1, nebcomp);
+            int newcomp = mUnionUF.find(pos1);
+            if (isGridTop(nebcomp) || isGridTop(pos1)) {
+                setGridTop(newcomp);
+                if (isOpenI(i, j)) {
+                    mUnionUF.union(pos1, topIndex());
+                }
+            }
+            if (isGridBot(nebcomp) || isGridBot(pos1)) {
+                setGridBot(newcomp);
             }
         }
-        return false;
     }
-
+    private void setGridOpen(int pos) {
+        mGridSt[pos] |= 1;
+    }
+    private void setGridTop(int pos) {
+        mGridSt[pos] |= 2;
+    }
+    private void setGridBot(int pos) {
+        mGridSt[pos] |= 4;
+    }
+    private boolean isGridOpen(int pos) {
+        return (mGridSt[pos] & 1) != 0;
+    }
+    private boolean isGridTop(int pos) {
+        return (mGridSt[pos] & 2) != 0;
+    }
+    private boolean isGridBot(int pos) {
+        return (mGridSt[pos] & 4) != 0;
+    }
     private void openI(int i, int j) {
         int pos = xyTo1D(i, j);
-        mIsOpen[pos] = true;
+        setGridOpen(pos);
+        if (i == 0) {
+            setGridTop(pos);
+            mUnionUF.union(pos, topIndex());
+        }
+        if (i == mHeight - 1) {
+            setGridBot(pos);
+        }
         chkConnect(pos, i - 1, j);
         chkConnect(pos, i + 1, j);
         chkConnect(pos, i, j - 1);
         chkConnect(pos, i, j + 1);
-        if (i == 0) {
-            mUnionUF.union(pos, topIndex());
-        }
-        if (i == mHeight - 1) {
-            mOpenBottom[mOpenBottomNum] = j;
-            mOpenBottomNum++;
-        }
-        if (isFullI(i, j) && isConnectBottom(i, j)) {
-            mUnionUF.union(pos, bottomIndex());
+        int newcomp = mUnionUF.find(pos);
+        if (isFullI(i, j) && isGridBot(newcomp)) {
             mIsPercolates = true;
         }
     }
     private boolean isOpenI(int i, int j) {
         int pos = xyTo1D(i, j);
-        return mIsOpen[pos];
+        return isGridOpen(pos);
     }
     private boolean isFullI(int i, int j) {
         return isOpenI(i, j) && mUnionUF.connected(xyTo1D(i, j), topIndex());

@@ -14,3 +14,7 @@
 - one more UnionUF
 - careful when union to virtual-top, virtual-bottom, careful about neighbors
 - Bonus: memory usage < 11 N^2 + 128 N + 1024 bytes
+
+Solution:
+# two UF-set
+# store extra-status for component root
