@@ -92,7 +92,7 @@ public class Percolation {
         chkConnect(pos, i, j - 1);
         chkConnect(pos, i, j + 1);
         int newcomp = mUnionUF.find(pos);
-        if (isFullI(i, j) && isGridBot(newcomp)) {
+        if (isGridTop(newcomp) && isGridBot(newcomp)) {
             mIsPercolates = true;
         }
     }
@@ -102,6 +102,9 @@ public class Percolation {
     }
     private boolean isFullI(int i, int j) {
         return isOpenI(i, j) && mUnionUF.connected(xyTo1D(i, j), topIndex());
+    }
+    private boolean isBackI(int i, int j) {
+        return isOpenI(i, j) && mUnionUF.connected(xyTo1D(i, j), bottomIndex());
     }
     // API use [1, N], but internal use [0, N), wrap them
     public void open(int i, int j) {

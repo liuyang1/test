@@ -26,6 +26,10 @@ draw: PercolationVisualizer.class
 	# java -cp $(JARS) PercolationVisualizer $(TEST)/input7.txt
 	# java -cp $(JARS) PercolationVisualizer $(TEST)/greeting57.txt
 
+dr14: PercolationVisualizer.class
+	java -cp $(JARS) PercolationVisualizer test14.txt
+
+
 check: PercolationStats.class
 	$(TOP)/bin/checkstyle-algs4 *.java
 	$(TOP)/bin/findbugs-algs4 *.class
@@ -50,3 +54,6 @@ except:
 	-java -cp $(JARS) PercolationStats 23 0
 	-java -cp $(JARS) PercolationStats -42 0
 	-java -cp $(JARS) PercolationStats 42 -1
+
+ref: PercolationStats.class
+	java -cp $(JARS) PercolationStats 20 10
