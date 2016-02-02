@@ -1,2 +1,2 @@
 clean:
-	rm -rf a.out core core.*
+	rm -rf a.out core core.* *.o

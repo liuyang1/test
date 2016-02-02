@@ -267,16 +267,25 @@ void showTree(struct TreeNode *t) {
 void showArr(int *nums, int numsSize) {
     int i;
     printf("[");
-    for (i = 0; i != numsSize; i++) {
-        if (i != 0) {
-            printf(", ");
+    if (nums == NULL) {
+        printf("nil");
+    } else {
+        for (i = 0; i != numsSize; i++) {
+            if (i != 0) {
+                printf(", ");
+            }
+            printf("%d", nums[i]);
         }
-        printf("%d", nums[i]);
     }
     printf("]\n");
 }
 
 bool cmpArr(int *a0, int n0, int *a1, int n1) {
+    if (a0 == NULL && a1 == NULL) {
+        return true;
+    } else if (a0 == NULL || a1 == NULL) {
+        return false;
+    }
     if (n0 != n1) {
         return false;
     }

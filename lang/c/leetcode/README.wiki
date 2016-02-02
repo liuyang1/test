@@ -53,7 +53,10 @@ stored in reverse order.
 
 * 239. Sliding Window Maximum
 
-    - iterate to increase window size
+    - ~~iterate to increase window size~~
+    - maxQueue solution
+
+Ref:[[http://www.geeksforgeeks.org/maximum-of-all-subarrays-of-size-k/]]
 
 * 299. Bulls and Cows
 
@@ -249,6 +252,10 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
     - implement an iterator on Tree use stack, DFS and Left node first
 
 * 235. Lowest Common Ancestor of a Binary Search Tree
+* 236. Lowest Common Ancestor of a Binary Tree
+
+    BST is ordered binary tree.
+    But our solution support both cases.
 
 == algorithm ==
 === binary search ===
