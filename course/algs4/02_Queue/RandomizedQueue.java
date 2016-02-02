@@ -1,7 +1,7 @@
 import edu.princeton.cs.algs4.StdRandom;
 import java.util.Iterator;
 public class RandomizedQueue<Item> implements Iterable<Item> {
-    private Item []mArray;
+    private Item[] mArray;
     private int mSize;
     private int mCap;
     public RandomizedQueue() {
@@ -30,7 +30,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             // not enough memory
             throw new java.util.NoSuchElementException();
         }
-        Item []mOldArray = mArray;
+        Item[] mOldArray = mArray;
         mArray = (Item[]) new Object[cap];
         int i;
         for (i = 0; i != mSize; i++) {
@@ -76,7 +76,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     private class RandomizedQueueIterator implements Iterator<Item> {
         private int mCurrent;
         private int mSize;
-        private int []mSeq;
+        private int[] mSeq;
         public RandomizedQueueIterator(int size) {
             mCurrent = 0;
             mSize = size;

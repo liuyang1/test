@@ -4,7 +4,7 @@ import edu.princeton.cs.algs4.StdOut;
 public class Subset {
     private static void usage() {
         System.out.printf("java Subset [k]\n"
-                + "\tinput sequence split with whitespace\n");
+                          + "\tinput sequence split with whitespace\n");
     }
     public static void main(String[] args) {
         if (args.length != 1) {

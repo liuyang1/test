@@ -13,8 +13,7 @@ public class Deque<Item> implements Iterable<Item> {
             next = nx;
         }
     }
-    public Deque() {
-    }
+    public Deque() {}
     public boolean isEmpty() {
         return mHead == null;
     }
@@ -121,7 +120,6 @@ public class Deque<Item> implements Iterable<Item> {
             mCurrent = mCurrent.next;
             return it;
         }
-
     }
     // test code
     private static String expect(boolean b) {
@@ -138,20 +136,17 @@ public class Deque<Item> implements Iterable<Item> {
         dq.addFirst(2);
         dq.addLast(3);
         int exsize = 3;
-        System.out.printf("check size: %d == %d %s\n",
-                dq.size(), exsize, expect(dq.size() == exsize));
+        System.out.printf("check size: %d == %d %s\n", dq.size(), exsize,
+                          expect(dq.size() == exsize));
         int ex = 2;
         int rt = dq.removeFirst();
-        System.out.printf("check val: %d == %d %s\n",
-                rt, ex, expect(rt == ex));
+        System.out.printf("check val: %d == %d %s\n", rt, ex, expect(rt == ex));
         ex = 3;
         rt = dq.removeLast();
-        System.out.printf("check val: %d == %d %s\n",
-                rt, ex, expect(rt == ex));
+        System.out.printf("check val: %d == %d %s\n", rt, ex, expect(rt == ex));
         ex = 1;
         rt = dq.removeLast();
-        System.out.printf("check val: %d == %d %s\n",
-                rt, ex, expect(rt == ex));
+        System.out.printf("check val: %d == %d %s\n", rt, ex, expect(rt == ex));
         System.out.printf("empty check: %s\n", expect(dq.isEmpty()));
     }
     private static boolean testFF() {
@@ -161,10 +156,10 @@ public class Deque<Item> implements Iterable<Item> {
             dq.addFirst(i);
         }
         for (i = 0; i != n; i++) {
-            int rt  = dq.removeFirst();
+            int rt = dq.removeFirst();
             int ex = n - 1 - i;
-            System.out.printf("check val: %d == %d %s\n",
-                    rt, ex, expect(rt == ex));
+            System.out.printf("check val: %d == %d %s\n", rt, ex,
+                              expect(rt == ex));
             if (rt != ex) {
                 return false;
             }
@@ -179,10 +174,10 @@ public class Deque<Item> implements Iterable<Item> {
         }
         dq.show();
         for (i = 0; i != n; i++) {
-            int rt  = dq.removeLast();
-            int ex = n - 1 -i;
-            System.out.printf("check val: %d == %d %s\n",
-                    rt, ex, expect(rt == ex));
+            int rt = dq.removeLast();
+            int ex = n - 1 - i;
+            System.out.printf("check val: %d == %d %s\n", rt, ex,
+                              expect(rt == ex));
             if (rt != ex) {
                 return false;
             }
@@ -197,10 +192,10 @@ public class Deque<Item> implements Iterable<Item> {
         }
         dq.show();
         for (i = 0; i != n; i++) {
-            int rt  = dq.removeFirst();
+            int rt = dq.removeFirst();
             int ex = i;
-            System.out.printf("check val: %d == %d %s\n",
-                    rt, ex, expect(rt == ex));
+            System.out.printf("check val: %d == %d %s\n", rt, ex,
+                              expect(rt == ex));
             if (rt != ex) {
                 return false;
             }
@@ -214,10 +209,10 @@ public class Deque<Item> implements Iterable<Item> {
             dq.addFirst(i);
         }
         for (i = 0; i != n; i++) {
-            int rt  = dq.removeLast();
+            int rt = dq.removeLast();
             int ex = i;
-            System.out.printf("check val: %d == %d %s\n",
-                    rt, ex, expect(rt == ex));
+            System.out.printf("check val: %d == %d %s\n", rt, ex,
+                              expect(rt == ex));
             if (rt != ex) {
                 return false;
             }
@@ -235,13 +230,12 @@ public class Deque<Item> implements Iterable<Item> {
         int ex = n - 1;
         while (iter.hasNext()) {
             int rt = iter.next();
-            System.out.printf("check val: %d == %d %s\n",
-                    rt, ex, expect(rt == ex));
+            System.out.printf("check val: %d == %d %s\n", rt, ex,
+                              expect(rt == ex));
             ex--;
         }
     }
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         case0();
         testFF();
         testFL();
