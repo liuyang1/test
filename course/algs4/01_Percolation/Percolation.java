@@ -42,19 +42,19 @@ public class Percolation {
     private int xyTo1D(int y, int x) {
         return y * mWidth + x;
     }
-    private void chkConnect(int pos1, int i, int j) {
+    private void chkConnect(int pos, int i, int j) {
         if (isBound2D(i, j) && isOpenI(i, j)) {
-            int neb = xyTo1D(i, j);
-            int nebcomp = mUnionUF.find(neb);
-            mUnionUF.union(pos1, nebcomp);
-            int newcomp = mUnionUF.find(pos1);
-            if (isGridTop(nebcomp) || isGridTop(pos1)) {
+            int comp0 = mUnionUF.find(pos);
+            int comp1 = mUnionUF.find(xyTo1D(i, j));
+            mUnionUF.union(comp0, comp1);
+            int newcomp = mUnionUF.find(comp0);
+            if (isGridTop(comp0) || isGridTop(comp1)) {
                 setGridTop(newcomp);
                 if (isOpenI(i, j)) {
-                    mUnionUF.union(pos1, topIndex());
+                    mUnionUF.union(comp0, topIndex());
                 }
             }
-            if (isGridBot(nebcomp) || isGridBot(pos1)) {
+            if (isGridBot(comp0) || isGridBot(comp1)) {
                 setGridBot(newcomp);
             }
         }

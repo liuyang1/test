@@ -56,25 +56,6 @@ public class PercolationStats {
         }
         return r;
     }
-    private static int simuCmpRef(int N) {
-        PercolationRef percRef = new PercolationRef(N);
-        Percolation perc = new Percolation(N);
-        Shuffle2 sfl = new Shuffle2(N, N);
-        int r = 0;
-        while (true) {
-            if (percRef.percolates() != perc.percolates()) {
-                System.out.printf("wrong\n");
-                break;
-            }
-            int []pos = sfl.acquire();
-            System.out.printf("%3d %3d\n", pos[0] + 1, pos[1] + 1);
-            perc.open(pos[0] + 1, pos[1] + 1);
-            percRef.open(pos[0] + 1, pos[1] + 1);
-            r++;
-        }
-        return r;
-    }
-
     public double mean() {
         return StdStats.mean(mSimuResult);
     }
@@ -97,9 +78,6 @@ public class PercolationStats {
         System.out.printf("java PercolationStats [N] [T]\n");
     }
     public static void main(String[] args) {
-        simuCmpRef(20);
-        return;
-        /*
         if (args.length != 2) {
             usage();
             return;
@@ -123,6 +101,5 @@ public class PercolationStats {
         System.out.printf("stddev                  = %f\n", stat.stddev());
         System.out.printf("95%% confidence interval = %f %f\n",
                           stat.confidenceLo(), stat.confidenceHi());
-                          */
     }
 }
