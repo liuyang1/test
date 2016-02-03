@@ -6,9 +6,9 @@ interviews.
     - Corner case
         - Overflow
         - Empty array, empty linked list
-    - Practice NOT using IDE, compiler, editor to finish problem
+    - ~~Practice NOT using IDE, compiler, editor to finish problem~~
 
-Progress:: 84 / 307
+Progress:: 111 / 314
 
 = review =
 == basic ==
@@ -162,6 +162,10 @@ possible unique paths?
 
     Just `combination(m + n - 2, m - 1)`.
     Mind not overflow when calculate combination
+
+* 70. Permutations Sequence
+
+    - from K inverse calc sequence
 
 * 77. Combinations
 
