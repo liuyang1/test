@@ -45,6 +45,10 @@ stored in reverse order.
 
     - remove extra leading zero, but keep it if only one zero
 
+* 70. Simplify Path
+
+    - Horrible C code when processing on string, learn sth from Python
+
 * 120. Minimum Path in Triangle
 
 * 238. Product of Array Except Self
@@ -96,6 +100,14 @@ Ref:[[http://www.geeksforgeeks.org/maximum-of-all-subarrays-of-size-k/]]
 
 == math ==
 === Basic ===
+* 8. atoi
+
+    - corner case
+        - whitespace
+        - sign
+        - leading-zero
+        - overflow
+
 * 50. Pow
 
     binary recursion
