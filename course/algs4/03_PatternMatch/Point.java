@@ -9,6 +9,7 @@
  ******************************************************************************/
 
 import java.util.Comparator;
+import java.util.Arrays;
 import edu.princeton.cs.algs4.StdDraw;
 
 public class Point implements Comparable<Point> {
@@ -66,7 +67,7 @@ public class Point implements Comparable<Point> {
                 return Double.NEGATIVE_INFINITY;
             }
         } else {
-            return (that.y - y) - (that.x - x);
+            return (that.y - y) / (that.x - x + 0.0);
         }
     }
 
@@ -84,9 +85,9 @@ public class Point implements Comparable<Point> {
      */
     public int compareTo(Point that) {
         if (that.y != y) {
-            return Integer.valueOf(that.y).compareTo(Integer.valueOf(y));
+            return Integer.compare(y, that.y);
         } else {
-            return Integer.valueOf(that.x).compareTo(Integer.valueOf(x));
+            return Integer.compare(x, that.x);
         }
     }
 
@@ -97,9 +98,9 @@ public class Point implements Comparable<Point> {
      * @return the Comparator that defines this ordering on points
      */
     public Comparator<Point> slopeOrder() {
-        return new Comparator<Point> () {
+        return new Comparator<Point>() {
             public int compare(Point p0, Point p1) {
-                return Double.valueOf(slopeTo(p0)).compareTo(Double.valueOf(slopeTo(p1)));
+                return Double.compare(slopeTo(p0), slopeTo(p1));
             }
         };
     }
@@ -117,7 +118,83 @@ public class Point implements Comparable<Point> {
         return "(" + x + ", " + y + ")";
     }
 
+    public static boolean testOneSlopeTo(Point p0, Point p1, double expect) {
+        double slope = p0.slopeTo(p1);
+        System.out.printf("slopeTo(%s, %s) => %f ?= %f %s\n",
+                p0, p1, slope, expect, slope == expect);
+        return slope == expect;
+    }
+    public static boolean testSlopeTo() {
+        Point origin = new Point(0, 0);
+        Point p0 = new Point(1, 1);
+        Point p1 = new Point(1, 2);
+        if (!testOneSlopeTo(origin, p0, 1.0)) { return false; }
+        if (!testOneSlopeTo(p0, origin, 1.0)) { return false; }
+        if (!testOneSlopeTo(origin, p1, 2.0)) { return false; }
+        if (!testOneSlopeTo(p0, p1, Double.POSITIVE_INFINITY)) { return false; }
+        if (!testOneSlopeTo(p0, p0, Double.NEGATIVE_INFINITY)) { return false; }
+        return true;
+    }
+    public static boolean testOneCompareTo(Point p0, Point p1, int expect) {
+        int cmp = p0.compareTo(p1);
+        System.out.printf("compareTo(%s, %s) => %d ?= %d %s\n",
+                p0, p1, cmp, expect, cmp == expect);
+        int cmpRev = p1.compareTo(p0);
+        System.out.printf("compareTo(%s, %s) => %d ?= %d %s\n",
+                p1, p0, cmpRev, -expect, cmpRev == -expect);
+        return cmp == expect && cmpRev == -expect;
+    }
+    public static boolean testCompareTo() {
+        Point origin = new Point(0, 0);
+        Point p1 = new Point(1, 1);
+        Point p2 = new Point(1, 2);
+        testOneCompareTo(origin, origin, 0);
+        testOneCompareTo(origin, p1, -1);
+        testOneCompareTo(p2, p1, 1);
+        return true;
+
+    }
+    public static void showPoints(Point []points) {
+        System.out.printf("[");
+        boolean start = true;
+        for (Point pt: points) {
+            if (!start) {
+                System.out.printf(", ");
+            } else {
+                start = false;
+            }
+            System.out.printf("%s", pt);
+        }
+        System.out.printf("]\n");
+    }
+    public static boolean testComparator() {
+        final int sz = 6;
+        Point[] points = new Point[sz];
+        points[0] = new Point(0, 3);
+        points[1] = new Point(1, 2);
+        points[2] = new Point(1, 1);
+        points[3] = new Point(0, 0);
+        points[4] = new Point(-1, 2);
+        points[5] = new Point(2, -1);
+        System.out.printf("origin list:\n");
+        showPoints(points);
+        System.out.printf("sort by y then x\n");
+        Arrays.sort(points);
+        showPoints(points);
+        Point center = new Point(0, 0);
+        System.out.printf("sort by slopeOrder with centeral %s\n", center);
+        Arrays.sort(points, center.slopeOrder());
+        showPoints(points);
+        center = new Point(0, 1);
+        System.out.printf("sort by slopeOrder with centeral %s\n", center);
+        Arrays.sort(points, center.slopeOrder());
+        showPoints(points);
+        return true;
+    }
     public static boolean basicTest() {
+        testSlopeTo();
+        testCompareTo();
+        testComparator();
         return true;
     }
     /**

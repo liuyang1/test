@@ -52,8 +52,8 @@ public class LineSegment {
     /**
      * Throws an exception if called. The hashCode() method is not supported because
      * hashing has not yet been introduced in this course. Moreover, hashing does not
-     * typically lead to good *worst-case* performance guarantees, as required on this
-     * assignment.
+     * typically lead to good *worst-case* performance guarantees, as required on
+     * this assignment.
      *
      * @throws UnsupportedOperationException if called
      */
