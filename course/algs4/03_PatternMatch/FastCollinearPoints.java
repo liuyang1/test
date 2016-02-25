@@ -3,11 +3,11 @@ import java.util.ArrayList;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
-public class BruteCollinearPoints {
+public class FastCollinearPoints {
     private LineSegment[] mSegs;
-    public BruteCollinearPoints(Point[] points) {
+    public FastCollinearPoints(Point[] points) {
         precheck(points);
-        // System.out.printf("BruteCollinearPoints length=%d\n", points.length);
+        // System.out.printf("FastCollinearPoints length=%d\n", points.length);
         Arrays.sort(points);
         // XXX: improve this ugly code
         ArrayList lst = new ArrayList();
@@ -68,9 +68,9 @@ public class BruteCollinearPoints {
         // Don't directly return reference of internal var
         return mSegs.clone();
     }
-    public static boolean testOneBCP(Point[] points) {
-        BruteCollinearPoints bcp = new BruteCollinearPoints(points);
-        LineSegment[] segs = bcp.segments();
+    public static boolean testOneFCP(Point[] points) {
+        FastCollinearPoints fcp = new FastCollinearPoints(points);
+        LineSegment[] segs = fcp.segments();
         for (LineSegment seg: segs) {
             System.out.printf("seg: %s\n", seg);
         }
@@ -82,10 +82,10 @@ public class BruteCollinearPoints {
             points[i] = new Point(i, i + 1);
         }
         System.out.printf("positive case\n");
-        testOneBCP(points);
+        testOneFCP(points);
         points[3] = new Point(1, -1);
         System.out.printf("negative case\n");
-        testOneBCP(points);
+        testOneFCP(points);
         return true;
     }
     public static boolean nullExceptTest() {
@@ -93,7 +93,7 @@ public class BruteCollinearPoints {
         points[0] = null;
         try {
             // dead store
-            BruteCollinearPoints bcp = new BruteCollinearPoints(points);
+            FastCollinearPoints fcp = new FastCollinearPoints(points);
         } catch (java.lang.NullPointerException nullExcept) {
             return true;
         }
@@ -104,7 +104,7 @@ public class BruteCollinearPoints {
         points[0] = new Point(1, 1);
         points[1] = new Point(1, 1);
         try {
-            BruteCollinearPoints bcp = new BruteCollinearPoints(points);
+            FastCollinearPoints fcp = new FastCollinearPoints(points);
         } catch (java.lang.IllegalArgumentException except) {
             return true;
         }
@@ -141,7 +141,7 @@ public class BruteCollinearPoints {
             p.draw();
         }
         StdDraw.show();
-        BruteCollinearPoints collinear = new BruteCollinearPoints(points);
+        FastCollinearPoints collinear = new FastCollinearPoints(points);
         for (LineSegment seg: collinear.segments()) {
             StdOut.println(seg);
             seg.draw();
@@ -151,3 +151,4 @@ public class BruteCollinearPoints {
         sampleTest(args[0]);
     }
 }
+
