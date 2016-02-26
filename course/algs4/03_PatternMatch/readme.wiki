@@ -1,0 +1,4 @@
+== submit progress ==
+- ~~forbidden to use ArrayList~~
+fix `raw type ArrayList` problem, add generic type with <LineSegment>
+- API, style check

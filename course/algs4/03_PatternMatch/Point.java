@@ -67,7 +67,11 @@ public class Point implements Comparable<Point> {
                 return Double.NEGATIVE_INFINITY;
             }
         } else {
-            return (that.y - y) / (that.x - x + 0.0);
+            if (that.y == y) {
+                return +0.0;
+            } else {
+                return (that.y - y) / (that.x - x + 0.0);
+            }
         }
     }
 
@@ -118,13 +122,13 @@ public class Point implements Comparable<Point> {
         return "(" + x + ", " + y + ")";
     }
 
-    public static boolean testOneSlopeTo(Point p0, Point p1, double expect) {
+    private static boolean testOneSlopeTo(Point p0, Point p1, double expect) {
         double slope = p0.slopeTo(p1);
         System.out.printf("slopeTo(%s, %s) => %f ?= %f %s\n",
                 p0, p1, slope, expect, slope == expect);
         return slope == expect;
     }
-    public static boolean testSlopeTo() {
+    private static boolean testSlopeTo() {
         Point origin = new Point(0, 0);
         Point p0 = new Point(1, 1);
         Point p1 = new Point(1, 2);
@@ -133,9 +137,16 @@ public class Point implements Comparable<Point> {
         if (!testOneSlopeTo(origin, p1, 2.0)) { return false; }
         if (!testOneSlopeTo(p0, p1, Double.POSITIVE_INFINITY)) { return false; }
         if (!testOneSlopeTo(p0, p0, Double.NEGATIVE_INFINITY)) { return false; }
+        p0 = new Point(260, 167);
+        p1 = new Point(206, 167);
+        if (!testOneSlopeTo(p0, p1, +0.0)) { return false; }
+        p0 = new Point(2000, 2000);
+        p1 = new Point(1000, 1000);
+        Point p2 = new Point(9000, 9000);
+        if (!testOneSlopeTo(p0, p1, p0.slopeTo(p2))) { return false; }
         return true;
     }
-    public static boolean testOneCompareTo(Point p0, Point p1, int expect) {
+    private static boolean testOneCompareTo(Point p0, Point p1, int expect) {
         int cmp = p0.compareTo(p1);
         System.out.printf("compareTo(%s, %s) => %d ?= %d %s\n",
                 p0, p1, cmp, expect, cmp == expect);
@@ -144,7 +155,7 @@ public class Point implements Comparable<Point> {
                 p1, p0, cmpRev, -expect, cmpRev == -expect);
         return cmp == expect && cmpRev == -expect;
     }
-    public static boolean testCompareTo() {
+    private static boolean testCompareTo() {
         Point origin = new Point(0, 0);
         Point p1 = new Point(1, 1);
         Point p2 = new Point(1, 2);
@@ -154,7 +165,7 @@ public class Point implements Comparable<Point> {
         return true;
 
     }
-    public static void showPoints(Point []points) {
+    private static void showPoints(Point []points) {
         System.out.printf("[");
         boolean start = true;
         for (Point pt: points) {
@@ -167,7 +178,7 @@ public class Point implements Comparable<Point> {
         }
         System.out.printf("]\n");
     }
-    public static boolean testComparator() {
+    private static boolean testComparator() {
         final int sz = 6;
         Point[] points = new Point[sz];
         points[0] = new Point(0, 3);
@@ -191,7 +202,7 @@ public class Point implements Comparable<Point> {
         showPoints(points);
         return true;
     }
-    public static boolean basicTest() {
+    private static boolean basicTest() {
         testSlopeTo();
         testCompareTo();
         testComparator();

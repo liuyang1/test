@@ -4,29 +4,66 @@ import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 public class FastCollinearPoints {
+    private class Pair implements Comparable<Pair> {
+        private int mIndex;
+        private double mSlope;
+        Pair(int index, double slope) {
+            mIndex = index;
+            mSlope = slope;
+        }
+        public int compareTo(Pair that) {
+            return Double.compare(mSlope, that.mSlope);
+        }
+    }
+
     private LineSegment[] mSegs;
-    public FastCollinearPoints(Point[] points) {
+    public FastCollinearPoints(Point[] pts) {
+        Point[] points = pts.clone();
         precheck(points);
-        // System.out.printf("FastCollinearPoints length=%d\n", points.length);
         Arrays.sort(points);
-        // XXX: improve this ugly code
-        ArrayList lst = new ArrayList();
-        for (int p = 0; p != points.length; p++) {
-            for (int q = p + 1; q != points.length; q++) {
-                for (int r = q + 1; r != points.length; r++) {
-                    for (int s = r + 1; s != points.length; s++) {
-                        // System.out.printf("check %d %d %d %d\n", p, q, r, s);
-                        if (isCollinear(points[p], points[q], points[r],
-                                    points[s])) {
-                            // System.out.printf("%s %s %s %s collinear\n",
-                            //         points[p], points[q], points[r], points[s]);
-                            LineSegment seg = collinear(points[p], points[q],
-                                    points[r], points[s]);
-                            lst.add(seg);
+        ArrayList<LineSegment> lst = new ArrayList<LineSegment>();
+        int len = points.length;
+        for (int origin = 0; origin < points.length - 3; origin++) {
+            Pair[] others = new Pair[len - origin - 1];
+            for (int j = origin + 1; j != points.length; j++) {
+                double slope = points[origin].slopeTo(points[j]);
+                others[j - origin - 1] = new Pair(j, slope);
+            }
+            Arrays.sort(others);
+            /*
+            System.out.printf("origin: %s\n", points[origin]);
+            for (int j = 0; j != others.length; j++) {
+                System.out.printf("%2d %2d %s %f\n", j, others[j].mIndex, points[others[j].mIndex], others[j].mSlope);
+            }
+            System.out.printf("\n");
+            */
+            int acc, j;
+            for (j = 1, acc = 1; j < others.length; j++) {
+                if (others[j].mSlope == others[j - 1].mSlope) {
+                    acc++;
+                } else {
+                    if (acc >= 3) {
+                        if (!isPointsInSeg(points, 0, origin - 1, points[origin], points[others[j - 1].mIndex])) {
+                        LineSegment seg = collinear(
+                                points[others[j - 1].mIndex],
+                                points[others[j - 2].mIndex],
+                                points[others[j - 3].mIndex],
+                                points[origin]);
+                        lst.add(seg);
                         }
                     }
+                    acc = 1;
                 }
             }
+            if (acc >= 3 && !isPointsInSeg(points, 0, origin - 1, points[origin], points[others[j - 1].mIndex])) {
+                LineSegment seg = collinear(
+                        points[others[j - 1].mIndex],
+                        points[others[j - 2].mIndex],
+                        points[others[j - 3].mIndex],
+                        points[origin]);
+                lst.add(seg);
+            }
+
         }
         mSegs = new LineSegment[lst.size()];
         lst.toArray(mSegs);
@@ -54,6 +91,24 @@ public class FastCollinearPoints {
         Arrays.sort(points);
         return new LineSegment(points[0], points[3]);
     }
+    private boolean isInSeg(Point p, Point beg, Point end) {
+        return p.slopeTo(beg) == p.slopeTo(end);
+    }
+    private boolean isPointsInSeg(Point[] pts, int startIdx, int endIdx, Point beg, Point end) {
+        if (endIdx < startIdx) {
+            return false;
+        }
+        for (int i = startIdx; i <= endIdx; i++) {
+            Point pt = pts[i];
+            if (isInSeg(pt, beg, end)) {
+                // System.out.printf("xxx %s in %s %s\n", pt, beg, end);
+                return true;
+            } else {
+                // System.out.printf("xxx %s not in %s %s\n", pt, beg, end);
+            }
+        }
+        return false;
+    }
     private boolean isCollinear(Point p, Point q, Point r, Point s) {
         double slope0 = p.slopeTo(q);
         double slope1 = p.slopeTo(r);
@@ -68,7 +123,7 @@ public class FastCollinearPoints {
         // Don't directly return reference of internal var
         return mSegs.clone();
     }
-    public static boolean testOneFCP(Point[] points) {
+    private static boolean testOneFCP(Point[] points) {
         FastCollinearPoints fcp = new FastCollinearPoints(points);
         LineSegment[] segs = fcp.segments();
         for (LineSegment seg: segs) {
@@ -76,7 +131,7 @@ public class FastCollinearPoints {
         }
         return true;
     }
-    public static boolean basicTest() {
+    private static boolean basicTest() {
         Point[] points = new Point[4];
         for (int i = 0; i != 4; i++) {
             points[i] = new Point(i, i + 1);
@@ -88,29 +143,28 @@ public class FastCollinearPoints {
         testOneFCP(points);
         return true;
     }
-    public static boolean nullExceptTest() {
+    private static boolean nullExceptTest() {
         Point[] points = new Point[1];
         points[0] = null;
         try {
-            // dead store
-            FastCollinearPoints fcp = new FastCollinearPoints(points);
+            testOneFCP(points);
         } catch (java.lang.NullPointerException nullExcept) {
             return true;
         }
         return false;
     }
-    public static boolean repeatExceptTest() {
+    private static boolean repeatExceptTest() {
         Point[] points = new Point[2];
         points[0] = new Point(1, 1);
         points[1] = new Point(1, 1);
         try {
-            FastCollinearPoints fcp = new FastCollinearPoints(points);
+            testOneFCP(points);
         } catch (java.lang.IllegalArgumentException except) {
             return true;
         }
         return false;
     }
-    public static boolean exceptTest() {
+    private static boolean exceptTest() {
         if (!nullExceptTest()) {
             System.out.printf("nullExceptTest fail\n");
             return false;
@@ -121,11 +175,11 @@ public class FastCollinearPoints {
         }
         return true;
     }
-    public static void caseTest() {
+    private static void caseTest() {
         basicTest();
         exceptTest();
     }
-    public static void sampleTest(String filename) {
+    private static void sampleTest(String filename) {
         In in = new In(filename);
         int N = in.readInt();
         Point[] points = new Point[N];

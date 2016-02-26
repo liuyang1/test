@@ -5,12 +5,12 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 public class BruteCollinearPoints {
     private LineSegment[] mSegs;
-    public BruteCollinearPoints(Point[] points) {
+    public BruteCollinearPoints(Point[] pts) {
+        Point[] points = pts.clone();
         precheck(points);
-        // System.out.printf("BruteCollinearPoints length=%d\n", points.length);
         Arrays.sort(points);
         // XXX: improve this ugly code
-        ArrayList lst = new ArrayList();
+        ArrayList<LineSegment> lst = new ArrayList<LineSegment>();
         for (int p = 0; p != points.length; p++) {
             for (int q = p + 1; q != points.length; q++) {
                 for (int r = q + 1; r != points.length; r++) {
@@ -68,7 +68,7 @@ public class BruteCollinearPoints {
         // Don't directly return reference of internal var
         return mSegs.clone();
     }
-    public static boolean testOneBCP(Point[] points) {
+    private static boolean testOneBCP(Point[] points) {
         BruteCollinearPoints bcp = new BruteCollinearPoints(points);
         LineSegment[] segs = bcp.segments();
         for (LineSegment seg: segs) {
@@ -76,7 +76,7 @@ public class BruteCollinearPoints {
         }
         return true;
     }
-    public static boolean basicTest() {
+    private static boolean basicTest() {
         Point[] points = new Point[4];
         for (int i = 0; i != 4; i++) {
             points[i] = new Point(i, i + 1);
@@ -88,29 +88,28 @@ public class BruteCollinearPoints {
         testOneBCP(points);
         return true;
     }
-    public static boolean nullExceptTest() {
+    private static boolean nullExceptTest() {
         Point[] points = new Point[1];
         points[0] = null;
         try {
-            // dead store
-            BruteCollinearPoints bcp = new BruteCollinearPoints(points);
+            testOneBCP(points);
         } catch (java.lang.NullPointerException nullExcept) {
             return true;
         }
         return false;
     }
-    public static boolean repeatExceptTest() {
+    private static boolean repeatExceptTest() {
         Point[] points = new Point[2];
         points[0] = new Point(1, 1);
         points[1] = new Point(1, 1);
         try {
-            BruteCollinearPoints bcp = new BruteCollinearPoints(points);
+            testOneBCP(points);
         } catch (java.lang.IllegalArgumentException except) {
             return true;
         }
         return false;
     }
-    public static boolean exceptTest() {
+    private static boolean exceptTest() {
         if (!nullExceptTest()) {
             System.out.printf("nullExceptTest fail\n");
             return false;
@@ -121,11 +120,11 @@ public class BruteCollinearPoints {
         }
         return true;
     }
-    public static void caseTest() {
+    private static void caseTest() {
         basicTest();
         exceptTest();
     }
-    public static void sampleTest(String filename) {
+    private static void sampleTest(String filename) {
         In in = new In(filename);
         int N = in.readInt();
         Point[] points = new Point[N];
