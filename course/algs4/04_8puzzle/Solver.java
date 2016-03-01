@@ -1,18 +1,21 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 public class Solver {
-    public Solver(Board initial)           // find a solution to the initial board (using the A* algorithm)
+    // find a solution to the initial board (using the A* algorithm)
+    public Solver(Board initial)
     {
     }
     public boolean isSolvable() // is the initial board solvable?
     {
         return false;
     }
-    public int moves()                     // min number of moves to solve initial board; -1 if unsolvable
+    // min number of moves to solve initial board; -1 if unsolvable
+    public int moves()
     {
         return -1;
     }
-    public Iterable<Board> solution()      // sequence of boards in a shortest solution; null if unsolvable
+    // sequence of boards in a shortest solution; null if unsolvable
+    public Iterable<Board> solution()
     {
         return null;
     }

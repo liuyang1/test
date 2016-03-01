@@ -1,3 +1,5 @@
+import java.util.List;
+import java.util.LinkedList;
 public class Board {
     private int[][] mBlocks;
     private int mDim;
@@ -8,7 +10,13 @@ public class Board {
         if (mDim == 0 || mDim != blocks[0].length) {
             throw new java.lang.IllegalArgumentException();
         }
-        mBlocks = blocks;
+        // deep copy
+        mBlocks = new int[mDim][mDim];
+        for (int i = 0; i != mDim; i++) {
+            for (int j = 0; j != mDim; j++) {
+                mBlocks[i][j] = blocks[i][j];
+            }
+        }
     }
     public int dimension() // board dimension N
     {
@@ -52,10 +60,25 @@ public class Board {
     {
         return hamming() == 0;
     }
+    // k combinator, to swap x and y
+    // y = k(x, x=y);
+    private static int kCombinator(int a, int b) {
+        return a;
+    }
+    private Board twinPos(int x, int y, int x1, int y1) {
+        Board brd = new Board(mBlocks);
+        brd.mBlocks[x1][y1] = kCombinator(brd.mBlocks[x][y],
+                brd.mBlocks[x][y] = brd.mBlocks[x1][y1]);
+        return brd;
+    }
     // a board that is obtained by exchanging any pair of blocks
     public Board twin()
     {
-        return new Board(null);
+        if (mBlocks[0][0] != 0 && mBlocks[0][1] != 0) {
+            return twinPos(0, 0, 0, 1);
+        } else {
+            return twinPos(1, 0, 1, 1);
+        }
     }
     public boolean equals(Object y) // does this board equal y?
     {
@@ -71,6 +94,8 @@ public class Board {
         }
         for (int i = 0; i != this.dimension(); i++) {
             for (int j = 0; j != this.dimension(); j++) {
+                // System.out.printf("(%d, %d) %d %d\n",
+                //         i, j, this.mBlocks[i][j], that.mBlocks[i][j]);
                 if (this.mBlocks[i][j] != that.mBlocks[i][j]) {
                     return false;
                 }
@@ -78,14 +103,51 @@ public class Board {
         }
         return true;
     }
-    public Iterable<Board> neighbors() // all neighboring boards
+    // all neighboring boards
+    // find 0 postion first, then swap it with its neighbors
+    public Iterable<Board> neighbors()
     {
-        return null;
+        List<Board> lst = new LinkedList<Board>();
+        int x = -1, y = -1;
+        for (int i = 0; i != mDim; i++) {
+            for (int j = 0; j != mDim; j++) {
+                if (mBlocks[i][j] == 0) {
+                    x = i;
+                    y = j;
+                }
+            }
+        }
+        if (x == -1 || y == -1) {
+            // cannot find zero
+            throw new java.lang.IllegalArgumentException();
+        }
+        if (x != 0) {
+            lst.add(twinPos(x, y, x - 1, y));
+        }
+        if (x != mDim - 1) {
+            lst.add(twinPos(x, y, x + 1, y));
+        }
+        if (y != 0) {
+            lst.add(twinPos(x, y, x, y - 1));
+        }
+        if (y != mDim - 1) {
+            lst.add(twinPos(x, y, x, y + 1));
+        }
+        return lst;
     }
     // string representation of this board
     public String toString()
     {
-        return "";
+        StringBuilder ret = new StringBuilder();
+        String newline = System.getProperty("line.separator");
+        ret.append("" + mDim + newline);
+        for (int i = 0; i != mDim; i++) {
+            for (int j = 0; j != mDim; j++) {
+                ret.append(String.format("%2d ", mBlocks[i][j]));
+            }
+            ret.append(newline);
+        }
+        return ret.toString();
     }
 
     // test code
@@ -96,6 +158,21 @@ public class Board {
         System.out.printf("dim=%d\n", brd.dimension());
         System.out.printf("hamming=%d manhattan=%d\n", brd.hamming(),
                           brd.manhattan());
+
+        Board brd1 = new Board(blocks);
+        System.out.printf("equal=%s\n", brd.equals(brd1));
+        blocks[0][0] = 1;
+        blocks[0][1] = 8;
+        Board brd2 = new Board(blocks);
+        System.out.printf("equal=%s\n", brd.equals(brd2));
+
+        System.out.printf("neighbors\n");
+        for (Board bd: brd.neighbors()) {
+            System.out.printf("%s\n", bd);
+        }
+
+        System.out.printf("twin\n");
+        System.out.printf("%s\n", brd.twin());
         return true;
     }
     public static void main(String[] args) // unit tests (not graded)
