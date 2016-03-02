@@ -17,7 +17,8 @@ Solver.class: Solver.java
 Solver.test: Solver.class
 	java -cp $(JARS) Solver $(TEST)/input8.txt
 
-test: Board.test
+# test: Board.test
+test: Solver.test
 
 clean:
 	rm -rf *.class *.zip *log
