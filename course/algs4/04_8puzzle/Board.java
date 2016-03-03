@@ -67,8 +67,9 @@ public class Board {
     }
     private Board twinPos(int x, int y, int x1, int y1) {
         Board brd = new Board(mBlocks);
-        brd.mBlocks[x1][y1] = kCombinator(brd.mBlocks[x][y],
-                brd.mBlocks[x][y] = brd.mBlocks[x1][y1]);
+        int t = brd.mBlocks[x1][y1];
+        brd.mBlocks[x1][y1] = brd.mBlocks[x][y];
+        brd.mBlocks[x][y] = t;
         return brd;
     }
     // a board that is obtained by exchanging any pair of blocks
@@ -85,7 +86,7 @@ public class Board {
         if (this == y) {
             return true;
         }
-        if (this == null || this.getClass() != y.getClass()) {
+        if (y == null || this.getClass() != y.getClass()) {
             return false;
         }
         Board that = (Board) y;
@@ -151,7 +152,7 @@ public class Board {
     }
 
     // test code
-    public static boolean testDist() {
+    private static boolean testDist() {
         int[][] blocks = {{8, 1, 3}, {4, 0, 2}, {7, 6, 5}};
         Board brd = new Board(blocks);
         System.out.printf("%s\n", brd);

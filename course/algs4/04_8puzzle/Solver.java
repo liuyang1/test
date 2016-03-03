@@ -5,11 +5,11 @@ import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.MinPQ;
 public class Solver {
     private class SearchNode {
-        Board mBoard;
-        int mMoves;
-        SearchNode mPrev;
-        int mHamming;
-        int mManhattan;
+        private Board mBoard;
+        private int mMoves;
+        private SearchNode mPrev;
+        private int mHamming;
+        private int mManhattan;
         public SearchNode(Board brd, int moves, SearchNode prev) {
             mBoard = brd;
             mMoves = moves;
@@ -25,12 +25,31 @@ public class Solver {
     {
         mInitial = initial;
         mSolutionSeq = new LinkedList<Board>();
+        search();
     }
+    /*
+       if (n0.mHamming != n1.mHamming) {
+       return Integer.compare(n0.mHamming, n1.mHamming);
+       } else {
+       return Integer.compare(n0.mManhattan, n1.mManhattan);
+       }
+       */
     private static Comparator<SearchNode> hammingOrder() {
         return new Comparator<SearchNode>() {
             public int compare(SearchNode n0, SearchNode n1) {
-                // return Integer.compare(n0.mBoard.hamming(), n1.mBoard.hamming());
-                return Integer.compare(n0.mHamming, n1.mHamming);
+                if (n0.mHamming != n1.mHamming) {
+                    return Integer.compare(n0.mHamming, n1.mHamming);
+                } else {
+                    if (n0.mManhattan != n1.mManhattan) {
+                        return Integer.compare(n0.mManhattan, n1.mManhattan);
+                    } else {
+                        if (n0.mMoves != n1.mMoves) {
+                            return Integer.compare(n0.mMoves, n1.mMoves);
+                        } else {
+                            return 0;
+                        }
+                    }
+                }
             }
         };
     }
@@ -42,34 +61,55 @@ public class Solver {
     }
     private void search() {
         SearchNode node = new SearchNode(mInitial, 0, null);
+        SearchNode twin = new SearchNode(mInitial.twin(), 0, null);
+        // System.out.printf("initial hamming=%d manhattan=%d\n",
+        //                   node.mHamming, node.mManhattan);
         MinPQ<SearchNode> q = new MinPQ<SearchNode>(hammingOrder());
+        MinPQ<SearchNode> tq = new MinPQ<SearchNode>(hammingOrder());
         q.insert(node);
+        tq.insert(twin);
         int i = 0;
         while (true) {
             node = q.delMin();
-            System.out.printf("pop min board hamming=%d moves=%d\n%s", node.mHamming, node.mMoves, node.mBoard);
+            twin = tq.delMin();
+            // System.out.printf("pop min hamming=%d manhattan=%d moves=%d\n%s",
+            //                   node.mHamming, node.mManhattan,
+            //                   node.mMoves, node.mBoard);
             if (node.mBoard.isGoal()) {
-                System.out.printf("find goal\n");
+                // System.out.printf("find goal\n");
                 backtraceSln(node);
                 break;
             }
+            if (twin.mBoard.isGoal()) {
+                // System.out.printf("find goal for twin board\n");
+                break;
+            }
             for (Board brd: node.mBoard.neighbors()) {
-                // System.out.printf("push neighbor hamming=%d\n%s", brd.hamming(), brd);
                 if (node.mPrev != null && brd.equals(node.mPrev.mBoard)) {
-                    // System.out.printf("disallow neighbors which is equals to previous\n");
+                    // System.ut.printf("disallow neighbors\n");
+                    continue;
                 }
+                // System.out.printf("push neighbor hamming=%d\n%s",
+                //                   brd.hamming(), brd);
                 SearchNode nn = new SearchNode(brd, node.mMoves + 1, node);
                 q.insert(nn);
             }
+            for (Board brd: twin.mBoard.neighbors()) {
+                if (node.mPrev != null && brd.equals(twin.mPrev.mBoard)) {
+                    continue;
+                }
+                SearchNode nn = new SearchNode(brd, twin.mMoves + 1, twin);
+                tq.insert(nn);
+            }
             i++;
-            if (i == 20) {
+            if (i == 200) {
                 break;
             }
         }
     }
     public boolean isSolvable() // is the initial board solvable?
     {
-        return true;
+        return moves() != -1;
     }
     // min number of moves to solve initial board; -1 if unsolvable
     public int moves()
@@ -79,10 +119,14 @@ public class Solver {
     // sequence of boards in a shortest solution; null if unsolvable
     public Iterable<Board> solution()
     {
-        return mSolutionSeq;
+        if (isSolvable()) {
+            return mSolutionSeq;
+        } else {
+            return null;
+        }
     }
     // solve a slider puzzle
-    public static void testExtCase(String[] args) {
+    private static void testExtCase(String[] args) {
         // create initial board from file
         In in = new In(args[0]);
         int N = in.readInt();
@@ -104,7 +148,7 @@ public class Solver {
                 StdOut.println(board);
         }
     }
-    public static boolean testUnit() {
+    private static boolean testUnit() {
         int[][] blocks = {{0, 1, 3}, {4, 2, 5}, {7, 8, 6}};
         System.out.printf("Solvable case\n");
         Board brd = new Board(blocks);
@@ -114,10 +158,9 @@ public class Solver {
         testOne(brd1);
         return true;
     }
-    public static boolean testOne(Board brd) {
+    private static boolean testOne(Board brd) {
         Solver solver = new Solver(brd);
         if (solver.isSolvable()) {
-            solver.search();
             System.out.printf("move to goal need %d moves\n", solver.moves());
             int moves = 0;
             for (Board ibrd: solver.solution()) {
@@ -131,6 +174,7 @@ public class Solver {
         }
     }
     public static void main(String[] args) {
-        testUnit();
+        testExtCase(args);
+        // testUnit();
     }
 }

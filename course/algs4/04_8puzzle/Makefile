@@ -15,7 +15,12 @@ Solver.class: Solver.java
 	javac -cp $(JARS) $(OPTS) $^
 
 Solver.test: Solver.class
-	java -cp $(JARS) Solver $(TEST)/input8.txt
+	java -cp $(JARS) Solver $(TEST)/puzzle11.txt
+	java -cp $(JARS) Solver $(TEST)/puzzle3x3-10.txt
+	# java -cp $(JARS) Solver $(TEST)/puzzle12.txt
+	# java -cp $(JARS) Solver $(TEST)/puzzle17.txt
+	# java -cp $(JARS) Solver $(TEST)/puzzle3x3-unsolvable.txt
+	# java -cp $(JARS) Solver $(TEST)/puzzle4x4-20.txt
 
 # test: Board.test
 test: Solver.test
