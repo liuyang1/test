@@ -17,6 +17,9 @@ public class Solver {
             mHamming = mBoard.hamming();
             mManhattan = mBoard.manhattan();
         }
+        public int priority() {
+            return mManhattan + mMoves;
+        }
     }
     private Board mInitial;
     private LinkedList<Board> mSolutionSeq;
@@ -27,29 +30,10 @@ public class Solver {
         mSolutionSeq = new LinkedList<Board>();
         search();
     }
-    /*
-       if (n0.mHamming != n1.mHamming) {
-       return Integer.compare(n0.mHamming, n1.mHamming);
-       } else {
-       return Integer.compare(n0.mManhattan, n1.mManhattan);
-       }
-       */
     private static Comparator<SearchNode> hammingOrder() {
         return new Comparator<SearchNode>() {
             public int compare(SearchNode n0, SearchNode n1) {
-                if (n0.mHamming != n1.mHamming) {
-                    return Integer.compare(n0.mHamming, n1.mHamming);
-                } else {
-                    if (n0.mManhattan != n1.mManhattan) {
-                        return Integer.compare(n0.mManhattan, n1.mManhattan);
-                    } else {
-                        if (n0.mMoves != n1.mMoves) {
-                            return Integer.compare(n0.mMoves, n1.mMoves);
-                        } else {
-                            return 0;
-                        }
-                    }
-                }
+                return n0.priority() - n1.priority();
             }
         };
     }
@@ -102,9 +86,9 @@ public class Solver {
                 tq.insert(nn);
             }
             i++;
-            if (i == 200) {
-                break;
-            }
+            // if (i == 2000) {
+            //     break;
+            // }
         }
     }
     public boolean isSolvable() // is the initial board solvable?
