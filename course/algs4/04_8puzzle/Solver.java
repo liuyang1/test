@@ -17,8 +17,13 @@ public class Solver {
             mHamming = mBoard.hamming();
             mManhattan = mBoard.manhattan();
         }
+        // Why select this function?
+        // f(n) = g(n) + h(n)
+        // - g(n) = mMoves is the cost of the path from start node to n.
+        // - h(n) is heuristic function to estimates cost from n to goal
+        //   h(n) is admissible.
         public int priority() {
-            return mManhattan + mMoves;
+            return mMoves + mHamming ;
         }
     }
     private Board mInitial;

@@ -6,59 +6,55 @@ import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
 
 public class KdTree {
+    static final RectHV CANVAS = new RectHV(0, 0, 1, 1);
     private class Node {
         private Point2D mKey;
         private int mLevel;
+        private RectHV mRect;
         private Node mLeft = null, mRight = null;
         private int mSubCnt = 0;
-        public Node(Point2D key, int level) {
+        public Node(Point2D key, int level, RectHV rect) {
             mKey = key;
             mLevel = level;
+            mRect = rect;
+        }
+        // when horizontal, that mean horizontal split
+        private boolean isHoriOrVert() {
+            return mLevel % 2 == 0;
         }
         public boolean isLeftOrRight(Point2D pt) {
-            if (mLevel % 2 == 0) {
-                return pt.x() < mKey.x();
-            } else {
+            if (isHoriOrVert()) {
                 return pt.y() < mKey.y();
-            }
-        }
-        public void insert(Point2D pt) {
-            String str;
-            if (isLeftOrRight(pt)) {
-                str = "left";
-                if (mLeft == null) {
-                    mLeft = new Node(pt, mLevel + 1);
-                } else {
-                    mLeft.insert(pt);
-                }
             } else {
-                str = "right";
-                if (mRight == null) {
-                    mRight = new Node(pt, mLevel + 1);
-                } else {
-                    mRight.insert(pt);
-                }
+                return pt.x() < mKey.x();
             }
-            // System.out.printf("insert pt=%s node=%s %s\n", pt, mKey, str);
         }
-        public void drawAll() {
-            // System.out.printf("pt=%s mLevel=%d\n", mKey, mLevel);
+        private void drawSeg() {
             StdDraw.setPenRadius(1/200.);
-            if (mLevel % 2 == 0) {
-                StdDraw.setPenColor(StdDraw.RED);
-                StdDraw.line(mKey.x(), 0, mKey.x(), 1);
-            } else {
+            if (isHoriOrVert()) {
                 StdDraw.setPenColor(StdDraw.BLUE);
-                StdDraw.line(0, mKey.y(), 1, mKey.y());
+                StdDraw.line(mRect.xmin(), mKey.y(), mRect.xmax(), mKey.y());
+            } else {
+                StdDraw.setPenColor(StdDraw.RED);
+                StdDraw.line(mKey.x(), mRect.ymin(), mKey.x(), mRect.ymax());
             }
             StdDraw.setPenColor(StdDraw.BLACK);
-            StdDraw.setPenRadius(1/20.);
+            StdDraw.setPenRadius(1/50.);
             mKey.draw();
-            if (mLeft != null) {
-                mLeft.drawAll();
-            }
-            if (mRight != null) {
-                mRight.drawAll();
+        }
+        private RectHV splitRect(boolean leftOrRight) {
+            if (isHoriOrVert()) {
+                if (leftOrRight) {
+                    return new RectHV(mRect.xmin(), mRect.ymin(), mRect.xmax(), mKey.y());
+                } else {
+                    return new RectHV(mRect.xmin(), mKey.y(), mRect.xmax(), mRect.ymax());
+                }
+            } else {
+                if (leftOrRight) {
+                    return new RectHV(mRect.xmin(), mRect.ymin(), mKey.x(), mRect.ymax());
+                } else {
+                    return new RectHV(mKey.x(), mRect.ymin(), mRect.xmax(), mRect.ymax());
+                }
             }
         }
         public boolean contains(Point2D pt) {
@@ -112,13 +108,20 @@ public class KdTree {
             return mRoot.mSubCnt + 1;
         }
     }
-    // add the point to the set (if it is not already in the set)
-    public void insert(Point2D p) {
-        if (mRoot == null) {
-            mRoot = new Node(p, 0);
-        } else {
-            mRoot.insert(p);
+    private Node insert(Node node, Point2D pt, int level, RectHV rect) {
+        if (node == null) {
+            return new Node(pt, level + 1, rect);
         }
+        if (node.isLeftOrRight(pt)) {
+            node.mLeft = insert(node.mLeft, pt, node.mLevel, node.splitRect(true));
+        } else {
+            node.mRight = insert(node.mRight, pt, node.mLevel, node.splitRect(false));
+        }
+        return node;
+    }
+    // add the point to the set (if it is not already in the set)
+    public void insert(Point2D pt) {
+        mRoot = insert(mRoot, pt, 0, CANVAS);
     }
     // does the set contain point p?
     public boolean contains(Point2D p) {
@@ -127,11 +130,17 @@ public class KdTree {
         }
         return mRoot.contains(p);
     }
+    public void drawAll(Node node) {
+        if (node == null) {
+            return;
+        }
+        node.drawSeg();
+        drawAll(node.mLeft);
+        drawAll(node.mRight);
+    }
     // draw all points to standard draw
     public void draw() {
-        if (mRoot != null) {
-            mRoot.drawAll();
-        }
+        drawAll(mRoot);
     }
     // all points that are inside the rectangle
     public Iterable<Point2D> range(RectHV rect) {
