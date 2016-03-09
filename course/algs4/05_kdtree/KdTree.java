@@ -142,12 +142,42 @@ public class KdTree {
     public void draw() {
         drawAll(mRoot);
     }
-    // all points that are inside the rectangle
-    public Iterable<Point2D> range(RectHV rect) {
-        if (mRoot == null) {
+    private LinkedList<Point2D> extendList(LinkedList<Point2D> l0, LinkedList<Point2D> l1) {
+        if (l0 == null) {
+            return l1;
+        }
+        if (l1 == null) {
+            return l0;
+        }
+        for (Point2D pt: l1) {
+            l0.add(pt);
+        }
+        return l0;
+    }
+    private LinkedList<Point2D> ndRange(Node node, RectHV rect) {
+        if (node == null) {
             return null;
         }
-        return mRoot.range(rect);
+        if (!rect.intersects(node.mRect)) {
+            return null;
+        }
+        LinkedList<Point2D> lst = null;
+        if (rect.contains(node.mKey)) {
+            lst = new LinkedList<Point2D>();
+            lst.add(node.mKey);
+        }
+        lst = extendList(lst, ndRange(node.mLeft, rect));
+        lst = extendList(lst, ndRange(node.mRight, rect));
+        return lst;
+    }
+    // all points that are inside the rectangle
+    public Iterable<Point2D> range(RectHV rect) {
+        Iterable<Point2D> lst = ndRange(mRoot, rect);
+        // make sure not return null
+        if (lst == null) {
+            lst = new LinkedList<Point2D>();
+        }
+        return lst;
     }
     // a nearest neighbor in the set to point p; null if the set is empty
     static final double maxDist2 = 2 + 0.1;

@@ -28,7 +28,10 @@ KdTree.class: KdTree.java
 KdTreeVisualizer.test: KdTreeVisualizer.class
 	java -cp $(JARS) KdTreeVisualizer
 
-test: target KdTreeVisualizer.test
+RangeSearchVisualizer.test: RangeSearchVisualizer.class
+	java -cp $(JARS) RangeSearchVisualizer $(TEST)/circle10.txt
+
+test: target RangeSearchVisualizer.test
 
 clean:
 	rm -rf *.class *.zip *log
