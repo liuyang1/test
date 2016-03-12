@@ -5,23 +5,27 @@ import edu.princeton.cs.algs4.StdDraw;
 
 public class KdTree {
     private static final RectHV CANVAS = new RectHV(0, 0, 1, 1);
+    private static final int LEFT = -1;
+    private static final int RIGHT = 1;
+    private static final boolean HORIZONTAL = true;
+    private static final boolean VERTICAL = false;
     private class Node {
         private Point2D mKey;
-        private int mLevel;
+        private boolean mDirect;
         private RectHV mRect;
         private Node mLeft = null, mRight = null;
-        public Node(Point2D key, int level, RectHV rect) {
+        public Node(Point2D key, boolean direct, RectHV rect) {
             mKey = key;
-            mLevel = level;
+            mDirect = direct;
             mRect = rect;
         }
         // when horizontal, that mean horizontal split
         private boolean isHoriOrVert() {
-            return mLevel % 2 == 0;
+            return mDirect;
         }
         // not use Point2D, to reduce Point2D.x() Point2D.y() calls
         public boolean isLeftOrRight(double x, double y) {
-            if (isHoriOrVert()) {
+            if (isHoriOrVert() == HORIZONTAL) {
                 return y < mKey.y();
             } else {
                 return x < mKey.x();
@@ -29,7 +33,7 @@ public class KdTree {
         }
         private void drawSeg() {
             StdDraw.setPenRadius(1/200.);
-            if (isHoriOrVert()) {
+            if (isHoriOrVert() == HORIZONTAL) {
                 StdDraw.setPenColor(StdDraw.BLUE);
                 StdDraw.line(mRect.xmin(), mKey.y(), mRect.xmax(), mKey.y());
             } else {
@@ -40,9 +44,9 @@ public class KdTree {
             StdDraw.setPenRadius(1/50.);
             mKey.draw();
         }
-        private RectHV splitRect(boolean leftOrRight) {
-            if (isHoriOrVert()) {
-                if (leftOrRight) {
+        private RectHV splitRect(int leftOrRight) {
+            if (isHoriOrVert() == HORIZONTAL) {
+                if (leftOrRight == LEFT) {
                     return new RectHV(mRect.xmin(), mRect.ymin(),
                                       mRect.xmax(), mKey.y());
                 } else {
@@ -50,7 +54,7 @@ public class KdTree {
                                       mRect.xmax(), mRect.ymax());
                 }
             } else {
-                if (leftOrRight) {
+                if (leftOrRight == LEFT) {
                     return new RectHV(mRect.xmin(), mRect.ymin(),
                                       mKey.x(), mRect.ymax());
                 } else {
@@ -94,26 +98,21 @@ public class KdTree {
         return mSize;
     }
     private Node nodeInsert(Node parent, Point2D pt, double x, double y) {
-        RectHV rect;
-        int level;
-        Node newNode = null;
         if (parent == null) {
-            rect = CANVAS;
-            level = 0;
-            return new Node(pt, level, rect);
+            // init with HORIZONTAL or VERTICAL for root node is not important
+            // However, make it VERTICAL make out of timing
+            return new Node(pt, HORIZONTAL, CANVAS);
         }
-        level = parent.mLevel + 1;
+        boolean direct = !parent.isHoriOrVert();
         if (parent.isLeftOrRight(x, y)) {
             if (parent.mLeft == null) {
-                rect = parent.splitRect(true);
-                parent.mLeft = new Node(pt, level, rect);
+                parent.mLeft = new Node(pt, direct, parent.splitRect(LEFT));
             } else {
                 parent.mLeft = nodeInsert(parent.mLeft, pt, x, y);
             }
         } else {
             if (parent.mRight == null) {
-                rect = parent.splitRect(false);
-                parent.mRight = new Node(pt, level, rect);
+                parent.mRight = new Node(pt, direct, parent.splitRect(RIGHT));
             } else {
                 parent.mRight = nodeInsert(parent.mRight, pt, x, y);
             }
@@ -159,7 +158,7 @@ public class KdTree {
     }
     private void showNode(Node node, int level) {
         for (int i = 0; i != level; i++) {
-            System.out.printf("- ");
+            System.out.printf("    ");
         }
         if (node == null) {
             System.out.printf("%s\n", "nil");
@@ -219,13 +218,9 @@ public class KdTree {
         Point2D near = null;
         LinkedList<Node> nodelst = new LinkedList<Node>();
         nodelst.add(mRoot);
-        int cnt = 0;
         while (!nodelst.isEmpty()) {
-            cnt++;
             Node node = nodelst.pop();
             dist = pt.distanceTo(node.mKey);
-            // System.out.printf("pt=%s near=%s(%f) current=%s(%f)\n",
-            // pt, near, thresh, node.mKey, dist);
             if (dist < thresh) {
                 thresh = dist;
                 near = node.mKey;
@@ -234,19 +229,15 @@ public class KdTree {
                 if (node.mRight == null) {
                     continue;
                 } else {
-                    // System.out.printf("only add right\n");
                     nodelst.add(node.mRight);
                 }
             } else {
                 if (node.mRight == null) {
-                    // System.out.printf("only add left\n");
                     nodelst.add(node.mLeft);
                 } else {
                     double left = node.mLeft.mRect.distanceTo(pt);
                     double right = node.mRight.mRect.distanceTo(pt);
                     if (left < thresh && right < thresh) {
-                        // System.out.printf("add left=%f and right=%f\n",
-                        // left, right);
                         if (left < right) {
                             nodelst.add(node.mLeft);
                             nodelst.add(node.mRight);
@@ -255,16 +246,13 @@ public class KdTree {
                             nodelst.add(node.mLeft);
                         }
                     } else if (left < thresh) {
-                        // System.out.printf("add left=%f\n", left);
                         nodelst.add(node.mLeft);
                     } else if (right < thresh) {
-                        // System.out.printf("add right=%f\n", right);
                         nodelst.add(node.mRight);
                     }
                 }
             }
         }
-        // System.out.printf("pt=%s cnt=%d\n", pt, cnt);
         return near;
     }
 
