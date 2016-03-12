@@ -31,7 +31,10 @@ KdTreeVisualizer.test: KdTreeVisualizer.class
 RangeSearchVisualizer.test: RangeSearchVisualizer.class
 	java -cp $(JARS) RangeSearchVisualizer $(TEST)/circle10.txt
 
-test: target RangeSearchVisualizer.test
+NearestNeighborVisualizer.test: NearestNeighborVisualizer.class
+	java -cp $(JARS) NearestNeighborVisualizer $(TEST)/circle100.txt
+
+test: target NearestNeighborVisualizer.test
 
 clean:
 	rm -rf *.class *.zip *log

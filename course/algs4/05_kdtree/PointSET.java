@@ -52,7 +52,7 @@ public class PointSET {
         Point2D minPt = null;
         for (Point2D iPt: mList.keys()) {
             dist2 = p.distanceSquaredTo(iPt);
-            if (minDist2 <= dist2) {
+            if (dist2 <= minDist2) {
                 minDist2 = dist2;
                 minPt = iPt;
             }

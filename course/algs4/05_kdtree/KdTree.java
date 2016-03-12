@@ -1,18 +1,15 @@
 import java.util.LinkedList;
 import edu.princeton.cs.algs4.Point2D;
-import edu.princeton.cs.algs4.Interval1D;
-import edu.princeton.cs.algs4.Interval2D;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
 
 public class KdTree {
-    static final RectHV CANVAS = new RectHV(0, 0, 1, 1);
+    private static final RectHV CANVAS = new RectHV(0, 0, 1, 1);
     private class Node {
         private Point2D mKey;
         private int mLevel;
         private RectHV mRect;
         private Node mLeft = null, mRight = null;
-        private int mSubCnt = 0;
         public Node(Point2D key, int level, RectHV rect) {
             mKey = key;
             mLevel = level;
@@ -22,11 +19,12 @@ public class KdTree {
         private boolean isHoriOrVert() {
             return mLevel % 2 == 0;
         }
-        public boolean isLeftOrRight(Point2D pt) {
+        // not use Point2D, to reduce Point2D.x() Point2D.y() calls
+        public boolean isLeftOrRight(double x, double y) {
             if (isHoriOrVert()) {
-                return pt.y() < mKey.y();
+                return y < mKey.y();
             } else {
-                return pt.x() < mKey.x();
+                return x < mKey.x();
             }
         }
         private void drawSeg() {
@@ -45,40 +43,29 @@ public class KdTree {
         private RectHV splitRect(boolean leftOrRight) {
             if (isHoriOrVert()) {
                 if (leftOrRight) {
-                    return new RectHV(mRect.xmin(), mRect.ymin(), mRect.xmax(), mKey.y());
+                    return new RectHV(mRect.xmin(), mRect.ymin(),
+                                      mRect.xmax(), mKey.y());
                 } else {
-                    return new RectHV(mRect.xmin(), mKey.y(), mRect.xmax(), mRect.ymax());
+                    return new RectHV(mRect.xmin(), mKey.y(),
+                                      mRect.xmax(), mRect.ymax());
                 }
             } else {
                 if (leftOrRight) {
-                    return new RectHV(mRect.xmin(), mRect.ymin(), mKey.x(), mRect.ymax());
+                    return new RectHV(mRect.xmin(), mRect.ymin(),
+                                      mKey.x(), mRect.ymax());
                 } else {
-                    return new RectHV(mKey.x(), mRect.ymin(), mRect.xmax(), mRect.ymax());
+                    return new RectHV(mKey.x(), mRect.ymin(),
+                                      mRect.xmax(), mRect.ymax());
                 }
             }
         }
-        public boolean contains(Point2D pt) {
-            if (mKey == pt) {
-                return true;
-            }
-            if (mLeft != null && mLeft.contains(pt)) {
-                return true;
-            }
-            if (mRight != null && mRight.contains(pt)) {
-                return true;
-            }
-            return false;
-
-        }
         public Iterable<Point2D> range(RectHV rect) {
-            Point2D pt0 = new Point2D(rect.xmin(), rect.ymin());
-            Point2D pt1 = new Point2D(rect.xmax(), rect.ymax());
-            boolean b0 = isLeftOrRight(pt0);
-            boolean b1 = isLeftOrRight(pt1);
+            boolean b0 = isLeftOrRight(rect.xmin(), rect.ymin());
+            boolean b1 = isLeftOrRight(rect.xmax(), rect.ymax());
             if (b0 && b1) {
                 return mLeft.range(rect);
             }
-            if (b0 == false && b1 == false) {
+            if ((!b0) && (!b1)) {
                 return mRight.range(rect);
             }
             LinkedList<Point2D> lst = new LinkedList<Point2D>();
@@ -92,45 +79,73 @@ public class KdTree {
         }
     }
     private Node mRoot;
+    private int mSize;
     // construct an empty set of points
     public KdTree() {
         mRoot = null;
+        mSize = 0;
     }
     // is the set empty?
     public boolean isEmpty() {
-        return mRoot != null;
+        return size() == 0;
     }
     // number of points in the set
     public int size() {
-        if (isEmpty()) {
-            return 0;
-        } else {
-            return mRoot.mSubCnt + 1;
-        }
+        return mSize;
     }
-    private Node insert(Node node, Point2D pt, int level, RectHV rect) {
-        if (node == null) {
-            return new Node(pt, level + 1, rect);
+    private Node nodeInsert(Node parent, Point2D pt, double x, double y) {
+        RectHV rect;
+        int level;
+        Node newNode = null;
+        if (parent == null) {
+            rect = CANVAS;
+            level = 0;
+            return new Node(pt, level, rect);
         }
-        if (node.isLeftOrRight(pt)) {
-            node.mLeft = insert(node.mLeft, pt, node.mLevel, node.splitRect(true));
+        level = parent.mLevel + 1;
+        if (parent.isLeftOrRight(x, y)) {
+            if (parent.mLeft == null) {
+                rect = parent.splitRect(true);
+                parent.mLeft = new Node(pt, level, rect);
+            } else {
+                parent.mLeft = nodeInsert(parent.mLeft, pt, x, y);
+            }
         } else {
-            node.mRight = insert(node.mRight, pt, node.mLevel, node.splitRect(false));
+            if (parent.mRight == null) {
+                rect = parent.splitRect(false);
+                parent.mRight = new Node(pt, level, rect);
+            } else {
+                parent.mRight = nodeInsert(parent.mRight, pt, x, y);
+            }
         }
-        return node;
+        return parent;
     }
     // add the point to the set (if it is not already in the set)
     public void insert(Point2D pt) {
-        mRoot = insert(mRoot, pt, 0, CANVAS);
+        // avoid insert duplicate point
+        if (contains(pt)) {
+            return;
+        }
+        mRoot = nodeInsert(mRoot, pt, pt.x(), pt.y());
+        mSize++;
     }
-    // does the set contain point p?
-    public boolean contains(Point2D p) {
-        if (mRoot == null) {
+    private boolean nodeContains(Node node, Point2D pt) {
+        if (node == null) {
             return false;
         }
-        return mRoot.contains(p);
+        if (!node.mRect.contains(pt)) {
+            return false;
+        }
+        if (node.mKey.equals(pt)) {
+            return true;
+        }
+        return nodeContains(node.mLeft, pt) || nodeContains(node.mRight, pt);
     }
-    public void drawAll(Node node) {
+    // does the set contain point pt?
+    public boolean contains(Point2D pt) {
+        return nodeContains(mRoot, pt);
+    }
+    private void drawAll(Node node) {
         if (node == null) {
             return;
         }
@@ -142,7 +157,23 @@ public class KdTree {
     public void draw() {
         drawAll(mRoot);
     }
-    private LinkedList<Point2D> extendList(LinkedList<Point2D> l0, LinkedList<Point2D> l1) {
+    private void showNode(Node node, int level) {
+        for (int i = 0; i != level; i++) {
+            System.out.printf("- ");
+        }
+        if (node == null) {
+            System.out.printf("%s\n", "nil");
+            return;
+        }
+        System.out.printf("%s\n", node.mKey);
+        showNode(node.mLeft, level + 1);
+        showNode(node.mRight, level + 1);
+    }
+    private void show() {
+        showNode(mRoot, 0);
+    }
+    private LinkedList<Point2D> extendList(LinkedList<Point2D> l0,
+                                           LinkedList<Point2D> l1) {
         if (l0 == null) {
             return l1;
         }
@@ -154,7 +185,7 @@ public class KdTree {
         }
         return l0;
     }
-    private LinkedList<Point2D> ndRange(Node node, RectHV rect) {
+    private LinkedList<Point2D> nodeRange(Node node, RectHV rect) {
         if (node == null) {
             return null;
         }
@@ -166,13 +197,13 @@ public class KdTree {
             lst = new LinkedList<Point2D>();
             lst.add(node.mKey);
         }
-        lst = extendList(lst, ndRange(node.mLeft, rect));
-        lst = extendList(lst, ndRange(node.mRight, rect));
+        lst = extendList(lst, nodeRange(node.mLeft, rect));
+        lst = extendList(lst, nodeRange(node.mRight, rect));
         return lst;
     }
     // all points that are inside the rectangle
     public Iterable<Point2D> range(RectHV rect) {
-        Iterable<Point2D> lst = ndRange(mRoot, rect);
+        Iterable<Point2D> lst = nodeRange(mRoot, rect);
         // make sure not return null
         if (lst == null) {
             lst = new LinkedList<Point2D>();
@@ -180,12 +211,61 @@ public class KdTree {
         return lst;
     }
     // a nearest neighbor in the set to point p; null if the set is empty
-    static final double maxDist2 = 2 + 0.1;
-    public Point2D nearest(Point2D p) {
+    public Point2D nearest(Point2D pt) {
         if (isEmpty()) {
             return null;
         }
-        return null;
+        double thresh = 2, dist;
+        Point2D near = null;
+        LinkedList<Node> nodelst = new LinkedList<Node>();
+        nodelst.add(mRoot);
+        int cnt = 0;
+        while (!nodelst.isEmpty()) {
+            cnt++;
+            Node node = nodelst.pop();
+            dist = pt.distanceTo(node.mKey);
+            // System.out.printf("pt=%s near=%s(%f) current=%s(%f)\n",
+            // pt, near, thresh, node.mKey, dist);
+            if (dist < thresh) {
+                thresh = dist;
+                near = node.mKey;
+            }
+            if (node.mLeft == null) {
+                if (node.mRight == null) {
+                    continue;
+                } else {
+                    // System.out.printf("only add right\n");
+                    nodelst.add(node.mRight);
+                }
+            } else {
+                if (node.mRight == null) {
+                    // System.out.printf("only add left\n");
+                    nodelst.add(node.mLeft);
+                } else {
+                    double left = node.mLeft.mRect.distanceTo(pt);
+                    double right = node.mRight.mRect.distanceTo(pt);
+                    if (left < thresh && right < thresh) {
+                        // System.out.printf("add left=%f and right=%f\n",
+                        // left, right);
+                        if (left < right) {
+                            nodelst.add(node.mLeft);
+                            nodelst.add(node.mRight);
+                        } else {
+                            nodelst.add(node.mRight);
+                            nodelst.add(node.mLeft);
+                        }
+                    } else if (left < thresh) {
+                        // System.out.printf("add left=%f\n", left);
+                        nodelst.add(node.mLeft);
+                    } else if (right < thresh) {
+                        // System.out.printf("add right=%f\n", right);
+                        nodelst.add(node.mRight);
+                    }
+                }
+            }
+        }
+        // System.out.printf("pt=%s cnt=%d\n", pt, cnt);
+        return near;
     }
 
     public static void main(String[] args) {
