@@ -1,0 +1,19 @@
+= POJ =
+
+== Basic ==
+- 1000 A + B
+
+== Big Integer ==
+- 1001 Exponentiation
+AC/submit: 1/3
+
+== System ==
+- choose 'GCC' instead of 'C'
+'C' follow old style syntax
+    - declare must first at function
+- quick test
+```
+    gcc [src filename]
+    ./a.out < [TEST IN] > [TEST OUT]
+    diff [TEST OUT] [TEST EXPECT]
+```
