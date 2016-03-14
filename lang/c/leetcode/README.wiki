@@ -7,8 +7,9 @@ interviews.
         - Overflow
         - Empty array, empty linked list
     - ~~Practice NOT using IDE, compiler, editor to finish problem~~
+        I have to use vim and gcc
 
-Progress:: 111 / 314
+Progress:: 117 / 337
 
 = review =
 == basic ==
@@ -302,6 +303,7 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
     Merge sort
 
 == dynamic program ==
+- 121. Stock Price
 - 198. House Robber
 
     f(0) = 0
