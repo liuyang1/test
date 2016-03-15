@@ -307,6 +307,16 @@ void showArr2(int **mat, int m, int n) {
     printf("]\n");
 }
 
+// show arr which representation 2 dim by user
+void showArr2c(int *mat, int m, int n) {
+    int i;
+    printf("[\n");
+    for (i = 0; i != m; i++) {
+        showArr(mat + n * i, n);
+    }
+    printf("]\n");
+}
+
 void showLst(struct ListNode *p) {
     printf("[");
     int start;
