@@ -52,6 +52,10 @@ stored in reverse order.
 
 * 120. Minimum Path in Triangle
 
+* 211. Add and Search Word
+
+    - Just string match
+
 * 238. Product of Array Except Self
 
     - accumulate
