@@ -9,7 +9,7 @@ interviews.
     - ~~Practice NOT using IDE, compiler, editor to finish problem~~
         I have to use vim and gcc
 
-Progress:: 117 / 337
+Progress:: 122 / 320
 
 = review =
 == basic ==
@@ -41,6 +41,11 @@ stored in reverse order.
 * 48. Rotate Image
 
     - clockwise assign value in grid
+
+* 51. N-Queens
+* 51. N-Queens II
+
+    - recursion
 
 * 67. Add Binary strings, return sum
 
