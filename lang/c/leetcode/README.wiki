@@ -307,6 +307,10 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
     Merge sort
 
 == dynamic program ==
+- 097. Interleave String
+
+    - memorization
+
 - 121. Stock Price
 - 198. House Robber
 
