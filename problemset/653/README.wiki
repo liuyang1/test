@@ -1,0 +1,17 @@
+= 653 =
+IndiaHacks 2016 - Online Edition (Div. 1 + Div. 2)
+
+2016-03-19 16:35
+2:00:00
+
+result::
+- rank 1280
+- 1406 specialist -> 1396 pupil
+- finish A and B
+- try C but fail
+
+== A ==
+find if exist consistive 3 number in list
+
+== B ==
+extend string with rules, find solution to extend to specific length
