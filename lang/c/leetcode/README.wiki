@@ -9,7 +9,7 @@ interviews.
     - ~~Practice NOT using IDE, compiler, editor to finish problem~~
         I have to use vim and gcc
 
-Progress:: 122 / 320
+Progress:: 124 / 321
 
 = review =
 == basic ==
@@ -282,6 +282,11 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
 
     BST is ordered binary tree.
     But our solution support both cases.
+
+* 257. Binary Tree Paths
+
+    Output leaf node path
+    add `ostream` struct to implement it with C
 
 == algorithm ==
 === binary search ===

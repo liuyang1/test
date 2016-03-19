@@ -1,2 +1,2 @@
 clean:
-	rm -rf a.out core core.* *.o *.pyc
+	rm -rf *.out core core.* *.o *.pyc
