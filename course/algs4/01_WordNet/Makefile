@@ -3,11 +3,11 @@ JARS=.:$(HOME)/.local/jar/algs4.jar
 OPTS=-g -encoding UTF-8 -Xlint
 TEST=test/kdtree
 
-SRC=WordNet.java SAP.java Outcast.java
+SRC=SAP.java WordNet.java Outcast.java
 
 target: $(patsubst %.java,%.class,$(SRC))
 
-test: WordNet.test
+test: SAP.test
 
 %.class: %.java
 	@printf "javac %-20s => %s\n" $^ $@
