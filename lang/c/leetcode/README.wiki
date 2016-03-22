@@ -68,7 +68,7 @@ stored in reverse order.
 * 239. Sliding Window Maximum
 
     - ~~iterate to increase window size~~
-    - maxQueue solution
+    - maxQueue solution [[maxQueue.c]]
 
 Ref:[[http://www.geeksforgeeks.org/maximum-of-all-subarrays-of-size-k/]]
 

@@ -1,6 +1,26 @@
 #include "leet.h"
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+/**
+ * @brief MinStack
+ * stack, and can return current minimum value in stack
+ * with fixed capcity (it's easy to implement)
+ *
+ * API:
+ * create
+ * destory
+ * empty
+ * full
+ * push
+ * pop
+ * top          return stack top value, -1 if stack is empty
+ * getmin       get minimum value in stack
+ *
+ * WARNING:
+ * every operation need check EMPTY or FULL external *first*.
+ * when find exceptional EMPTY or FULL, it may do nothing or return wrong value
+ */
 typedef struct {
     int *a;
     int *m;
@@ -15,8 +35,12 @@ void minStackCreate(MinStack *stack, int maxSize) {
     stack->cap = maxSize;
 }
 
+bool minStackFull(MinStack *stack) {
+    return stack->dep == stack->cap;
+}
+
 void minStackPush(MinStack *stack, int element) {
-    if (stack->dep == stack->cap) {
+    if (minStackFull(stack)) {
         return;
     }
     stack->a[stack->dep] = element;
@@ -31,8 +55,9 @@ void minStackPush(MinStack *stack, int element) {
 bool minStackEmpty(MinStack *stack) {
     return stack->dep == 0;
 }
+
 void minStackPop(MinStack *stack) {
-    if(minStackEmpty(stack)) {
+    if (minStackEmpty(stack)) {
         return;
     }
     stack->dep--;
@@ -74,6 +99,7 @@ void case0() {
 
     minStackDestroy(ms);
 }
+
 int main() {
     case0();
     return 0;
