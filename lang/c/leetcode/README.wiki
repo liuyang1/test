@@ -53,7 +53,7 @@ stored in reverse order.
 
 * 70. Simplify Path
 
-    - Horrible C code when processing on string, learn sth from Python
+    - Horrible C code when processing on string, learn something from Python
 
 * 120. Minimum Path in Triangle
 
@@ -84,11 +84,15 @@ Ref:[[http://www.geeksforgeeks.org/maximum-of-all-subarrays-of-size-k/]]
 
     - easy, remember using statistic map array
 
+* 388. Counting Bits
+
+    - easy, but have smarter solution
+
 === range sum ===
 * 303. Range Sum Query (Immutable)
 * 304. Range Sum Query 2D (Immutable)
 
-    - Accmulate
+    - Accumulate
 > This accumulate solution also works to find median of range
 
 * 307. Range Sum Query (Mutable)
@@ -161,7 +165,7 @@ One number not in [0 .. n] array, find it.
 
 * 313. Super Ugly Number
 
-    `deque` is efficent than `List`
+    `deque` is efficient than `List`
 
 * 326. Power of Three
 
@@ -229,7 +233,7 @@ possible unique paths?
 * 141. Linked List Cycle II
 
     - This is classical problem. Just use fast / slow pointer
-    - Moveing fowarder A step to get cycle begin node
+    - Moving forwarder A step to get cycle begin node
 
 * 160. Intersection of Two Linked List
 
@@ -246,7 +250,7 @@ possible unique paths?
 === Stack ===
 * 155. Min Stack
 
-    space-time tradeoff
+    space-time trade-off
     - Simple solution is just store every min value when push one.
     - Use one more min-stack, this style use less memory
 
@@ -275,7 +279,7 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
 
 * 116, 117. Sibling of Tree
 
-    - Add sibling, this is not complex, familar with pointer is enough
+    - Add sibling, this is not complex, familiar with pointer is enough
 
 * 173. Binary Search Tree Iterator
 
