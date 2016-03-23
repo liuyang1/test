@@ -72,6 +72,10 @@ stored in reverse order.
 
 Ref:[[http://www.geeksforgeeks.org/maximum-of-all-subarrays-of-size-k/]]
 
+* 289. Game of Life
+
+    in-place solutions, just remember it, delay one line to update.
+
 * 299. Bulls and Cows
 
     - count
