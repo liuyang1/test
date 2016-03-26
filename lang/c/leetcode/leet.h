@@ -378,5 +378,23 @@ void initTreeLink(struct TreeLinkNode *n, int val,
     n->next = NULL;
 }
 
+// math part
+unsigned long long comb(unsigned long long n, unsigned long long a) {
+    if (a > n - a) {
+        a = n - a;
+    }
+    unsigned long long i, j, r = 1;
+    for (i = n, j = 1; j != a + 1; i--, j++) {
+        r = (r * i) / j;
+    }
+    return r;
+}
+
+// use INT type, when catalan(19), it will overflow
+unsigned long long catalan(unsigned long long n) {
+    return comb(2 * n, n) / (n + 1);
+}
+
+// math part END
 #endif
 #endif

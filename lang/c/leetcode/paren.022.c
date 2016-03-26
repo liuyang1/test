@@ -1,15 +1,5 @@
 #include "leet.h"
 
-int comb(int n, int a) {
-    if (a > n - a) {
-        a = n - a;
-    }
-    int i, j, r = 1;
-    for (i = n, j = 1; j != a + 1; i--, j++) {
-        r = (r * i) / j;
-    }
-    return r;
-}
 int catalan(int n) {
     return comb(2 * n, n) / (n + 1);
 }

@@ -210,6 +210,10 @@ possible unique paths?
 
     enumerate in [0, 2 ** n)
 
+* 96. Unique Binary Search Trees
+
+    Catalan Numbers
+
 === Computational Geometry ===
 * 223. Find total area covered by two rectangles which may overlap.
 
