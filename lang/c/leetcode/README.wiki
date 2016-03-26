@@ -163,6 +163,11 @@ One number not in [0 .. n] array, find it.
 
     Just sum then get it. However, this problem should consider overflow.
 
+* 287. find duplicate nums
+
+    Use fast / slow pointer solution.
+    Ref: [[http://keithschwarz.com/interesting/code/?dir=find-duplicate]]
+
 * 313. Super Ugly Number
 
     `deque` is efficient than `List`
@@ -262,6 +267,10 @@ possible unique paths?
 * 94. Inorder Traverse on Tree
 
     - use recursion and realloc as need return as array
+
+* 108. Converted Sored Array to BST(Binary Search Tree)
+
+    - Easy to recursive
 
 * 100. Same Tree
 * 112. Path Sum
