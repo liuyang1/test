@@ -9,7 +9,7 @@ interviews.
     - ~~Practice NOT using IDE, compiler, editor to finish problem~~
         I have to use vim and gcc
 
-Progress:: 124 / 321
+Progress:: 135 / 321
 
 = review =
 == basic ==
@@ -33,6 +33,9 @@ linked-list represent numbers, one node contains a single digit. Digits are
 stored in reverse order.
 
     - Adding number with manually adding digit and carry
+
+* 36. Valid Soduku
+* 37. Soduku Solver
 
 * 38. Count and Say
 
