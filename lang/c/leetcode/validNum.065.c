@@ -63,10 +63,10 @@ char *isExp(char *s) {
     return oneMore(s, isDigit);
 }
 
-bool isNumber(char *s) {
+bool isNumber_fn(char *s) {
     s = dropWhile(s, isSpace);
     s = isNum(s);
-    if (s != NULL && *s == "e") {
+    if (s != NULL && *s == 'e') {
         s++;
         s = isExp(s);
     }
@@ -74,7 +74,79 @@ bool isNumber(char *s) {
     return s != NULL && *s == '\0';
 }
 
-#define CASE(s, e) {bool r = isNumber(s); \
+// DFA style solution
+typedef enum {
+    eHeadBlank,
+    eMainSign,
+    eZhengDigit,
+    eMainDot,
+    eFracDot, // without maindigit, directly find one dot like .1
+    eFracDigit,
+    eExpSt,
+    eExpSign,
+    eExpDigit,
+    eTailBlank,
+    eFail,
+} State;
+
+typedef enum {
+    eDigit,
+    eBlank,
+    eSign,
+    eDot,
+    eExp,
+    eActionMax,
+} Action;
+
+static State DFA[][eActionMax] = {
+    [eHeadBlank]  = {[eDigit] = eZhengDigit, [eBlank] = eHeadBlank, [eSign] = eMainSign, [eDot] = eFracDot, [eExp] = eFail},
+    [eMainSign]   = {[eDigit] = eZhengDigit, [eBlank] = eFail,      [eSign] = eFail,     [eDot] = eFracDot, [eExp] = eFail},
+    [eZhengDigit] = {[eDigit] = eZhengDigit, [eBlank] = eTailBlank, [eSign] = eFail,     [eDot] = eMainDot, [eExp] = eExpSt},
+    [eMainDot]    = {[eDigit] = eFracDigit,  [eBlank] = eTailBlank, [eSign] = eFail,     [eDot] = eFail,    [eExp] = eExpSt},
+    [eFracDot]    = {[eDigit] = eFracDigit,  [eBlank] = eTailBlank, [eSign] = eFail,     [eDot] = eFail,    [eExp] = eExpSt},
+    [eFracDigit]  = {[eDigit] = eFracDigit,  [eBlank] = eTailBlank, [eSign] = eFail,     [eDot] = eFail,    [eExp] = eExpSt},
+    [eExpSt]      = {[eDigit] = eExpDigit,   [eBlank] = eFail,      [eSign] = eExpSign,  [eDot] = eFail,    [eExp] = eFail},
+    [eExpSign]    = {[eDigit] = eExpDigit,   [eBlank] = eFail,      [eSign] = eFail,     [eDot] = eFail,    [eExp] = eFail},
+    [eExpDigit]   = {[eDigit] = eExpDigit,   [eBlank] = eTailBlank, [eSign] = eFail,     [eDot] = eFail,    [eExp] = eFail},
+    [eTailBlank]  = {[eDigit] = eFail,       [eBlank] = eTailBlank, [eSign] = eFail,     [eDot] = eFail,    [eExp] = eFail},
+    [eFail]       = {eFail},
+};
+
+Action char2act(char c) {
+    if (c >= '0' && c <= '9') {
+        return eDigit;
+    }
+    switch(c) {
+        case ' ': return eBlank;
+        case '+':
+        case '-': return eSign;
+        case '.': return eDot;
+        case 'e': return eExp;
+        default: return eActionMax;
+    }
+}
+
+bool isNumber_dfa(char *s) {
+    State st = eHeadBlank;
+    for (; *s != '\0' && st != eFail; s++) {
+        Action act = char2act(*s);
+        if (act == eActionMax) {
+            st = eFail;
+            break;
+        }
+        st = DFA[st][act];
+    }
+    return st == eZhengDigit || st == eFracDigit || st == eExpDigit ||
+          st == eTailBlank || st == eMainDot;
+}
+
+#define WEAK_ALIAS(name, aliasname) \
+    extern typeof(name) aliasname __attribute((weak, alias(# name)));
+
+// WEAK_ALIAS(isNumber_fn, isNumber);
+WEAK_ALIAS(isNumber_dfa, isNumber);
+
+#define CASE(s, e) {bool r = isNumber(s);         \
                     printf("[%s]\t%s ?= %s %s\n", \
                            s, SBOOL(r), SBOOL(e), expect(r == e)); }
 
