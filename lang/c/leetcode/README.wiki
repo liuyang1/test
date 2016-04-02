@@ -242,7 +242,8 @@ possible unique paths?
     - checking is palindrome string, only consider alphanumeric char and
     ignore cases
 
-* 141. Linked List Cycle II
+* 141. Linked List Cycle
+* 142. Linked List Cycle II
 
     - This is classical problem. Just use fast / slow pointer
     - Moving forwarder A step to get cycle begin node
@@ -258,7 +259,6 @@ possible unique paths?
 
     - reverse half end linked list, then compare, then reverse it back
 
-* 141. Linked List Cycle
 === Stack ===
 * 155. Min Stack
 
@@ -317,6 +317,9 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
     Output leaf node path
     add `ostream` struct to implement it with C
 
+* 297. Serialize and Deserialize Tree
+
+    My implement use lisp style
 == algorithm ==
 === binary search ===
 - 35. Search Insert Position

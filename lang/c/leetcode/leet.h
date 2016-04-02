@@ -173,6 +173,12 @@ static inline bool q_get(Q *q, void **pp) {
     return true;
 }
 
+// function on Tree {{{
+// - buildTree
+// - freeTree
+// - showTree
+// - eqTree
+
 // load tree from array as level order, which NIL present to null
 // NOTICE, this level order may omit redutant NIL
 //          1
@@ -263,6 +269,17 @@ void showTree(struct TreeNode *t) {
     q_deinit(q);
     printf("]\n");
 }
+
+bool eqTree(struct TreeNode *t0, struct TreeNode *t1) {
+    if (t0 == NULL && t1 == NULL) {
+        return true;
+    }
+    if (t0 != NULL && t1 != NULL) {
+        return eqTree(t0->left, t1->left) && eqTree(t0->right, t1->right);
+    }
+    return false;
+}
+// }}} function on Tree END
 
 void showArr(int *nums, int numsSize) {
     int i;
