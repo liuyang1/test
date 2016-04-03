@@ -1,60 +1,37 @@
+import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Digraph;
-import java.util.*;
-import java.io.File;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.LinkedList;
 
 public class WordNet {
-    private List < String[] > loadCSV(String csv) {
-        File f = new File(csv);
-        List< String[] > lst = new LinkedList< String[] >();
-        String line;
-        BufferedReader rd = null;
-        try {
-            rd = new BufferedReader(new FileReader(f));
-            while ((line = rd.readLine()) != null) {
-                String[] item = line.split(",");
-                lst.add(item);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (rd != null) {
-                try {
-                    rd.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+    private Digraph mG;
+    private HashMap<String, LinkedList<Integer>> mTblSyn;
+    private SAP mSap;
+    // constructor takes the name of the two input files
+    public WordNet(String synsets, String hypernyms) {
+        List<String[]> lstSyn = loadCSV(synsets);
+        mTblSyn = new HashMap<String, LinkedList<Integer>>();
+        for (String[] item : lstSyn) {
+            int value = Integer.parseInt(item[0]);
+            // String noun = item[1];
+            for (String noun : item[1].split(" "))
+            {
+                if (mTblSyn.containsKey(noun)) {
+                    LinkedList<Integer> lst = mTblSyn.get(noun);
+                    lst.add(value);
+                } else {
+                    LinkedList<Integer> lst = new LinkedList<Integer>();
+                    lst.add(value);
+                    mTblSyn.put(noun, lst);
                 }
             }
         }
-        return lst;
-    }
-    private void showCSV(List< String[] > lst) {
-        for (String[] item: lst) {
-            for (String one: item) {
-                System.out.printf("%s ", one);
-            }
-            System.out.printf("\n");
-        }
-    }
-    Digraph mG;
-    HashMap<Integer, String> mTblSyn;
-    SAP mSap;
-    // constructor takes the name of the two input files
-    public WordNet(String synsets, String hypernyms) {
-        List< String[] > lstSyn = loadCSV(synsets);
-        mTblSyn = new HashMap<Integer, String>();
-        for (String[] item: lstSyn) {
-            mTblSyn.put(Integer.parseInt(item[0]), item[1]);
-        }
 
-        List< String[] > lstHyp = loadCSV(hypernyms);
-        mG = new Digraph(mTblSyn.size());
-        for (String[] item: lstHyp) {
+        List<String[]> lstHyp = loadCSV(hypernyms);
+        mG = new Digraph(lstSyn.size());
+        for (String[] item : lstHyp) {
             int begin = Integer.parseInt(item[0]), end;
             int i;
             for (i = 1; i != item.length; i++) {
@@ -62,18 +39,39 @@ public class WordNet {
                 mG.addEdge(begin, end);
             }
         }
-        System.out.printf("mG=%s\n", mG);
+        // System.out.printf("mG=%s\n", mG);
         mSap = new SAP(mG);
     }
+    private List<String[]> loadCSV(String csv) {
+        In f = new In(csv);
+        LinkedList<String[]> lst = new LinkedList<String[]>();
+        while (f.hasNextLine()) {
+            String line = f.readLine();
+            if (line == null) {
+                break;
+            }
+            String[] item = line.split(",");
+            lst.add(item);
+        }
+        return lst;
+    }
 
+    private void showCSV(List<String[]> lst) {
+        for (String[] item : lst) {
+            for (String one : item) {
+                System.out.printf("%s ", one);
+            }
+            System.out.printf("\n");
+        }
+    }
     // returns all WordNet nouns
     public Iterable<String> nouns() {
-        return mTblSyn.values();
+        return mTblSyn.keySet();
     }
 
     // is the word a WordNet noun?
     public boolean isNoun(String word) {
-        for (String s: nouns()) {
+        for (String s : nouns()) {
             if (s.equals(word)) {
                 return true;
             }
@@ -83,13 +81,31 @@ public class WordNet {
 
     // distance between nounA and nounB
     public int distance(String nounA, String nounB) {
-        return -1;
+        // StdOut.printf("%s %s\n", nounA, nounB);
+        LinkedList<Integer> idA = mTblSyn.get(nounA);
+        LinkedList<Integer> idB = mTblSyn.get(nounB);
+        // StdOut.printf("%s %s %s %s\n", nounA, idA, nounB, idB);
+        return mSap.length(idA, idB);
     }
 
-    // a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB
-    // in a shortest ancestral path
-    public String sap(String nounA, String nounB) {
+    private String backGet(int id) {
+        for (Map.Entry<String, LinkedList<Integer>> entry :
+             mTblSyn.entrySet()) {
+            for (int i : entry.getValue()) {
+                if (i == id) {
+                    return entry.getKey();
+                }
+            }
+        }
         return null;
+    }
+    // a synset (second field of synsets.txt) that is the common ancestor of
+    // nounA and nounB in a shortest ancestral path
+    public String sap(String nounA, String nounB) {
+        LinkedList<Integer> idA = mTblSyn.get(nounA);
+        LinkedList<Integer> idB = mTblSyn.get(nounB);
+        int anc = mSap.ancestor(idA, idB);
+        return backGet(anc);
     }
 
     private static void test() {
@@ -98,7 +114,7 @@ public class WordNet {
         String hypernyms = path + "/hypernyms11ManyPathsOneAncestor.txt";
         WordNet wn = new WordNet(synsets, hypernyms);
         Iterable<String> ns = wn.nouns();
-        for (String s: ns) {
+        for (String s : ns) {
             System.out.printf("%s\n", s);
         }
         String w = "yes";

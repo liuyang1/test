@@ -275,6 +275,9 @@ bool eqTree(struct TreeNode *t0, struct TreeNode *t1) {
         return true;
     }
     if (t0 != NULL && t1 != NULL) {
+        if (t0->val != t1->val) {
+            return false;
+        }
         return eqTree(t0->left, t1->left) && eqTree(t0->right, t1->right);
     }
     return false;

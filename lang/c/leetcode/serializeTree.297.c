@@ -2,19 +2,22 @@
 
 // serialize to Lisp style
 /** Encodes a tree to a single string. */
-#define NILSTR "nil"
+#define NILSTR          "nil"
+#define NILSTRLEN       4
+#define INTSTRLEN       11
+#define PADDINGLEN      5
 char *serialize(struct TreeNode *root) {
     int len;
     char *r;
     if (root == NULL) {
-        len = 4;
+        len = NILSTRLEN;
         r = malloc(sizeof(char) * len);
-        strcpy(r, NILSTR);
+        strncpy(r, NILSTR, NILSTRLEN);
         return r;
     }
     char *left = serialize(root->left);
     char *right = serialize(root->right);
-    len = strlen(left) + strlen(right) + 16;
+    len = strlen(left) + strlen(right) + INTSTRLEN + PADDINGLEN;
     r = malloc(sizeof(char) * len);
     snprintf(r, len, "(%d,%s,%s)",
              root->val, left, right);
