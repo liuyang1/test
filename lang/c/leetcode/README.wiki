@@ -50,6 +50,10 @@ stored in reverse order.
 
     - recursion
 
+* 55. Jump Game
+
+    - trival game, mean nothing
+
 * 67. Add Binary strings, return sum
 
     - remove extra leading zero, but keep it if only one zero
