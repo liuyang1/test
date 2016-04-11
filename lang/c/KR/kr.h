@@ -7,6 +7,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <limits.h>
+#include <math.h>
 
 #define COLORFUL
 #ifdef COLORFUL
@@ -36,6 +37,10 @@ static inline void reverse(char *s) {
 
 static inline int sign(int x) {
     return ((x > 0) - (x < 0));
+}
+
+static inline eqDouble(double x, double y) {
+    return fabs(2 * (x - y) / (x + y)) < 0.001;
 }
 
 
