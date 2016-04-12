@@ -39,7 +39,7 @@ static inline int sign(int x) {
     return ((x > 0) - (x < 0));
 }
 
-static inline eqDouble(double x, double y) {
+static inline bool eqDouble(double x, double y) {
     return fabs(2 * (x - y) / (x + y)) < 0.001;
 }
 
