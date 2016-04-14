@@ -4,5 +4,8 @@ rpn: rpn.c
 test: rpn
 	./rpn < rpn.in
 
+getin.test: rpn
+	./rpn < getint.in
+
 clean:
 	rm -rf *.out core* *.log rpn

@@ -30,6 +30,23 @@ void ungetch(int c) {
     buf[bufp++] = c;
 }
 
+int untilNotSpace() {
+    int c;
+    while (isspace(c = getch())) {
+        ;
+    }
+    return c;
+}
+
+void skipline() {
+    int c;
+    while ((c = getch()) != '\n' && c != EOF) {
+        printf("%c", c);
+    }
+    ;
+    printf("\n");
+}
+
 bool oneOf(char c, char s[]) {
     for (; *s != '\0'; s++) {
         if (c == *s) {
@@ -37,6 +54,40 @@ bool oneOf(char c, char s[]) {
         }
     }
     return false;
+}
+
+/**
+ * @brief get next integer from input into *pn
+ *
+ * @param OUT pn
+ *
+ * @return if have integer, return integer with pn, return last char
+ * if not have integer, pn = 0, return char zero
+ */
+int getint(int *pn) {
+    *pn = 0; // init it to zero
+    int pc = -1, c, sgn;
+    c = untilNotSpace();
+    if (oneOf(c, "+-")) {
+        pc = c;
+        sgn = (c == '-') ? -1 : 1;
+        c = getch();
+    }
+    if (!isdigit(c) && c != EOF) {
+        if (pc != -1) {
+            ungetch(pc);
+        }
+        ungetch(c);
+        return 0;
+    }
+    for (*pn = 0; isdigit(c); c = getch()) {
+        *pn = 10 * *pn + (c - '0');
+    }
+    *pn *= sgn;
+    if (c != EOF) {
+        ungetch(c);
+    }
+    return c;
 }
 
 bool isNumber(char s[]) {
@@ -168,6 +219,25 @@ int rpn() {
                 errmsg("unknown type=%x\n", type);
                 break;
         }
+    }
+    return 0;
+}
+
+int unit_getint() {
+    int v, c = getint(&v);
+    printf("c=%d v=%d\n", c, v);
+    if (c == 0) {
+        printf("not number, skip this line\n");
+        skipline();
+    }
+    return 0;
+}
+
+int test_getint() {
+#define CASENUM 4
+    int i;
+    for (i = 0; i != CASENUM; i++) {
+        unit_getint();
     }
     return 0;
 }
