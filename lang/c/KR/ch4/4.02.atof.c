@@ -44,5 +44,7 @@ int main() {
     CASE("1.2");
     CASE("1.2e3");
     CASE("-1.2e-3");
+    CASE("1.e2");
+    CASE("1e-3");
     return 0;
 }

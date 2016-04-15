@@ -56,6 +56,10 @@ bool oneOf(char c, char s[]) {
     return false;
 }
 
+bool isSignChr(char c) {
+    return oneOf(c, "+-");
+}
+
 /**
  * @brief get next integer from input into *pn
  *
@@ -66,24 +70,57 @@ bool oneOf(char c, char s[]) {
  */
 int getint(int *pn) {
     *pn = 0; // init it to zero
-    int pc = -1, c, sgn;
+    int pc = -1, c, sgn = 1;
     c = untilNotSpace();
-    if (oneOf(c, "+-")) {
+    if (isSignChr(c)) {
         pc = c;
         sgn = (c == '-') ? -1 : 1;
         c = getch();
     }
     if (!isdigit(c) && c != EOF) {
+        ungetch(c);
         if (pc != -1) {
             ungetch(pc);
         }
-        ungetch(c);
         return 0;
     }
     for (*pn = 0; isdigit(c); c = getch()) {
         *pn = 10 * *pn + (c - '0');
     }
     *pn *= sgn;
+    if (c != EOF) {
+        ungetch(c);
+    }
+    return c;
+}
+
+int getfloat(double *pn) {
+    *pn = 0;
+    int c, v, sgn;
+    double power = 1.0;
+    c = getint(&v);
+    *pn = v;
+    if (c == 0) {
+        return c;
+    }
+    sgn = (v < 0) ? -1 : 1;
+    if ((c = getch()) == '.') {
+        c = getch();
+    }
+    for (; isdigit(c); c = getch()) {
+        *pn = 10 * *pn + sgn * (c - '0');
+        power *= 10.0;
+    }
+    if (oneOf(c, "eE")) {
+        int expPower = 0.0;
+        c = getint(&expPower);
+        if (c != 0) {
+            power /= pow(10.0, expPower);
+        } else {
+            c = getch(); // peer with final ungetch
+        }
+    }
+    *pn /= power;
     if (c != EOF) {
         ungetch(c);
     }
@@ -233,14 +270,31 @@ int unit_getint() {
     return 0;
 }
 
-int test_getint() {
-#define CASENUM 4
-    int i;
-    for (i = 0; i != CASENUM; i++) {
-        unit_getint();
+int unit_getfloat() {
+    double v;
+    int c = getfloat(&v);
+    printf("c=%d v=%f\n", c, v);
+    if (c == 0) {
+        printf("not number, skip this line\n");
+        skipline();
     }
     return 0;
 }
+
+int test_units(int (*unit_test)(void), int times) {
+    int i;
+    for (i = 0; i != times; i++) {
+        unit_test();
+    }
+    return 0;
+}
+
+int test() {
+    test_units(unit_getint, 4);
+    test_units(unit_getfloat, 11);
+    return 0;
+}
+
 
 int main() {
     rpn();
