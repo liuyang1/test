@@ -32,6 +32,7 @@ public class Interruptible {
         Thread.sleep(3000);
         t1.interrupt();
         t0.interrupt();
+        // t1 & t0 is interruptible, so it could quit
         t1.join();
         t0.join();
     }

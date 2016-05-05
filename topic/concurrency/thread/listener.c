@@ -52,6 +52,8 @@ final:
  * 1. avoid calling alien method when holding a lock
  * 2. minimize period during holding lock
  * 3. alien methold could do anything, including attach or detach listener
+ *
+ * If mutex is reentrant, then this problem is gone.
  */
 void notifyListener(void *msg) {
     int i;

@@ -1,3 +1,5 @@
+import java.util.Random;
+
 class Philosopher extends Thread {
     private Chopstick left, right;
     private Random random;
