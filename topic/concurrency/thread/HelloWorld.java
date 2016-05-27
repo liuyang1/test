@@ -8,8 +8,9 @@ public class HelloWorld {
             }
         };
         myThread.start();
-        Thread.yield();
+        myThread.yield(); // yield to TRY to schedule on this thread
 
+        // Thread.sleep(1);
         System.out.println("hello from main thread");
 
         myThread.join();
