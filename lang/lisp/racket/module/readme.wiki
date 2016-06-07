@@ -1,0 +1,2 @@
+CSE341 racket notes
+ref: https://courses.cs.washington.edu/courses/cse341/13wi/unit5notes.pdf
