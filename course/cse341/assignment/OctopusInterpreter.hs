@@ -67,15 +67,37 @@ apply (OctoClosure vars f_env body) args = error "TO BE WRITTEN"
 
 -- list of primitive functions and their definitions in Haskell
 -- for the starter, we only have + ... you need to add various other functions
-primitives = [ ("+",octoplus)]
+primitives = [ ("+",octoplus)
+               , ("-",octominus)
+               , ("*",octotimes)
+               , ("cons", octocons)
+               , ("car", octocar)
+               , ("cdr", octocdr)
+             ]
 
 -- helper function for arithmetic functions (if we defined OctoInt using
 -- the {... } syntax we wouldn't need this, but I didn't feel like cluttering
 -- everything else up)
 getint (OctoInt i) = i
--- The octoplus function takes a list of OctoInts and adds them.
-octoplus ints = OctoInt $ sum $ map getint ints
 
+octowrap :: ([Int] -> Int) -> [OctoValue] -> OctoValue
+octowrap fn = OctoInt . fn . map getint
+
+-- The octoplus function takes a list of OctoInts and adds them.
+octoplus = octowrap sum
+
+minus [x] = -1 * x
+minus (x:xs) = x - (sum xs)
+
+octominus = octowrap minus
+
+octotimes = octowrap product
+
+octocons [x, OctoList xs] = OctoList (x: xs)
+
+octocar [OctoList ls] = head ls
+
+octocdr [OctoList ls] = OctoList (tail ls)
 -- the global enviroment has null?, and the primitives 
 -- (and 'not' after you add it) 
 global_env = [
@@ -192,6 +214,15 @@ tests = TestList [
   testeval "(+ 3)" (OctoInt 3),
   testeval "(+ 3 4)" (OctoInt 7),
   testeval "(+ 3 4 10 20)" (OctoInt 37),
+  testeval "(- 4 3)" (OctoInt 1),
+  testeval "(- 3 4 3)" (OctoInt (-4)),
+  testeval "(- 3)" (OctoInt (-3)),
+  testeval "(* 4)" (OctoInt 4),
+  testeval "(* 3 4 5)" (OctoInt 60),
+  testeval "(cons 1 '(2 3))" (OctoList [OctoInt 1, OctoInt 2, OctoInt 3]),
+  testeval "(cons 1 '())" (OctoList [OctoInt 1]),
+  testeval "(car '(1 2 3))" (OctoInt 1),
+  testeval "(cdr '(1 2 3))" (OctoList [OctoInt 2, OctoInt 3]),
   -- can't use the shortcut for these -- testing octoshow
 --  TestLabel "octoshow" (TestCase (assertEqual "test octoshow" 
 --    show_test_cases (map (octoshow . parse) show_test_cases))),
