@@ -10,6 +10,7 @@ module OctopusInterpreter
 import OctoParser
 import Data.Char
 import Data.Maybe
+import Data.List
 import Test.HUnit
 
 {- The heart of the interpreter is the eval function, which takes an
@@ -98,6 +99,17 @@ octocons [x, OctoList xs] = OctoList (x: xs)
 octocar [OctoList ls] = head ls
 
 octocdr [OctoList ls] = OctoList (tail ls)
+
+octoshow (OctoInt i) = show i
+octoshow (OctoBool b) = if b then "#t" else "#f"
+octoshow (OctoSymbol x) = x
+octoshow (OctoList [OctoSymbol "quote", xs]) = '\'': octoshow xs
+octoshow (OctoList xs) = "(" ++ unwords (map octoshow xs) ++ ")"
+-- simple show closure
+-- octoshow (OctoClosure xs env v) = "<closure>"
+octoshow (OctoClosure xs env v) = "<closure " ++ unwords (map octoshow xs) ++ ", " ++ octoshow v ++ ">"
+octoshow (OctoPrimitive s) = "<primitive " ++ s ++ ">"
+
 -- the global enviroment has null?, and the primitives 
 -- (and 'not' after you add it) 
 global_env = [
@@ -220,14 +232,20 @@ tests = TestList [
   testeval "(* 4)" (OctoInt 4),
   testeval "(* 3 4 5)" (OctoInt 60),
   testeval "(cons 1 '(2 3))" (OctoList [OctoInt 1, OctoInt 2, OctoInt 3]),
+  testeval "(cons 1 (cons 2 (cons 3 '())))" (OctoList [OctoInt 1, OctoInt 2, OctoInt 3]),
   testeval "(cons 1 '())" (OctoList [OctoInt 1]),
   testeval "(car '(1 2 3))" (OctoInt 1),
   testeval "(cdr '(1 2 3))" (OctoList [OctoInt 2, OctoInt 3]),
   -- can't use the shortcut for these -- testing octoshow
---  TestLabel "octoshow" (TestCase (assertEqual "test octoshow" 
---    show_test_cases (map (octoshow . parse) show_test_cases))),
---  TestLabel "octoshow primitive" (TestCase (assertEqual "test octoshow" 
---    "<primitive *>" (octoshow $ evparse "*"))),
+  TestLabel "octoshow" (TestCase (assertEqual "test octoshow"
+  show_test_cases (map (octoshow . parse) show_test_cases))),
+  TestLabel "octoshow primitive" (TestCase (assertEqual "test octoshow"
+  "<primitive *>" (octoshow $ evparse "*"))),
+  -- simple clouser show case
+  -- TestLabel "octoshow closure" (TestCase (assertEqual "test octoshow"
+  -- "<closure>" (octoshow $ evparse "(lambda (x y) (* x y))"))),
+  TestLabel "octoshow closure" (TestCase (assertEqual "test octoshow"
+  "<closure x y, (* x y)>" (octoshow $ evparse "(lambda (x y) (* x y))"))),
 --  testeval "( (lambda (x) x) 7)" (OctoInt 7),
 --  testeval "((lambda (x y) (+ x (+ y 10))) 3 4)" (OctoInt 17),
   -- the inner lambda's y should shadow the outer one, so we get 11 
