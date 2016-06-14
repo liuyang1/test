@@ -23,6 +23,9 @@ The environment is a list of (name,value) pairs.  The type
 OctoParser.  To look up a name the interpreter searches the environment
 starting from the front, so that one variable can shadow another. -}
 
+octoBool (OctoBool False) = False
+octoBool _ = True
+
 eval :: OctoValue -> Environment -> OctoValue
 
 -- integers and booleans evaluate to themselves
@@ -44,6 +47,13 @@ the environment of definition, and the body. -}
 eval (OctoList [OctoSymbol "lambda", OctoList vars, body]) env = 
     OctoClosure vars env body
 
+eval (OctoList [OctoSymbol "if", cond, a, b]) env =
+                               eval (if c then a else b) env
+                                   where c = octoBool $ eval cond env
+
+eval (OctoList (OctoSymbol "let": OctoList xs: body)) env =
+    last $ map (`eval` nenv) body
+        where nenv = map (\(OctoList [a, b]) -> (a, eval b env)) xs ++ env
 {- If we don't match any of the special cases, the first thing in the
 list should evaluate to a function.  Apply it to its arguments.  There
 are two cases: either the function is a user-defined function, or a
@@ -63,7 +73,7 @@ of the lambda (which is part of the closure).  In the extended
 environment, the actual args are bound to the respective formal names,
 evaluate the body of the function in this new environment, and return
 the result. -}
-apply (OctoClosure vars f_env body) args = error "TO BE WRITTEN"
+apply (OctoClosure vars f_env body) args = eval body (zip vars args ++ f_env)
 
 
 -- list of primitive functions and their definitions in Haskell
@@ -74,6 +84,8 @@ primitives = [ ("+",octoplus)
                , ("cons", octocons)
                , ("car", octocar)
                , ("cdr", octocdr)
+               , ("equal?", octoequal)
+               , ("eval", octoeval)
              ]
 
 -- helper function for arithmetic functions (if we defined OctoInt using
@@ -100,6 +112,14 @@ octocar [OctoList ls] = head ls
 
 octocdr [OctoList ls] = OctoList (tail ls)
 
+octoequal [OctoInt a, OctoInt b] = OctoBool $ a == b
+octoequal [OctoBool a, OctoBool b] = OctoBool $ a == b
+octoequal [OctoSymbol a, OctoSymbol b] = OctoBool $ a == b
+octoequal [OctoList ls0, OctoList ls1] = OctoBool $ ls0 == ls1
+octoequal _ = OctoBool False
+
+octoeval [x] = eval x global_env
+
 octoshow (OctoInt i) = show i
 octoshow (OctoBool b) = if b then "#t" else "#f"
 octoshow (OctoSymbol x) = x
@@ -113,7 +133,9 @@ octoshow (OctoPrimitive s) = "<primitive " ++ s ++ ">"
 -- the global enviroment has null?, and the primitives 
 -- (and 'not' after you add it) 
 global_env = [
-  (OctoSymbol "null?", eval (parse "(lambda (x) (equal? x '()))") global_env)]
+  (OctoSymbol "null?", eval (parse "(lambda (x) (equal? x '()))") global_env)
+  , (OctoSymbol "not", eval (parse "(lambda (x) (equal? x #f))") global_env)
+  ]
    ++ map (\(name,fn) -> (OctoSymbol name, OctoPrimitive name)) primitives
 {- null? is defined by evaluating the result of parsing the lambda.
 Notice that the environment in which it is evaluated is the global
@@ -236,6 +258,10 @@ tests = TestList [
   testeval "(cons 1 '())" (OctoList [OctoInt 1]),
   testeval "(car '(1 2 3))" (OctoInt 1),
   testeval "(cdr '(1 2 3))" (OctoList [OctoInt 2, OctoInt 3]),
+  testeval "(equal? 1 1)" (OctoBool True),
+  testeval "(equal? 1 2)" (OctoBool False),
+  testeval "(equal? '(1 1) '(1 2))" (OctoBool False),
+  testeval "(equal? '(1 1) '(1 1))" (OctoBool True),
   -- can't use the shortcut for these -- testing octoshow
   TestLabel "octoshow" (TestCase (assertEqual "test octoshow"
   show_test_cases (map (octoshow . parse) show_test_cases))),
@@ -246,27 +272,33 @@ tests = TestList [
   -- "<closure>" (octoshow $ evparse "(lambda (x y) (* x y))"))),
   TestLabel "octoshow closure" (TestCase (assertEqual "test octoshow"
   "<closure x y, (* x y)>" (octoshow $ evparse "(lambda (x y) (* x y))"))),
---  testeval "( (lambda (x) x) 7)" (OctoInt 7),
---  testeval "((lambda (x y) (+ x (+ y 10))) 3 4)" (OctoInt 17),
+  testeval "( (lambda (x) x) 7)" (OctoInt 7),
+  testeval "((lambda (x y) (+ x (+ y 10))) 3 4)" (OctoInt 17),
   -- the inner lambda's y should shadow the outer one, so we get 11 
   -- rather than 3
---  testeval "( (lambda (x y) ((lambda (y) (+ x y)) 10)) 1 2)" (OctoInt 11),
---  testeval "(let ((x 3)) (+ x 4))" (OctoInt 7),
---  testeval "(let ((x 3) (y 4)) (+ x y))" (OctoInt 7),
---  testeval shadowing_let1 (OctoInt 13),
---  testeval nested_let1 (OctoInt 104),
---  testeval nested_let2 (OctoInt 11),
---  testeval nested_let3 (OctoInt 113),
---  testeval let_test_closure (OctoInt 110),
+  testeval "( (lambda (x y) ((lambda (y) (+ x y)) 10)) 1 2)" (OctoInt 11),
+  testeval "(let ((x 3)) (+ x 4))" (OctoInt 7),
+  testeval "(let ((x 3) (y 4)) (+ x y))" (OctoInt 7),
+  -- test for multiple body
+  testeval "(let ((x 3) (y 4)) (+ x y) (- x y))" (OctoInt (-1)),
+  -- test nest let shadow
+  testeval "(let ((x 3)) (let ((x 4)) x))" (OctoInt 4),
+  testeval shadowing_let1 (OctoInt 13),
+  testeval nested_let1 (OctoInt 104),
+  testeval nested_let2 (OctoInt 11),
+  testeval nested_let3 (OctoInt 113),
+  testeval let_test_closure (OctoInt 110),
   -- The first two if cases have a nonexistant variable on the branch not 
   -- taken. If we evaluated it we would get an error, so if this works it
   -- means 'if' is not evaluating the branch not taken.
   -- The third checks that anything other than #f counts as true.
   -- The fourth makes sure the test is evaluated (it evaluates to #f).
---  testeval "(if #t 3 bad)" (OctoInt 3),
---  testeval "(if #f bad (+ 2 3))" (OctoInt 5),
---  testeval "(if 2 3 5)" (OctoInt 3),
---  testeval "(if (equal? k 10) (+ 2 3) (+ 10 20))" (OctoInt 30),
+  testeval "(if #t 3 bad)" (OctoInt 3),
+  testeval "(if #f bad (+ 2 3))" (OctoInt 5),
+  testeval "(if 2 3 5)" (OctoInt 3),
+  testeval "(if (equal? k 10) (+ 2 3) (+ 10 20))" (OctoInt 30),
+  testeval "(if (not #f) #t #f)" (OctoBool True),
+  testeval "(if (not #t) 2 3)" (OctoInt 3),
   -- cond
 --  testeval "(cond (else (+ 2 3)))" (OctoInt 5),
 --  testeval "(cond (#t (+ 10 10)) (else (+ 2 3)))" (OctoInt 20),
@@ -274,21 +306,21 @@ tests = TestList [
 --  testeval "(cond ((equal? 1 2) bad) (#f bad) (else (+ 2 3)))" (OctoInt 5),
 --  testeval "(cond (#f bad) (#t 88) (else (+ 2 3)))" (OctoInt 88),
   -- bind a new name to a primitive and try it
---  testeval "(let ((f +)) (f 3 4))" (OctoInt 7),
+  testeval "(let ((f +)) (f 3 4))" (OctoInt 7),
   -- rebind * (!!!).  This is a very weird thing to do, but it should work
---  testeval "(let ((* +)) (* 3 4))" (OctoInt 7),
---  testeval "(eval '(+ 2 3))" (OctoInt 5),
+  testeval "(let ((* +)) (* 3 4))" (OctoInt 7),
+  testeval "(eval '(+ 2 3))" (OctoInt 5),
   -- more complex eval example -- make sure the argument to eval is evaluated
   -- in the current environment (here with x bound to 10)
---  testeval "(let ((x 10)) (eval (cons '+ (cons x (cons 5 '())))))" 
---    (OctoInt 15),
+  testeval "(let ((x 10)) (eval (cons '+ (cons x (cons 5 '())))))"
+    (OctoInt 15),
   -- another complex eval example -- make sure eval evaluates its expression
   -- in the global environment.  To do this, (yuck) rebind * and make sure the 
   -- expression still uses the global * 
   -- (If you don't believe this is legal, try pasting the part between 
   -- the " marks into racket and evaluating it.)
---  testeval "(let ((* null?)) (eval (cons '* (cons 3 (cons 5 '())))))"
---    (OctoInt 15),
+  testeval "(let ((* null?)) (eval (cons '* (cons 3 (cons 5 '())))))"
+    (OctoInt 15),
   -- Recursive function tests
 --  testeval letrec_fact (OctoInt 24),
 --  testeval letrec_range (evparse "'(4 3 2 1)"),
@@ -303,4 +335,4 @@ tests = TestList [
   testeval "3" (OctoInt 3)
   ]
 
-run = runTestTT tests 
+run = runTestTT tests
