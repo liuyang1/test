@@ -1,3 +1,5 @@
+import Data.List
+
 member :: Eq a => a -> [a] -> Bool
 member x [] = False
 member x (y:ys) | x == y = True
@@ -6,6 +8,10 @@ member x (y:ys) | x == y = True
 mystery = 1 : map (*2) mystery
 
 ints = scanl1 (+) . zipWith (*) [0..] . concat $ repeat [-1, 1]
+
+merge = concat . transpose
+merge2 l r = merge [l, r]
+ints1 = 0: merge2 [1..] [(-1), (-2)..]
 
 data Tree a = EmptyTree
   | Node a (Tree a) (Tree a)

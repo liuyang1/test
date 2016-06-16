@@ -12,7 +12,7 @@ sum :: Double -> Double -> Double -> Double
 sum x y z = x + y + z
 
 quad :: Double -> Double -> Double -> Double -> Double
-quad a b c x = 
+quad a b c x =
     a * x * x + b * x + c
 
 rev :: [a] -> [a]

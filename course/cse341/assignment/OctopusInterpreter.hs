@@ -26,6 +26,9 @@ starting from the front, so that one variable can shadow another. -}
 octoBool (OctoBool False) = False
 octoBool _ = True
 
+condToIf [OctoList [OctoSymbol "else", x]] = x
+condToIf (OctoList [cond, val]: branch) = OctoList [OctoSymbol "if", cond, val, condToIf branch]
+
 eval :: OctoValue -> Environment -> OctoValue
 
 -- integers and booleans evaluate to themselves
@@ -51,9 +54,17 @@ eval (OctoList [OctoSymbol "if", cond, a, b]) env =
                                eval (if c then a else b) env
                                    where c = octoBool $ eval cond env
 
+eval (OctoList (OctoSymbol "cond": xs)) env = eval (condToIf xs) env
+
 eval (OctoList (OctoSymbol "let": OctoList xs: body)) env =
     last $ map (`eval` nenv) body
         where nenv = map (\(OctoList [a, b]) -> (a, eval b env)) xs ++ env
+
+eval (OctoList (OctoSymbol "letrec": OctoList xs: body)) env =
+    last $ map (`eval` nenv) body
+        where nenv = map (\(OctoList [a, b]) -> (a, eval b nenv)) xs ++ env
+-- key difference, it's eval B by new environment
+
 {- If we don't match any of the special cases, the first thing in the
 list should evaluate to a function.  Apply it to its arguments.  There
 are two cases: either the function is a user-defined function, or a
@@ -300,11 +311,12 @@ tests = TestList [
   testeval "(if (not #f) #t #f)" (OctoBool True),
   testeval "(if (not #t) 2 3)" (OctoInt 3),
   -- cond
---  testeval "(cond (else (+ 2 3)))" (OctoInt 5),
---  testeval "(cond (#t (+ 10 10)) (else (+ 2 3)))" (OctoInt 20),
---  testeval "(cond (#f bad) (else (+ 2 3)))" (OctoInt 5),
---  testeval "(cond ((equal? 1 2) bad) (#f bad) (else (+ 2 3)))" (OctoInt 5),
---  testeval "(cond (#f bad) (#t 88) (else (+ 2 3)))" (OctoInt 88),
+  testeval "(cond (else (+ 2 3)))" (OctoInt 5),
+  testeval "(cond (#t (+ 10 10)) (else (+ 2 3)))" (OctoInt 20),
+  testeval "(cond (#f bad) (else (+ 2 3)))" (OctoInt 5),
+  testeval "(cond ((equal? 1 2) bad) (#f bad) (else (+ 2 3)))" (OctoInt 5),
+  testeval "(cond (#f bad) (#t 88) (else (+ 2 3)))" (OctoInt 88),
+  testeval "(cond ((equal? (+ 1 1) 2) #t) (else #f))" (OctoBool True),
   -- bind a new name to a primitive and try it
   testeval "(let ((f +)) (f 3 4))" (OctoInt 7),
   -- rebind * (!!!).  This is a very weird thing to do, but it should work
@@ -322,11 +334,11 @@ tests = TestList [
   testeval "(let ((* null?)) (eval (cons '* (cons 3 (cons 5 '())))))"
     (OctoInt 15),
   -- Recursive function tests
---  testeval letrec_fact (OctoInt 24),
---  testeval letrec_range (evparse "'(4 3 2 1)"),
---  testeval letrec_map (evparse "'(20 40 60)"),
---  testeval letrec_curried_map (evparse "'(20 40 60)"),
---  testeval letrec_mod2 (evparse "'(1 0)"),
+  testeval letrec_fact (OctoInt 24),
+  testeval letrec_range (evparse "'(4 3 2 1)"),
+  testeval letrec_map (evparse "'(20 40 60)"),
+  testeval letrec_curried_map (evparse "'(20 40 60)"),
+  testeval letrec_mod2 (evparse "'(1 0)"),
   -- tests for the string extra credit question
 --  testeval "(string-append)" (OctoString ""),
 --  testeval "(string-append \"fish \" \"clam \" \"squid\" )" 
