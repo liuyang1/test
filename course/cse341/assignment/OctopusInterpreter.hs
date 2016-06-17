@@ -8,9 +8,7 @@ module OctopusInterpreter
     where
 
 import OctoParser
-import Data.Char
 import Data.Maybe
-import Data.List
 import Test.HUnit
 
 {- The heart of the interpreter is the eval function, which takes an
@@ -37,9 +35,7 @@ eval (OctoBool b) env = OctoBool b
 
 {- To evaluate a symbol, look it up in the current environment and 
 return the value found; or raise an exception if it's not found. -}
-eval s@(OctoSymbol v) env = case lookup s env of
-    Nothing -> error ("name not found: " ++ v)
-    Just r -> r
+eval s@(OctoSymbol v) env = fromMaybe (error ("name not found: " ++ v)) (lookup s env)
 
 -- A quoted expression evaluates to that expression.
 eval (OctoList [OctoSymbol "quote", x]) env = x
@@ -72,9 +68,9 @@ primitive.  These are handled separately.  In either case, the
 arguments are found by evaluating each of the expressions after the
 function name in the current environment. -}
 eval (OctoList (f:xs)) env = case eval f env of
-    c@(OctoClosure _ _ _) -> apply c args
-    (OctoPrimitive p) -> fromJust (lookup p primitives) $ args
-    where  args = map (\x -> eval x env) xs
+    c@(OctoClosure {}) -> apply c args
+    (OctoPrimitive p) -> fromJust (lookup p primitives) args
+    where  args = map (`eval` env) xs
 
 {- Apply a user-defined function to the given arguments.  The user-defined
 function has already been evaluated to get an OctoClosure, and the arguments
@@ -89,6 +85,9 @@ apply (OctoClosure vars f_env body) args = eval body (zip vars args ++ f_env)
 
 -- list of primitive functions and their definitions in Haskell
 -- for the starter, we only have + ... you need to add various other functions
+type PrmFn = [OctoValue] -> OctoValue
+
+primitives ::[(String, PrmFn)]
 primitives = [ ("+",octoplus)
                , ("-",octominus)
                , ("*",octotimes)
@@ -104,14 +103,15 @@ primitives = [ ("+",octoplus)
 -- everything else up)
 getint (OctoInt i) = i
 
-octowrap :: ([Int] -> Int) -> [OctoValue] -> OctoValue
+octowrap :: ([Int] -> Int) -> PrmFn
 octowrap fn = OctoInt . fn . map getint
 
 -- The octoplus function takes a list of OctoInts and adds them.
 octoplus = octowrap sum
 
 minus [x] = -1 * x
-minus (x:xs) = x - (sum xs)
+minus (x:xs) = x - sum xs
+minus [] = 0
 
 octominus = octowrap minus
 

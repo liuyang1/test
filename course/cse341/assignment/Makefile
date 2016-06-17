@@ -22,3 +22,7 @@ try:
 
 clean:
 	rm -rf OctoParser.hs *.hi *.o a.out
+
+lint:OctoParser.hs
+	ghc -Wall OctopusInterpreter.hs
+	# hlint OctopusInterpreter.hs
