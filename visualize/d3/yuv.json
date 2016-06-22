@@ -1,0 +1,43 @@
+{
+    "name": "yuv-viewer",
+    "children": [
+        {
+            "name": "YUV",
+            "children": [
+                {
+                    "name": "422 sample",
+                    "children": [
+                        { "name" : "packed", "children": [ {"name": "YUY2/YUYV"} , {"name": "UYVY"} , {"name": "YVYU" }, {"name": "Y422 10bit"} ] },
+                        { "name" : "planar", "children": [ {"name": "YV16/422P"}] }
+                    ]
+                }, {
+                "name": "420 sample",
+                "children": [
+                    {
+                        "name": "planar",
+                        "children": [ {"name": "YV12/P420"}, {"name": "YV12 10bit" }, {"name": "IYUV/I420"} ]
+                    } , {
+                    "name": "semi-planar",
+                    "children": [ {"name": "NV12/Y420SP"} , {"name": "NV12 10bit"}, {"name": "YUV420SP tiled 4x4"},
+                        {"name": "NV21"} ]
+                    }
+                ]
+                }, {
+                "name": "444 sample",
+                "children": [
+                    {
+                        "name": "planar",
+                        "children": [ {"name": "444P (todo)"} ]
+                    }
+                ]
+                }
+            ]
+        }, {
+        "name": "GREY",
+        "children": [ { "name": "MONO/GREY/Y800/Y8" } ]
+        }, {
+        "name": "RGB",
+        "children": [ {"name": "RGBA (todo)"} , {"name": "RGB (todo)"} ]
+        }
+    ]
+}
