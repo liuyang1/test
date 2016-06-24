@@ -34,8 +34,7 @@ plotLine xs = map (\x -> if x `elem` ks then '*' else ' ') [0..9]
 -- decreate count for every number
 decHist xs = filter (\(k, v) -> v /= 0) $ map (\(k, v) -> (k, v - 1)) xs
 -- iterate on decHist func, and concat to a list
-decEnd [] = []
-decEnd xs = xs: decEnd (decHist xs)
+decEnd = takeWhile (not . null) . iterate decHist
 -- plot vertical histogram
 plot = reverse . map plotLine . decEnd
 

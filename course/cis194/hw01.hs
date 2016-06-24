@@ -38,6 +38,8 @@ hanoi n a b c
 -- Tower of Hanoi 4
 -- Exercise 1.17 in Graham, Knuth, and Patashnik, Concrete Mathematics,
 -- second ed., Addison-Wesley, 1994
+-- Reve's puzzle, still open problem
+-- Ref: https://www.wikiwand.com/en/Tower_of_Hanoi
 --
 -- move disc from first to LAST
 hanoi4 0 _ _ _ _ = []
