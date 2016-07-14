@@ -16,8 +16,10 @@ just some test or learning code
 [[visualize/Readme]]
 
 == cloc of language ==
-| language | loc  | ratio |
-| lisp     | 841  | 8.4%  |
-| haskell  | 820  | 8.2%  |
-| erlang   | 445  | 4.5%  |
-| python   | 2047 |       |
+
+| language  | loc    | ratio   |
+|---------|------|-------|
+| lisp      | 841    | 8.4%    |
+| haskell   | 820    | 8.2%    |
+| erlang    | 445    | 4.5%    |
+| python    | 2047   |         |
