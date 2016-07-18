@@ -4,6 +4,7 @@ import qualified Data.Vector as V
 import Control.Monad hiding (mapM, liftM)
 import Control.Monad.Random
 import System.Random
+import Data.Maybe
 --------------------------------------------------------------------------------
 -- Exercise 1
 
@@ -66,14 +67,23 @@ type Rnd a = Rand StdGen a
 -- getRandom :: Random a => Rnd a
 -- getRandomR :: Random a => (a, a) -> Rnd a
 
+--------------------------------------------------------------------------------
+-- Exercise 3
+
 -- randomElt :: V.Vector a -> Rnd (Maybe a)
 randomElt xs = do
     i <- getRandomR (0, V.length xs)
     return $ xs V.!? i
 
+--------------------------------------------------------------------------------
+-- Exercise 4
+
 randomVec n = V.mapM (const getRandom) $ V.fromList [0..(n-1)]
 
 randomVecR n r = V.mapM (const (getRandomR r)) $ V.fromList [0..(n-1)]
+
+--------------------------------------------------------------------------------
+-- Exercise 5
 
 shuffleI xs 0 = return xs
 shuffleI xs i = do
@@ -82,3 +92,51 @@ shuffleI xs i = do
      in shuffleI ys (i - 1)
 
 shuffle xs = shuffleI xs (V.length xs - 1)
+
+--------------------------------------------------------------------------------
+-- Exercise 6
+-- | split to (left vector, pivot, right vector)
+--
+-- >>> partitionAt (V.fromList [5, 2, 8, 3, 6, 1]) 3
+-- ([2,1],3,[6,5,8])
+-- >>> partitionAt (V.fromList [2]) 0
+-- ([],2,[])
+partitionAt :: Ord a => V.Vector a -> Int -> (V.Vector a, a, V.Vector a)
+partitionAt xs i = (hd, x, tl)
+    where ys = if i == 0 then xs else fromJust $ swapV i 0 xs
+          x = V.head ys
+          yys = V.tail ys
+          (hd, tl) = V.unstablePartition (< x) yys
+
+
+--------------------------------------------------------------------------------
+-- Exercise 7
+
+-- | quick sort with first element as pivot
+--
+-- >>> qsort (V.fromList [4, 2, 3, 1])
+-- [1,2,3,4]
+qsort :: Ord a => V.Vector a -> V.Vector a
+qsort xs = if V.null xs then xs else qsort as V.++ V.cons v (qsort bs)
+    where (as, v, bs) = partitionAt xs 0
+
+--------------------------------------------------------------------------------
+-- Exercise 8
+-- qsortR :: Ord a => V.Vector a -> Rnd (V.Vector a)
+-- | quick sort with random element as pivot
+--
+-- >>> qsortR (V.fromList [4, 2, 3, 1])
+-- [1,2,3,4]
+qsortR xs
+  | V.null xs = return xs
+  | otherwise = do
+      i <- getRandomR (0, V.length xs - 1)
+      let (as, v, bs) = partitionAt xs i
+       in do
+           cs <- qsortR as
+           ds <- qsortR bs
+           return $ cs V.++ V.cons v ds
+
+revK = V.fromList $ reverse [1..1000]
+test = qsort revK
+testR = evalRandIO $ qsortR revK

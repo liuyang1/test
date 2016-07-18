@@ -12,14 +12,17 @@ just some test or learning code
 * cavlc
 * Columbus
 * lzw
+
 ## visualization
-[[visualize/Readme]]
+[visualize/Readme.wiki](visualize/Readme.wiki)
 
 ## cloc of language
 
-| language  | loc    | ratio   |
-|---------|------|-------|
-| lisp      | 841    | 8.4%    |
-| haskell   | 820    | 8.2%    |
-| erlang    | 445    | 4.5%    |
-| python    | 2047   |         |
+| language  | loc  | ratio |
+|-----------|------|-------|
+| C         | 16k  |       |
+| Java      | 6k   |       |
+| Python    | 5k   |       |
+| Haskell   | 2K   | 8.2%  |
+| Lisp      | 841  | 8.4%  |
+| Erlang    | 445  | 4.5%  |
