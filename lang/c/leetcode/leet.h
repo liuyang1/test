@@ -300,6 +300,23 @@ void showArr(int *nums, int numsSize) {
     printf("]\n");
 }
 
+void strnArr(char *s, int n, int *nums, int numsSize) {
+    int j = 0;
+    j += snprintf(s + j, n - j, "[");
+    if (nums == NULL) {
+        j += snprintf(s + j, n - j, "nil");
+    } else {
+        int i;
+        for (i = 0; i != numsSize; i++) {
+            if (i != 0) {
+                j += snprintf(s + j, n - j, ", ");
+            }
+            j += snprintf(s + j, n - j, "%d", nums[i]);
+        }
+    }
+    j += snprintf(s + j, n - j, "]");
+}
+
 bool cmpArr(int *a0, int n0, int *a1, int n1) {
     if (a0 == NULL && a1 == NULL) {
         return true;
