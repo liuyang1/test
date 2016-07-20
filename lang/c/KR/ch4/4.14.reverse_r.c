@@ -20,10 +20,12 @@ void reverse_r(char *s) {
     reverse_r_i(s, len, half);
 }
 
-#define CASE(s) {char *r = strdup(s); reverse_r(r); \
-    char *e = strdup(s); reverse(e); \
-    printf("%s -> %s ?= %s %s\n", \
-           s, r, e, expect(strcmp(r, e) == 0)); }
+#define CASE(s) {char *r = strdup(s); reverse_r(r);          \
+                 char *e = strdup(s); reverse(e);            \
+                 printf("%s -> %s ?= %s %s\n",               \
+                        s, r, e, expect(strcmp(r, e) == 0)); \
+                 free(e); free(r);                           \
+}
 
 int main() {
     CASE("hello");

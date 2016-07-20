@@ -29,5 +29,7 @@ int main()
 
     // get a warning, as use deprecated func
     x = silly_add(3, 4);
+
+    free(p);
     return 0;
 }

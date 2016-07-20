@@ -8,5 +8,8 @@ int main() {
     fgets(buf, 1024, stdin);
     printf("%s\n", buf);
 
+    if (buf != NULL) {
+        free(buf);
+    }
     return 0;
 }

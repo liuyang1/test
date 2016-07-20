@@ -25,7 +25,7 @@ char *serialize(struct TreeNode *root) {
 }
 
 char *indexComma(char *s) {
-    int parenCnt;
+    int parenCnt = 0;
     for (; *s != '\0'; s++) {
         switch (*s) {
             case '(': parenCnt++; break;

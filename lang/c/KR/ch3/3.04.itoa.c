@@ -18,9 +18,9 @@ void itoa(int n, char s[]) {
 }
 
 #define STRLEN 128
-#define CASE(i) {char r[STRLEN], e[STRLEN];       \
-                 itoa(i, r); sprintf(e, "%d", i); \
-                 printf("%d %s ?= %s %s\n",       \
+#define CASE(i) {char r[STRLEN] = {0}, e[STRLEN] = {0}; \
+                 itoa(i, r); sprintf(e, "%d", i);       \
+                 printf("%d %s ?= %s %s\n",             \
                         i, r, e, expect(strcmp(r, e) == 0)); }
 
 int main() {

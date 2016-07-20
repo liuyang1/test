@@ -145,6 +145,7 @@ bool simpletest(int n, int k) {
     char *ret = getPermutation(n, k);
     bool r = allisdigit(ret);
     printf("permSeq(%d, %d) = %s %s\n", n, k, ret, expect(r));
+    free(ret);
     return r;
 }
 int main() {
