@@ -14,7 +14,6 @@ int threeSumClosest(int* nums, int numsSize, int target) {
     qsort(nums, numsSize, sizeof(int), cmpInt);
     int ret = nums[0] + nums[1] + nums[2];
     unsigned int diff = abs(ret - target);
-    // printf("ret=%d diff=%u\n", ret, diff);
     int i;
     for (i = 0; i < numsSize - 2; i++) {
         int bgn, end;
@@ -24,11 +23,10 @@ int threeSumClosest(int* nums, int numsSize, int target) {
             if (d < diff) {
                 diff = d;
                 ret = sum;
-                // printf("ret=%d diff=%u\n", ret, diff);
             }
             if (sum == target) {
-                bgn++;
-                end--;
+                // find target, end loop
+                goto end;
             } else if (sum > target) {
                 end--;
             } else {
@@ -36,6 +34,7 @@ int threeSumClosest(int* nums, int numsSize, int target) {
             }
         }
     }
+end:
     return ret;
 }
 
