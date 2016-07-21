@@ -1,3 +1,5 @@
+{-# LANGUAGE MonadComprehensions, RecordWildCards #-}
+{-# OPTIONS_GHC -Wall #-}
 module Main where
 
 import qualified Data.Vector as V
@@ -57,8 +59,6 @@ mapM' mf (x:xs) = do
 -- Just [1,3]
 getElts :: [Int] -> V.Vector a -> Maybe [a]
 getElts idxs xs = mapM' (\i -> xs V.!? i) idxs
-
-main = putStr ""
 
 
 --------------------------------------------------------------------------------
@@ -206,3 +206,52 @@ getCards n d = do
     (h, t) <- nextCard d
     (xs, e) <- getCards (n - 1) t
     return (h:xs, e)
+
+-- Exercise 13 ----------------------------------------
+
+data State = State { money :: Int, deck :: Deck }
+
+-- {..} need RecordWildCards
+-- This function from HW07.hs, material of course
+repl :: State -> IO ()
+repl s@State{..} | money <= 0  = putStrLn "You ran out of money!"
+                 | V.null deck = deckEmpty
+                 | otherwise   = do
+  putStrLn $ "You have \ESC[32m$" ++ show money ++ "\ESC[0m"
+  putStrLn "Would you like to play (y/n)?"
+  cont <- getLine
+  if cont == "n"
+  then putStrLn $ "You left the casino with \ESC[32m$"
+           ++ show money ++ "\ESC[0m"
+  else play
+    where deckEmpty = putStrLn $ "The deck is empty. You got \ESC[32m$"
+                      ++ show money ++ "\ESC[0m"
+          play = do
+            putStrLn "How much do you want to bet?"
+            amt <- read <$> getLine
+            if amt < 1 || amt > money
+            then play
+            else do
+              case getCards 2 deck of
+                Just ([c1, c2], d) -> do
+                  putStrLn $ "You got:\n" ++ show c1
+                  putStrLn $ "I got:\n" ++ show c2
+                  case () of
+                    _ | c1 >  c2  -> repl $ State (money + amt) d
+                      | c1 <  c2  -> repl $ State (money - amt) d
+                      | otherwise -> war s{deck = d} amt
+                _ -> deckEmpty
+          war (State m d) amt = do
+            putStrLn "War!"
+            case getCards 6 d of
+              Just ([c11, c21, c12, c22, c13, c23], d') -> do
+                putStrLn $ "You got\n" ++ ([c11, c12, c13] >>= show)
+                putStrLn $ "I got\n" ++ ([c21, c22, c23] >>= show)
+                case () of
+                  _ | c13 > c23 -> repl $ State (m + amt) d'
+                    | c13 < c23 -> repl $ State (m - amt) d'
+                    | otherwise -> war (State m d') amt
+              _ -> deckEmpty
+
+hw07 :: IO ()
+hw07 = evalRandIO newDeck >>= repl . State 100
