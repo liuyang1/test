@@ -1,6 +1,8 @@
 # test
 just some test or learning code
 
+![struct](img/struct_voronoi_treemap.png)
+
 ## language
 ### python
 * centos_process    display CentOS process figure
