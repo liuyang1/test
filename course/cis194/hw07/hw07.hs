@@ -5,6 +5,9 @@ import Control.Monad hiding (mapM, liftM)
 import Control.Monad.Random
 import System.Random
 import Data.Maybe
+import Cards
+import Data.Function
+import Control.Applicative
 --------------------------------------------------------------------------------
 -- Exercise 1
 
@@ -140,3 +143,66 @@ qsortR xs
 revK = V.fromList $ reverse [1..1000]
 test = qsort revK
 testR = evalRandIO $ qsortR revK
+
+--------------------------------------------------------------------------------
+-- Exercise 9
+-- select :: Ord a => Int -> V.Vector a -> Rnd (Maybe a)
+-- | select rank J elem with random algo
+--
+-- >>> select 6 (V.fromList [0..5])
+-- Just 5
+-- >>> select 7 (V.fromList [0..5])
+-- Nothing
+select j xs
+  | V.null xs = return Nothing
+  | otherwise = do
+      i <- getRandomR (0, V.length xs - 1)
+      let (as, p, bs) = partitionAt xs i
+       in case compare (V.length as + 1) j of
+            GT -> select j as
+            EQ -> return (Just p)
+            LT -> select (j - V.length as - 1) bs
+
+
+--------------------------------------------------------------------------------
+-- Exercise 10
+cartProdWith f a b = V.fromList $ liftM2 f (V.toList a) (V.toList b)
+-- (.:) g f a b = g (f a b)
+-- cartProdWith f = V.fromList .: liftM2 f `on` V.toList
+-- This limit
+--      cartProdWith :: (a -> a -> b) -> V.Vector a -> V.Vector a -> V.Vector b
+-- however, want
+--      cartProdWith :: (a -> a1 -> b) -> V.Vector a -> V.Vector a1 -> V.Vector b
+
+-- `do` notation style
+cardProdWith1 f xs ys = V.fromList $ do x <- V.toList xs
+                                        y <- V.toList ys
+                                        return (f x y)
+
+-- list comprehension style
+cardProdWith2 f xs ys = V.fromList [f x y | x <- V.toList xs, y <- V.toList ys]
+
+-- applicative style
+cardProdWith3 f xs ys = V.fromList $ f <$> V.toList xs <*> V.toList ys
+
+allCards :: Deck
+allCards = cartProdWith Card labels suits
+
+newDeck :: Rnd Deck
+newDeck = shuffle allCards
+
+--------------------------------------------------------------------------------
+-- Exercise 11
+
+nextCard d
+  | V.null d = Nothing
+  | otherwise = Just (V.head d, V.tail d)
+
+--------------------------------------------------------------------------------
+-- Exercise 12
+
+getCards 0 d = Just ([], d)
+getCards n d = do
+    (h, t) <- nextCard d
+    (xs, e) <- getCards (n - 1) t
+    return (h:xs, e)

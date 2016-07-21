@@ -2,6 +2,7 @@ pre:
 	cabal update
 	cabal install MonadRandom
 	cabal install vector
+	wget http://www.seas.upenn.edu/~cis194/extras/07-monads/Cards.hs
 
 test:
 	doctest hw07.hs
