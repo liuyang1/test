@@ -136,7 +136,7 @@ int main() {
             break;
         }
         struct timespec ts0 = now();
-        printf("current time: %u sec %llu ns\n", ts0.tv_sec, ts0.tv_nsec);
+        printf("current time: %ju sec %ju ns\n", ts0.tv_sec, ts0.tv_nsec);
 
         // which type of this function pointer? :)
         void (*timedCallFunc)(void *(*func)(void *), void *pArgs, int t);
@@ -145,7 +145,7 @@ int main() {
         timedCallFunc(func, &dt, 2);
 
         struct timespec ts1 = now();
-        printf("current time: %u sec %llu ns\n", ts1.tv_sec, ts1.tv_nsec);
+        printf("current time: %ju sec %ju ns\n", ts1.tv_sec, ts1.tv_nsec);
 
         printf("should use time min(dt, 2)=%d\n", dt < 2 ? dt : 2);
         unsigned long long sec, nsec;
@@ -157,7 +157,7 @@ int main() {
             sec = ts1.tv_sec - ts0.tv_sec - 1;
         }
 
-        printf("eslaped time: %10u sec %9llu ns\n", sec, nsec);
+        printf("eslaped time: %10llu sec %9llu ns\n", sec, nsec);
     }
 
     return 0;
