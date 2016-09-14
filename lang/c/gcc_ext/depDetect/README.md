@@ -7,3 +7,7 @@
 
 ## ref
 - http://scottmcpeak.com/autodepend/autodepend.html
+
+## Advanced
+
+- http://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
