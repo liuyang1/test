@@ -315,6 +315,10 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
 
     - implement an iterator on Tree use stack, DFS and Left node first
 
+* 222. Count Complete Tree Nodes
+
+    - one simple solution, just count nodes in general.
+
 * 235. Lowest Common Ancestor of a Binary Search Tree
 * 236. Lowest Common Ancestor of a Binary Tree
 

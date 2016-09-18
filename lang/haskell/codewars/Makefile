@@ -16,4 +16,4 @@ hilbert:HilbertC.hs
 	ucblogo hilbert.logo
 
 clean:
-	rm -rf *.hi *.logo dragon *.o hilbert
+	rm -rf *.hi *.logo dragon *.o hilbert core*
