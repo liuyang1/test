@@ -1,1 +1,3 @@
-../../template.mk
+LDFLAGS := -lpthread
+
+include ../../template.mk

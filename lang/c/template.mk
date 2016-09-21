@@ -1,10 +1,13 @@
+# CFLAGS :=
+# LDFALGS :=
+
 SRCS := $(wildcard *.c)
 OBJS := $(SRCS:.c=.o)
 
 TARGET := main
 
 $(TARGET): $(OBJS)
-	gcc $(OBJS) -o $@
+	gcc $(OBJS) $(LDFLAGS) -o $@
 
 -include $(OBJS:.o=.d)
 

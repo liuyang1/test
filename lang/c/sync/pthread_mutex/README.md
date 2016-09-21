@@ -10,3 +10,7 @@
 
 One global int value, two threading increment times same time.
 Finish that, check result.
+
+## analysis
+
+When without lock, there are [ABA problem](https://en.wikipedia.org/wiki/ABA_problem).
