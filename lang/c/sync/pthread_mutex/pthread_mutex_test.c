@@ -56,7 +56,6 @@ int test_lock() {
     pthread_join(t0, NULL);
     pthread_join(t1, NULL);
 
-
     printf("gVal should be 2 * TIMES = %d ?= %d\n", 2 * TIMES, gVal);
     return 2 * TIMES == gVal;
 }
@@ -79,7 +78,7 @@ int test_atomic() {
         gettimeofday(&start, NULL);
 
 #define TOC gettimeofday(&stop, NULL);                                \
-    printf("%10lu sec %10luusec\n",                                       \
+    printf("%10lu sec %10luusec\n",                                   \
            stop.tv_sec - start.tv_sec, stop.tv_usec - start.tv_usec); \
     }                                                                 \
 
