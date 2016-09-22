@@ -1,6 +1,9 @@
 #include <pthread.h>
-#include <stdio.h>
 #include <unistd.h>
+#include <time.h>
+#include <sys/time.h>
+#include <stdbool.h>
+#include <stdio.h>
 
 int gVal = 0;
 pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER;
@@ -31,25 +34,7 @@ void *func_atomic(void *p) {
     return NULL;
 }
 
-pthread_t callFunc_async(void *(*funcPtr)(void *p)) {
-    pthread_t thread;
-    pthread_create(&thread, NULL, funcPtr, NULL);
-    return thread;
-}
-
-int meta_test(void *(*funcPtr)(void *p)) {
-    gVal = 0;
-    pthread_t t0 = callFunc_async(funcPtr);
-    pthread_t t1 = callFunc_async(funcPtr);
-    pthread_join(t0, NULL);
-    pthread_join(t1, NULL);
-
-    printf("gVal should be 2 * TIMES = %d ?= %d\n", 2 * TIMES, gVal);
-    return 2 * TIMES == gVal;
-}
-
-#include <time.h>
-#include <sys/time.h>
+// ---- test code
 #define TIC {                       \
         struct timeval start, stop; \
         gettimeofday(&start, NULL);
@@ -59,19 +44,30 @@ int meta_test(void *(*funcPtr)(void *p)) {
            stop.tv_sec - start.tv_sec, stop.tv_usec - start.tv_usec); \
     }                                                                 \
 
+int meta_test(void *(*funcPtr)(void *p)) {
+    gVal = 0;
+    pthread_t t0, t1;
+
+    TIC
+    pthread_create(&t0, NULL, funcPtr, NULL);
+    pthread_create(&t1, NULL, funcPtr, NULL);
+    pthread_join(t0, NULL);
+    pthread_join(t1, NULL);
+    TOC
+
+    bool ret = 2 * TIMES == gVal;
+    printf("gVal should be 2 * TIMES = %d ?= %d  %s\n",
+           2 * TIMES, gVal, ret ? "success" : "fail");
+    return ret;
+}
+
 int main() {
-    TIC
     meta_test(func_nolock);
-    TOC
 
     pthread_mutex_init(&gLock, NULL);
-    TIC
     meta_test(func_lock);
-    TOC
-    pthread_mutex_init(&gLock, NULL);
+    pthread_mutex_destroy(&gLock);
 
-    TIC
     meta_test(func_atomic);
-    TOC
     return 0;
 }
