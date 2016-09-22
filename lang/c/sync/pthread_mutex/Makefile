@@ -1,7 +1,7 @@
 a.out: pthread_mutex_test.c
 	gcc pthread_mutex_test.c -lpthread
 
-run:
+run: a.out
 	./a.out
 
 clean:

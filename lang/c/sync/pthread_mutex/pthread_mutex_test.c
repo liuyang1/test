@@ -37,33 +37,10 @@ pthread_t callFunc_async(void *(*funcPtr)(void *p)) {
     return thread;
 }
 
-int test_nolock() {
+int meta_test(void *(*funcPtr)(void *p)) {
     gVal = 0;
-    pthread_t t0 = callFunc_async(func_nolock);
-    pthread_t t1 = callFunc_async(func_nolock);
-    pthread_join(t0, NULL);
-    pthread_join(t1, NULL);
-
-    printf("gVal should be 2 * TIMES = %d ?= %d\n", 2 * TIMES, gVal);
-    return 2 * TIMES == gVal;
-}
-
-int test_lock() {
-    gVal = 0;
-
-    pthread_t t0 = callFunc_async(func_lock);
-    pthread_t t1 = callFunc_async(func_lock);
-    pthread_join(t0, NULL);
-    pthread_join(t1, NULL);
-
-    printf("gVal should be 2 * TIMES = %d ?= %d\n", 2 * TIMES, gVal);
-    return 2 * TIMES == gVal;
-}
-
-int test_atomic() {
-    gVal = 0;
-    pthread_t t0 = callFunc_async(func_atomic);
-    pthread_t t1 = callFunc_async(func_atomic);
+    pthread_t t0 = callFunc_async(funcPtr);
+    pthread_t t1 = callFunc_async(funcPtr);
     pthread_join(t0, NULL);
     pthread_join(t1, NULL);
 
@@ -84,17 +61,17 @@ int test_atomic() {
 
 int main() {
     TIC
-    test_nolock();
+    meta_test(func_nolock);
     TOC
 
     pthread_mutex_init(&gLock, NULL);
     TIC
-    test_lock();
+    meta_test(func_lock);
     TOC
     pthread_mutex_init(&gLock, NULL);
 
     TIC
-    test_atomic();
+    meta_test(func_atomic);
     TOC
     return 0;
 }
