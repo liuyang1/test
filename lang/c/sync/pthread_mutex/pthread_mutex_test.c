@@ -42,7 +42,7 @@ void *func_atomic(void *p) {
 #define TOC gettimeofday(&stop, NULL);                                \
     printf("%10lu sec %10luusec\n",                                   \
            stop.tv_sec - start.tv_sec, stop.tv_usec - start.tv_usec); \
-    }                                                                 \
+    }
 
 int meta_test(void *(*funcPtr)(void *p)) {
     gVal = 0;

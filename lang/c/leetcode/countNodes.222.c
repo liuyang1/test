@@ -26,7 +26,7 @@ int basicTest() {
 #define TOC gettimeofday(&stop, NULL);                                \
     printf("%lu sec %luusec\n",                                       \
            stop.tv_sec - start.tv_sec, stop.tv_usec - start.tv_usec); \
-    }                                                                 \
+    }
 
 int perfTest() {
 #define LEN 10000
