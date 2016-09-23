@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 int gVal = 0;
-pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER; // static allocated
+pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER; // statically allocated
 
 #define TIMES 1000000
 
