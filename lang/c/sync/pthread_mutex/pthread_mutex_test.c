@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 int gVal = 0;
-pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER; // static allocated
 
 #define TIMES 1000000
 
@@ -63,11 +63,7 @@ int meta_test(void *(*funcPtr)(void *p)) {
 
 int main() {
     meta_test(func_nolock);
-
-    pthread_mutex_init(&gLock, NULL);
     meta_test(func_lock);
-    pthread_mutex_destroy(&gLock);
-
     meta_test(func_atomic);
     return 0;
 }
