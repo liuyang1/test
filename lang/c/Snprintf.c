@@ -8,7 +8,7 @@ typedef struct sct {
 } sct_t;
 int main(int argc, char *argv[])
 {
-    sct_t* p = malloc(sizeof(sct_t));
+    sct_t *p = malloc(sizeof(sct_t));
     if (p) {
         snprintf(p->s, LEN, "EventQ/%d", 15);
         puts(p->s);

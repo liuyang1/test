@@ -343,6 +343,10 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
 
     binary search on [1, 65535] as limit of INT range
 
+- 278. First Bad Version
+
+    fixed length integer overflow
+
 - 319. Bulb switcher
 
     find regular pattern first, increase with sqrt(n)
