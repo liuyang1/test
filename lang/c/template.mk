@@ -16,10 +16,13 @@ $(TARGET): $(OBJS)
 	gcc -MM $(CFLAGS) $*.c >  $*.d
 
 clean:
-	rm -rf $(OBJS) $(TARGET) *.d core*
+	rm -rf $(OBJS) $(TARGET) *.d core* html latex
 
 run: $(TARGET)
 	./$(TARGET)
+
+stress: $(TARGET)
+	while true; do ./$(TARGET); sleep 1; done
 
 tag:
 	gtags -i .
@@ -29,3 +32,6 @@ style:
 
 check:
 	cppcheck $(SRCS)
+
+doc:
+	doxygen .doxygen.cfg
