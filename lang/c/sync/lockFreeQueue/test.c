@@ -17,27 +17,33 @@ const char *showBool(bool b) {
 #endif
 
 bool test_simple() {
-#define N 100
+#define N 17
     bool ret = true;
-    queue *q = open();
-    for (long i = 0; i != N; i++) {
-        enqueue(q, (void *)i);
+    queue *q = q_open();
+    long i;
+    for (i = 1; i != N; i++) {
+        q_enqueue(q, (void *)i);
     }
-    for (long i = 0; i != N; i++) {
-        void *p = dequeue(q);
+
+    q_show(q);
+
+    for (i = 1; i != N; i++) {
+        void *p = q_dequeue(q);
         if (p != (void *)i) {
+            printf("false\n");
             ret = false;
+            break;
         }
     }
-    close(q);
+    q_close(q);
     return ret;
 }
 
-#define N1 10
+#define N1 100
 void *producer(void *p) {
     queue *q = p;
-    for (long i = 0; i != N1; i++) {
-        enqueue(q, (void *)i);
+    for (long i = 1; i != N1; i++) {
+        q_enqueue(q, (void *)i);
         printf("enqueue %ld\n", i);
     }
     return NULL;
@@ -46,14 +52,14 @@ void *producer(void *p) {
 void *consumer(void *p) {
     bool ret = true;
     queue *q = p;
-    for (long i = 0; i != N1; i++) {
-        void *n = dequeue(q);
+    for (long i = 1; i != N1; i++) {
+        void *n = q_dequeue(q);
         printf("dequeue %p\n", n);
-        // if (p != (void *)i) {
-        //     EXPECT(p, (void *)i);
-        //     ret = false;
-        //     break;
-        // }
+        if (n != (void *)i) {
+            EXPECT(n, (void *)i);
+            ret = false;
+            break;
+        }
     }
     CHECK(ret, "producer-consumer");
     return NULL;
@@ -66,12 +72,12 @@ pthread_t callFunc_async(void *(*funcPtr)(void *p), queue *q) {
 }
 
 bool test_concurrent() {
-    queue *q = open();
+    queue *q = q_open();
     pthread_t prod = callFunc_async(producer, q);
     pthread_t cons = callFunc_async(consumer, q);
     pthread_join(prod, NULL);
     pthread_join(cons, NULL);
-    close(q);
+    q_close(q);
     return true;
 }
 

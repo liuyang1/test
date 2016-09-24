@@ -5,9 +5,10 @@
 
 typedef struct queue_t queue;
 
-queue *open();
-void close(queue *q);
-void enqueue(queue *q, void *handle);
-void *dequeue(queue *q);
+queue *q_open();
+void q_close(queue *q);
+void q_enqueue(queue *q, void *handle);
+void *q_dequeue(queue *q);
+void q_show(queue *q);
 
 #endif

@@ -1,4 +1,4 @@
-# CFLAGS :=
+CFLAGS += -Wall -Werror
 # LDFALGS :=
 
 SRCS := $(wildcard *.c)
@@ -18,5 +18,11 @@ $(TARGET): $(OBJS)
 clean:
 	rm -rf $(OBJS) *.d $(TARGET)
 
-run:
+run: $(TARGET)
 	./$(TARGET)
+
+tag:
+	gtags -i .
+
+style:
+	uncrustify -c $(HOME)/.uncrustify.cfg --no-backup $(SRCS)

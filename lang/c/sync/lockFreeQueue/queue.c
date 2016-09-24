@@ -1,5 +1,10 @@
 #include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
 #include "queue.h"
+
+// #define LOG(...) printf(...)
+#define LOG(...)
 
 typedef struct node_t {
     struct node_t *next;
@@ -25,10 +30,15 @@ node_t *node_create(void *handle) {
 void node_destory(node_t *n) {
     free(n);
 }
+
+bool q_empty(queue_t *q) {
+    return q->head == NULL;
+}
+
 // internal function END
 
 // API function
-queue_t *open() {
+queue_t *q_open() {
     queue_t *q = malloc(sizeof(queue_t));
     if (q == NULL) {
         return q;
@@ -37,36 +47,52 @@ queue_t *open() {
     return q;
 }
 
-void close(queue_t *q) {
+void q_close(queue_t *q) {
     // free all node in queue
-    while (dequeue(q) != NULL) {
+    while (!q_empty(q)) {
     }
     free(q);
 }
 
-void enqueue(queue_t *q, void *handle) {
-    node_t *n = node_create(handle);
-
-    if (q->head == NULL) {
-        q->head = n;
+void q_show(queue_t *q) {
+    printf("%p show head=%p tai=%p\n", q, q->head, q->tail);
+    int i;
+    node_t *n;
+    for (n = q->head, i = 0; n != NULL; n = n->next, i++) {
+        printf("%p(%p) ", n, n->payload);
+        if ((i + 1) % 4 == 0) {
+            printf("\n");
+        }
     }
-    if (q->tail == NULL) {
-        q->tail = n;
-    } else {
-        q->tail->next = n;
-        q->tail = n;
-    }
+    printf("\n");
 }
 
-void *dequeue(queue_t *q) {
-    if (q->head == NULL) {
-        return NULL;
+void q_enqueue(queue_t *q, void *handle) {
+    node_t *n = node_create(handle);
+    LOG("%p enqueue %p handle=%p\n", q, n, handle);
+
+    if (q_empty(q)) {
+        q->head = n;
+    }
+    if (q->tail) {
+        q->tail->next = n;
+    }
+    q->tail = n;
+}
+
+void *q_dequeue(queue_t *q) {
+    // block until queue not q_empty
+    while (q_empty(q)) {
+        usleep(1);
     }
     if (q->tail == q->head) {
         q->tail = NULL;
     }
-    void *handle = q->head->payload;
-    q->head = q->head->next;
+    node_t *n = q->head;
+    void *handle = n->payload;
+    q->head = n->next;
+    free(n);
+    LOG("%p dequeue %p handle=%p\n", q, n, handle);
     return handle;
 }
 // API function END
