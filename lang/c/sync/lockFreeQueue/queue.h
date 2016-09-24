@@ -10,5 +10,6 @@ void q_close(queue *q);
 void q_enqueue(queue *q, void *handle);
 void *q_dequeue(queue *q);
 void q_show(queue *q);
+int q_drain(queue *q);
 
 #endif

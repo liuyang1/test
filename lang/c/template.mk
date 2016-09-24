@@ -16,7 +16,7 @@ $(TARGET): $(OBJS)
 	gcc -MM $(CFLAGS) $*.c >  $*.d
 
 clean:
-	rm -rf $(OBJS) *.d $(TARGET)
+	rm -rf $(OBJS) $(TARGET) *.d core*
 
 run: $(TARGET)
 	./$(TARGET)
@@ -26,3 +26,6 @@ tag:
 
 style:
 	uncrustify -c $(HOME)/.uncrustify.cfg --no-backup $(SRCS)
+
+check:
+	cppcheck $(SRCS)
