@@ -2,8 +2,24 @@
 
 Concurrent is complex. Even so basic like a queue, it's hard to implement CORRECT one.
 
+Lock-based solution, have one issue:
+
+- slow or stoped process will prevent other process from accessing data structure.
+
+We had met this issue, VPP isr calling to SHM module. SHM's global lock may slow down VPP's speed.
+
 ## doc
-[Implement Lock-Free Queues](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.53.8674&rep=rep1&type=pdf)
+
+- [Implement Lock-Free Queues](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.53.8674&rep=rep1&type=pdf)
+
+### [An efficient Unbounded Lock-Free Queue for Multi-Core Systems](http://calvados.di.unipi.it/storage/talks/2012_SPSC_Europar.pdf)
+
+| Progress guarantees              | comment                                                         |
+|----------------------------------|-----------------------------------------------------------------|
+| no guarantee (blocking)          |                                                                 |
+| obstruction freedom (梗阻自由？) | A thread, if executed in isolation, make progress               |
+| lock freedom                     | with enough time, at least one thread make progress             |
+| wait freedom                     | a thread always completes its ops in a bounded number of steps. |
 
 ## TODO
 

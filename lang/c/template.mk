@@ -1,7 +1,7 @@
 CFLAGS += -Wall -Werror
 # LDFALGS :=
 
-SRCS := $(wildcard *.c)
+SRCS ?= $(wildcard *.c)
 OBJS := $(SRCS:.c=.o)
 
 TARGET := main
@@ -16,7 +16,9 @@ $(TARGET): $(OBJS)
 	gcc -MM $(CFLAGS) $*.c >  $*.d
 
 clean:
-	rm -rf $(OBJS) $(TARGET) *.d core* html latex
+	rm -rf $(OBJS) $(TARGET) *.d core*
+	rm -rf html latex
+	rm -rf .cccc
 
 run: $(TARGET)
 	./$(TARGET)
@@ -35,3 +37,7 @@ check:
 
 doc:
 	doxygen .doxygen.cfg
+	cccc $(SRCS)
+
+view:
+	python2 -m SimpleHTTPServer
