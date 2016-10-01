@@ -112,7 +112,7 @@ void q_show(queue_t *q) {
 
 void q_enqueue(queue_t *q, void *handle) {
     node_t *n = node_create(handle);
-    // LOG("%p enqueue %p handle=%p\n", q, n, handle);
+    LOG("%p enqueue %p handle=%p\n", q, n, handle);
 
     LOCK(q);
     if (q_empty(q)) {

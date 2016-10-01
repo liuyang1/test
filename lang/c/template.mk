@@ -41,3 +41,6 @@ doc:
 
 view:
 	python2 -m SimpleHTTPServer
+
+loc:
+	cloc .
