@@ -3,7 +3,7 @@
 
 typedef struct abp_st ABP;
 
-ABP * abp_create(int num, int size);
+ABP * abp_create(int num, void *(allocFn)(void *), void *pArg);
 
 void abp_labelDestroy(ABP *p);
 
