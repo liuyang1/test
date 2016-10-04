@@ -6,6 +6,8 @@ OBJS := $(SRCS:.c=.o)
 
 TARGET := main
 
+.PHONY: clean run stress tag style check doc view loc
+
 $(TARGET): $(OBJS)
 	gcc $(OBJS) $(LDFLAGS) -o $@
 
@@ -23,8 +25,14 @@ clean:
 run: $(TARGET)
 	./$(TARGET)
 
+# loop run TARGET program, until it fail
 stress: $(TARGET)
-	while true; do ./$(TARGET); sleep 1; done
+	cnt=0 ; while true; do \
+		cnt=`echo $$cnt + 1 | bc`; \
+		tput setf 2; echo "---- test $$cnt times ----"; tput setf 7;\
+		./$(TARGET) || exit 1; \
+		sleep 1; \
+	done
 
 tag:
 	gtags -i .

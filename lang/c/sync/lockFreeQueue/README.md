@@ -51,9 +51,11 @@ We had met this issue, VPP isr calling to SHM module. SHM's global lock may slow
 Fake issue, as cannot run `q_drain` in two threads same time.
 T0 check queue is not empty, but T1 rob that one, so T0 will wait in `q_dequeue` and cannot skip out.
 
+- [ ] head & tail conflict when lock-free
+
 ### test result
-| methods \ cases | basic | producer-consumer | 2-producers | 2-consumers |
-|-----------------|-------|-------------------|-------------|-------------|
-| basic           | :o:   | :heavy_exclamation_mark: | :heavy_exclamation_mark: | :heavy_exclamation_mark: |
-| lock            | :o:   | :o:               | :o:         | :o:         |
-| lock-free       |       |                   |             |             |
+| methods \ cases | basic | interleave | 2-producers              | 2-consumers              | producer-consumer        |
+|-----------------|-------|------------|--------------------------|--------------------------|--------------------------|
+| basic           | :o:   | :o:        | :heavy_exclamation_mark: | :heavy_exclamation_mark: | :heavy_exclamation_mark: |
+| lock            | :o:   | :o:        | :o:                      | :o:                      | :o:                      |
+| lock-free       | :o:   | :o:        | :o:                      | :o:                      | :heavy_exclamation_mark: |

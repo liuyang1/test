@@ -6,12 +6,19 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <assert.h>
 #include "queue.h"
 
-// #define LOG(fmt, ...) printf("%2lu - " fmt, pthread_self() % 100, __VA_ARGS__)
+// #define LOG(fmt, ...) printf("tid=%02lu - " fmt, pthread_self() % 100, __VA_ARGS__)
 #define LOG(...)
 
-#define MUTEXLOCK
+// have to define this value as macro, as proprocessor handle all these.
+#define NOLOCK      0
+#define MUTEXLOCK   1
+#define LOCKFREE    2
+#define LOCKTYPE    LOCKFREE
+
+#define CAS __sync_bool_compare_and_swap
 
 typedef struct node_t {
     struct node_t *next;
@@ -22,19 +29,18 @@ typedef struct queue_t {
     node_t *head;
     node_t *tail;
     sem_t sem;
-#if defined(MUTEXLOCK)
+#if (LOCKTYPE == MUTEXLOCK)
     pthread_mutex_t lock;
-#elif defined(LOCKFREE)
 #endif
 } queue_t;
 
 
-#if defined(MUTEXLOCK)
-#define LOCK(q) pthread_mutex_lock(&q->lock);
-#define UNLOCK(q) pthread_mutex_unlock(&q->lock);
-#else
+#if LOCKTYPE == NOLOCK || LOCKTYPE == LOCKFREE
 #define LOCK(q)
 #define UNLOCK(q)
+#elif (LOCKTYPE == MUTEXLOCK)
+#define LOCK(q) pthread_mutex_lock(&q->lock);
+#define UNLOCK(q) pthread_mutex_unlock(&q->lock);
 #endif
 
 // internal function
@@ -59,7 +65,7 @@ void node_destory(node_t *n) {
 //      q_dequeue(q); // when do this, it may empty again, so fail to dequeue.
 // }
 bool q_empty(queue_t *q) {
-    return q->head == NULL;
+    return q->head->next == NULL;
 }
 
 int q_sem_post(queue_t *q) {
@@ -78,22 +84,28 @@ queue_t *q_create() {
     if (q == NULL) {
         return q;
     }
-    q->head = q->tail = NULL;
+    q->head = q->tail = node_create(0); // create dummy header
+    // why need dummy header?
+    // with dummy header, we could independent operate head and tail pointer.
+    // without it, we have to setting head, and tail SAME time
+    //      when enqueue first one or deuqueue last sone
+    // so enqueue and dequeue must be mutex, this cost too much.
     sem_init(&q->sem, 0, 0);
-#if defined(MUTEXLOCK)
+#if (LOCKTYPE == MUTEXLOCK)
     pthread_mutex_init(&q->lock, NULL);
-#elif defined(LOCKFREE)
 #endif
     return q;
 }
 
 void q_destory(queue_t *q) {
+    assert(q != NULL);
+    assert(q->head != NULL);
     q_drain(q);
-#if defined(MUTEXLOCK)
+#if (LOCKTYPE == MUTEXLOCK)
     pthread_mutex_destroy(&q->lock);
-#elif defined(LOCKFREE)
 #endif
     sem_destroy(&q->sem);
+    node_destory(q->head);
     free(q);
 }
 
@@ -114,30 +126,51 @@ void q_enqueue(queue_t *q, void *handle) {
     node_t *n = node_create(handle);
     LOG("%p enqueue %p handle=%p\n", q, n, handle);
 
+#if LOCKTYPE != LOCKFREE
     LOCK(q);
-    if (q_empty(q)) {
-        q->head = n;
-    }
-    if (q->tail) {
-        q->tail->next = n;
-    }
+    q->tail->next = n;
     q->tail = n;
     UNLOCK(q);
+#elif LOCKTYPE == LOCKFREE
+    CAS(&q->head, NULL, n);
+    node_t *tail;
+    // if tail->next != NULL, then loop again
+    // if tail->next == NULL, then set it to q
+    do {
+        tail = q->tail;
+    } while (tail != NULL && CAS(&tail->next, NULL, n) != true);
+
+    // if q->tail == tail, then q->tail <= node
+    // if not, then do nothing (tail node as updated)
+    CAS(&q->tail, tail, n);
+#endif
 
     q_sem_post(q);
 }
 
 void *q_dequeue(queue_t *q) {
     q_sem_wait(q);
+    assert(q->head != NULL);
+    assert(q->tail != NULL);
 
+#if LOCKTYPE != LOCKFREE
     LOCK(q);
-    if (q->tail == q->head) {
-        q->tail = NULL;
+    node_t *n = q->head->next;
+    q->head->next = n->next;
+    if (n->next == NULL) {
+        q->tail = q->head;
     }
-    node_t *n = q->head;
-    void *handle = n->payload;
-    q->head = n->next;
     UNLOCK(q);
+#elif LOCKTYPE == LOCKFREE
+    node_t *head;
+    do {
+        head = q->head->next;
+    } while (CAS(&q->head->next, head, head->next) != true);
+    // if delete to last one, need reset q->tail
+    CAS(&q->tail, head, q->head);
+    node_t *n = head;
+#endif
+    void *handle = n->payload;
 
     free(n);
     LOG("%p dequeue %p handle=%p\n", q, n, handle);

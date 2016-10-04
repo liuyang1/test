@@ -2,11 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <sys/time.h>
 #include "queue.h"
 
 #define VERBOSE
 #ifdef VERBOSE
-#define CHECK(b, msg) printf("%s %s\n", msg, b ? "success" : "fail");
+#define CHECK(b, msg) printf("%-20s %s\n", msg, b ? "success" : "fail");
 #define EXPECT(v, e) printf("%p ?= %p %s\n", v, e, v == e ? "true" : "false");
 #else
 #define CHECK(b, msg) if (!b) {printf("%s fail\n", msg); }
@@ -108,7 +109,7 @@ bool test_simple() {
         q_enqueue(q, (void *)i);
     }
 
-    q_show(q);
+    // q_show(q);
 
     for (i = 1; i != N; i++) {
         void *p = q_dequeue(q);
@@ -199,13 +200,48 @@ bool test_2consumers() {
     CHECK(ret, "2consumers");
     q_destory(q);
     return ret;
-
 }
 
+#define EXPECT_PTR(a_, b_) {                 \
+        void *a = (void *)a_, *b = (void *)b_;               \
+        if (a != b) {                        \
+            printf("%p != %p fail\n", a, b); \
+            return false;                    \
+        }                                    \
+}
+bool test_interleave() {
+    bool ret = true;
+    queue *q = q_create();
+    void *handle;
+
+    q_enqueue(q, (void *)1);
+    handle = q_dequeue(q);
+    EXPECT_PTR(handle, 1);
+
+    q_enqueue(q, (void *)2);
+    handle = q_dequeue(q);
+    EXPECT_PTR(handle, 2);
+
+    CHECK(ret, __FUNCTION__);
+    return ret;
+}
+
+#define TIC {                       \
+        struct timeval start, stop; \
+        gettimeofday(&start, NULL);
+
+#define TOC gettimeofday(&stop, NULL);                                \
+    printf("%10lu sec %10luusec\n",                                   \
+           stop.tv_sec - start.tv_sec, stop.tv_usec - start.tv_usec); \
+    }
+
 int main() {
+    TIC
     test_simple();
-    test_producer_consumer();
+    test_interleave();
     test_2producers();
     test_2consumers();
+    test_producer_consumer();
+    TOC
     return 0;
 }
