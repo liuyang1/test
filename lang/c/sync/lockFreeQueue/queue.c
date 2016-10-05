@@ -12,7 +12,8 @@
 // #define LOG(fmt, ...) printf("tid=%02lu - " fmt, pthread_self() % 100, __VA_ARGS__)
 #define LOG(...)
 
-// have to define this value as macro, as proprocessor handle all these.
+// have to define this value as macro instead of enum,
+// as preprocessor handle all these.
 #define NOLOCK      0
 #define MUTEXLOCK   1
 #define LOCKFREE    2
@@ -153,16 +154,13 @@ void *q_dequeue(queue_t *q) {
     assert(q->head != NULL);
     assert(q->tail != NULL);
 
+    node_t *head;
 #if LOCKTYPE != LOCKFREE
     LOCK(q);
-    node_t *n = q->head->next;
-    q->head->next = n->next;
-    if (n->next == NULL) {
-        q->tail = q->head;
-    }
+    head = q->head;
+    q->head = head->next;
     UNLOCK(q);
 #elif LOCKTYPE == LOCKFREE
-    node_t *head;
     //      DUMMY -> FIRST -> 2nd
     //      Q.HEAD
     // after CAS operator
@@ -172,12 +170,11 @@ void *q_dequeue(queue_t *q) {
     do {
         head = q->head;
     } while (CAS(&q->head, head, head->next) != true);
-    // this local HEAD point to DUMMY, fetch its next to get handle.
-    node_t *n = head->next;
-
     // with moving DUMMY style, we only move Q.HEAD.
     // so enqueue and dequeue have no relationship.
 #endif
+    // this local HEAD point to DUMMY, fetch its next to get handle.
+    node_t *n = head->next;
     void *handle = n->payload;
 
     // free DUMMY point now.

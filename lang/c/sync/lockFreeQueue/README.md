@@ -37,6 +37,8 @@ Chinese blog
 | lock freedom                     | with enough time, at least one thread make progress             |
 | wait freedom                     | a thread always completes its ops in a bounded number of steps. |
 
+Lock free generally use atomic read-compare-write primitives. such as CAS(compare-and-swap). STM is high level solution to implement non-blocking algo.
+
 ## TODO
 
 - [x] basic function
@@ -48,6 +50,7 @@ Chinese blog
 - [x] multi-threading with lock
 - [x] lock free
 - [x] semaphore in dequeue
+- [ ] remove semaphore when lock free
 
 ### Issues
 
@@ -68,8 +71,11 @@ Use moving dummy node solution.
 1. 如果 3 成功，那么 **删除 O**，否则从 1 重新开始。
 
 ### test result
+
 | methods \ cases | basic | interleave | 2-producers              | 2-consumers              | producer-consumer        |
 |-----------------|-------|------------|--------------------------|--------------------------|--------------------------|
 | basic           | :o:   | :o:        | :heavy_exclamation_mark: | :heavy_exclamation_mark: | :heavy_exclamation_mark: |
 | lock            | :o:   | :o:        | :o:                      | :o:                      | :o:                      |
 | lock-free       | :o:   | :o:        | :o:                      | :o:                      | :o:                      |
+
+#### performance test
