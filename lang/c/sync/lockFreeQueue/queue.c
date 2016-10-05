@@ -163,16 +163,25 @@ void *q_dequeue(queue_t *q) {
     UNLOCK(q);
 #elif LOCKTYPE == LOCKFREE
     node_t *head;
+    //      DUMMY -> FIRST -> 2nd
+    //      Q.HEAD
+    // after CAS operator
+    //      DUMMY -> FIRST -> 2nd
+    //               Q.HEAD
+    // next time, FIRST will work as new DUMMY node.
     do {
-        head = q->head->next;
-    } while (CAS(&q->head->next, head, head->next) != true);
-    // if delete to last one, need reset q->tail
-    CAS(&q->tail, head, q->head);
-    node_t *n = head;
+        head = q->head;
+    } while (CAS(&q->head, head, head->next) != true);
+    // this local HEAD point to DUMMY, fetch its next to get handle.
+    node_t *n = head->next;
+
+    // with moving DUMMY style, we only move Q.HEAD.
+    // so enqueue and dequeue have no relationship.
 #endif
     void *handle = n->payload;
 
-    free(n);
+    // free DUMMY point now.
+    free(head);
     LOG("%p dequeue %p handle=%p\n", q, n, handle);
     return handle;
 }

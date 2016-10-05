@@ -114,7 +114,7 @@ bool test_simple() {
     for (i = 1; i != N; i++) {
         void *p = q_dequeue(q);
         if (p != (void *)i) {
-            printf("false\n");
+            printf("%p != %p fail\n", p, (void *)i);
             ret = false;
             break;
         }
@@ -202,12 +202,12 @@ bool test_2consumers() {
     return ret;
 }
 
-#define EXPECT_PTR(a_, b_) {                 \
-        void *a = (void *)a_, *b = (void *)b_;               \
-        if (a != b) {                        \
-            printf("%p != %p fail\n", a, b); \
-            return false;                    \
-        }                                    \
+#define EXPECT_PTR(a_, b_) {                   \
+        void *a = (void *)a_, *b = (void *)b_; \
+        if (a != b) {                          \
+            printf("%p != %p fail\n", a, b);   \
+            return false;                      \
+        }                                      \
 }
 bool test_interleave() {
     bool ret = true;
