@@ -22,9 +22,10 @@ just some test or learning code
 
 | language  | loc  | ratio |
 |-----------|------|-------|
-| C         | 16k  |       |
+| C         | 19k  |       |
 | Java      | 6k   |       |
 | Python    | 5k   |       |
+| C++       | 3k   |       |
 | Haskell   | 2K   | 8.2%  |
 | Lisp      | 841  | 8.4%  |
 | Erlang    | 445  | 4.5%  |
