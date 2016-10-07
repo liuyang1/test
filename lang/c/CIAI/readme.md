@@ -6,3 +6,6 @@
 
 # ch2
 
+# ch3, Atoms
+
+This atom is concept from lisp. unique, immutable value. Use it to represent symbol.
