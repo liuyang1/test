@@ -14,8 +14,9 @@ $(TARGET): $(OBJS)
 -include $(OBJS:.o=.d)
 
 %.o: %.c
-	gcc -c  $(CFLAGS) $*.c -o $*.o
-	gcc -MM $(CFLAGS) $*.c >  $*.d
+	@echo "CC \t$*.c"
+	@gcc -c  $(CFLAGS) $*.c -o $*.o
+	@gcc -MM $(CFLAGS) $*.c >  $*.d
 
 clean:
 	rm -rf *.o *.d core* $(TARGET)

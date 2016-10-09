@@ -32,3 +32,9 @@ Arena-based algo
 但是现在看了这本书，发现其他方面也收益良多．比如关于错误处理，比如well-defined的概念，都很重要．
 
 会继续看完．
+
+# TODO
+
+- [ ] remove duplicate code
+    - union align
+    - ROUNDUP
