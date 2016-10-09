@@ -40,7 +40,7 @@ void Stack_push(T stk, void *x) {
 
 void *Stack_pop(T stk) {
     void *x;
-    struct elem *x;
+    struct elem *t;
     assert(stk);
     assert(!Stack_empty(stk));
 

@@ -11,4 +11,6 @@ extern void assert(int e);
 
 #define assert(e) ((void)((e)||(RAISE(Assert_Failed), 0)))
 
+#endif // end with NDEBUG
+
 #endif

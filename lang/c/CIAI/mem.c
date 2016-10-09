@@ -23,7 +23,7 @@ void *Mem_alloc(long nbytes, const char *file, int line) {
     return ptr;
 }
 
-void Mem_free(void *ptr, const char *file, int file) {
+void Mem_free(void *ptr, const char *file, int line) {
     if (ptr) {
         free(ptr);
     }

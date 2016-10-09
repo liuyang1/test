@@ -33,6 +33,8 @@ static struct descriptor freelist = {.free = &freelist,
                                      .file = NULL,
                                      .line = 0};
 
+const Except_T Mem_Failed = { "Allocation Failed"};
+
 #define hash(p, t) (((unsigned long)(p) >> 3) & (sizeof(t) / sizeof((t)[0]) - 1))
 static struct descriptor *find(const void *ptr) {
     struct descriptor *bp = htab[hash(ptr, htab)];
@@ -43,8 +45,7 @@ static struct descriptor *find(const void *ptr) {
     return bp;
 }
 
-#define NALLOC ((4096 + sizoef(union align) - 1) / (sizeof(union align))) * \
-    sizeof(union align))
+#define NALLOC ((4096 + sizeof(union align) - 1) / (sizeof(union align)) * sizeof(union align))
 #define RAISE_MEM_FAILED                       \
     if (file == NULL) {                        \
         RAISE(Mem_Failed);                     \
@@ -137,8 +138,7 @@ void *Mem_alloc(long nbytes, const char *file, int line) {
             struct descriptor *newptr;
 
             if ((ptr = malloc(nbytes + NALLOC)) == NULL ||
-                (newptr = dalloc(ptr, nbytes + NALLOC), __FILE__, __LINE__) ==
-                NULL) {
+                (newptr = dalloc(ptr, nbytes + NALLOC, __FILE__, __LINE__)) == NULL) {
                 RAISE_MEM_FAILED;
             }
 

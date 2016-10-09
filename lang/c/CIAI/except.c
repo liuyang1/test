@@ -5,6 +5,8 @@
 
 #define T Except_T
 
+Except_Frame *Except_stack = NULL;
+
 void Except_raise(const T *e, const char *file, int line) {
     Except_Frame *p = Except_stack;
     assert(e);

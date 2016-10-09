@@ -18,7 +18,7 @@ $(TARGET): $(OBJS)
 	gcc -MM $(CFLAGS) $*.c >  $*.d
 
 clean:
-	rm -rf $(OBJS) $(TARGET) *.d core*
+	rm -rf *.o *.d core* $(TARGET)
 	rm -rf html latex
 	rm -rf .cccc
 
