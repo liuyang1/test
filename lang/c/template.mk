@@ -4,12 +4,23 @@ CFLAGS += -Wall -Werror
 SRCS ?= $(wildcard *.c)
 OBJS := $(SRCS:.c=.o)
 
-TARGET := main
+TARGET ?= main
 
 .PHONY: clean run stress tag style check doc view loc
 
+SUFFIX=$(suffix $(TARGET))
+# generate final file based on filetype of target
+ifeq ($(SUFFIX), .a)
+$(TARGET): $(OBJS)
+	ar rc $(TARGET) $(OBJS)
+else ifeq ($(SUFFIX), .so)
+CFLAGS+=-fPIC
+$(TARGET): $(OBJS)
+	gcc -shared -o $(TARGET) $(OBJS)
+else
 $(TARGET): $(OBJS)
 	gcc $(OBJS) $(LDFLAGS) -o $@
+endif
 
 -include $(OBJS:.o=.d)
 
