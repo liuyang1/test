@@ -1,49 +1,90 @@
+#include <stdbool.h>
 #include <sys/time.h>
 #include <unistd.h>
 #include "leet.h"
+
+int leftheight(struct TreeNode *root) {
+    int h;
+    for (h = 0; root; root = root->left) {
+        h++;
+    }
+    return h;
+}
+
+int rightheight(struct TreeNode *root) {
+    int h;
+    for (h = 0; root; root = root->right) {
+        h++;
+    }
+    return h;
+}
 
 int countNodes(struct TreeNode *root) {
     if (root == NULL) {
         return 0;
     }
-    return 1 + countNodes(root->left) + countNodes(root->right);
+    int lh = leftheight(root);
+    int rh = rightheight(root);
+    if (lh == rh) {
+        return (1 << rh) - 1;
+    } else {
+        return 1 + countNodes(root->left) + countNodes(root->right);
+    }
+}
+
+int countNodes_naive(struct TreeNode *root) {
+    if (root == 0) {
+        return 0;
+    }
+    return 1 + countNodes_naive(root->left) + countNodes_naive(root->right);
 }
 
 #define CASE(a, e) {struct TreeNode *t = buildTree(a, sizeof(a) / sizeof(int)); \
-                    int n = countNodes(t);                                      \
+                    int n = countFn(t);                                         \
                     printf("n=%d ?= e=%d %s\n", n, e, expect(n == e)); }
-int basicTest() {
+bool basicTest(int(countFn)(struct TreeNode *)) {
     CASE(((int[]) {}), 0);
     CASE(((int[]) {1}), 1);
     CASE(((int[]) {1, 2, 3, 4}), 4);
-    return 0;
+    return true;
 }
 
-#define TIC {                       \
-        struct timeval start, stop; \
-        gettimeofday(&start, NULL);
-
-#define TOC gettimeofday(&stop, NULL);                                \
-    printf("%lu sec %luusec\n",                                       \
-           stop.tv_sec - start.tv_sec, stop.tv_usec - start.tv_usec); \
-    }
-
-int perfTest() {
-#define LEN 10000
+#define LEN (1000 * 1000 * 10)
+bool perfTest(int(countFn)(struct TreeNode *)) {
+    bool ret = true;
     int *a = malloc(sizeof(int) * LEN);
     bzero(a, sizeof(int) * LEN);
 
-    TIC;
     struct TreeNode *t = buildTree(a, LEN);
-    int n = countNodes(t);
+    int n;
+
+    struct timeval start, stop;
+    gettimeofday(&start, NULL);
+    {
+        n = countFn(t);
+    }
+    gettimeofday(&stop, NULL);
+
     printf("n=%d ?= e=%d %s\n", n, LEN, expect(n == LEN));
-    TOC;
+
+    unsigned long dt = stop.tv_usec - start.tv_usec;
+    printf("%lu sec %luusec\n", stop.tv_sec - start.tv_sec, dt);
+    if (dt > 200) {
+        ret = false;
+    }
+    printf("%s: %s\n", __func__, expect(ret));
 
     free(a);
+    return ret;
+}
+
+#define TEST(fn) {printf("---- test on func %s ----\n", # fn); test(fn); }
+bool test(int(countFn)(struct TreeNode *)) {
+    return basicTest(countFn) && perfTest(countFn);
 }
 
 int main() {
-    basicTest();
-    perfTest();
+    TEST(countNodes_naive);
+    TEST(countNodes);
     return 0;
 }
