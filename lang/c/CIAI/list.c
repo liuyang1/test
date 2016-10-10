@@ -75,4 +75,37 @@ T List_reverse(T list) {
     return head;
 }
 
+int List_length(T list) {
+    int n;
+    for (n = 0; list; list = list->rest) {
+        n++;
+    }
+    return n;
+}
 
+void List_free(T *list) {
+    T next;
+    assert(list);
+    for (; *list; *list = next) {
+        next = (*list)->rest;
+        FREE(*list);
+    }
+}
+
+void List_map(T list, void apply(void **x, void *cl), void *cl) {
+    assert(apply);
+    for (; list; list = list->rest) {
+        apply(&list->first, cl);
+    }
+}
+
+void **List_toArray(T list, void *end) {
+    int i, n = List_length(list);
+    void **array = ALLOC((n + 1) * sizeof(*array));
+    for (i = 0; i < n; i++) {
+        array[i] = list->first;
+        list = list->rest;
+    }
+    array[i] = end;
+    return array;
+}

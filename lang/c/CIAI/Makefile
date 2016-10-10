@@ -1,3 +1,4 @@
+TARGET := ciai
 ALL ?= $(wildcard *.c)
 MEM:=BASE
 
