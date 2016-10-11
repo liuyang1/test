@@ -57,7 +57,7 @@ Given an array S of n integer, find triplet such that a + b + c = 0?
 
 * 55. Jump Game
 
-    - trival game, mean nothing
+    - trivial game, mean nothing
 
 * 67. Add Binary strings, return sum
 
@@ -86,7 +86,7 @@ Ref:[[http://www.geeksforgeeks.org/maximum-of-all-subarrays-of-size-k/]]
 
 * 289. Game of Life
 
-    in-place solutions, just remember it, delay one line to update.
+    In-place solutions, just remember it, delay one line to update.
 
 * 299. Bulls and Cows
 
@@ -140,11 +140,11 @@ Ref:[[http://www.geeksforgeeks.org/maximum-of-all-subarrays-of-size-k/]]
 
 * 50. Pow
 
-    binary recursion
+    Binary recursion
 
 * 89. Gray code
 
-    reflect binary code
+    Reflect binary code
 
 * 168. Excel Sheet Column Title
 
@@ -220,7 +220,7 @@ possible unique paths?
 
 * 78. Subset
 
-    enumerate in [0, 2 ** n)
+    Enumerate in [0, 2 ** n)
 
 * 96. Unique Binary Search Trees
 
@@ -271,7 +271,7 @@ possible unique paths?
 === Stack ===
 * 155. Min Stack
 
-    space-time trade-off
+    Space-time trade-off
     - Simple solution is just store every min value when push one.
     - Use one more min-stack, this style use less memory
 
@@ -309,7 +309,7 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
 
 * 145. Binary Tree Postodrer Traversal
 
-    - Recursive solution also not triavial.
+    - Recursive solution also not trivial.
 
 * 173. Binary Search Tree Iterator
 

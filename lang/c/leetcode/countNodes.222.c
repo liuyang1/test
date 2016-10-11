@@ -19,6 +19,14 @@ int rightheight(struct TreeNode *root) {
     return h;
 }
 
+/** complexity: O(h ^ 2) = O(logN ^ 2)
+ * T(h) = 2h                if complete binary tree
+ *      = 2(h-1) + T(h-1)   if left complete, but right isnot
+ *      = T(h-1)            if left isnot complete
+ * so upper bound:
+ * Upper(T(h)) = sum(2*(i - 1))    1 <= i <= h
+ *             = O(h ^ 2)
+ */
 int countNodes(struct TreeNode *root) {
     if (root == NULL) {
         return 0;
