@@ -3,6 +3,7 @@
 int test(){
 	unsigned int len=3;
 	unsigned int i;
+	// dead loop
 	for(i=0;i<len-4;i++){
 		printf("loop %u %u\n",len-4,i);
 	}
@@ -25,5 +26,7 @@ int testPrint(){
 	return 0;
 }
 int main(){
+    // test();
+    testUnsigned();
 	return testPrint();
 }
