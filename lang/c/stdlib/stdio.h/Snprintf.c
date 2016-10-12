@@ -1,7 +1,6 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "pthread.h"
-//typedef signed char CHAR;
 #define LEN     16
 typedef struct sct {
     char s[LEN];

@@ -1,1 +1,0 @@
-typedef signed char CHAR:
