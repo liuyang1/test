@@ -1,5 +1,5 @@
 run: test.c
-	@sh ./cmd.sh
+	@bash ./cmd.sh
 	@gcc test.c
 	@./a.out
 

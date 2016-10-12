@@ -47,7 +47,7 @@ int drawTextOneLine(char *text)
     size_t i, j, k, u;
     for (i = 0; i < len; i++) {
         offsetTbl[i] = char2offset(text[i]);
-        printf("map text[%d]='%c' to offset=%d\n", i, text[i], offsetTbl[i]);
+        printf("map text[%lu]='%c' to offset=%d\n", i, text[i], offsetTbl[i]);
     }
     char *prow = font_bits;
     char *pc;
@@ -73,7 +73,7 @@ int drawTextOneLine(char *text)
         if (font_width % 8 != 0) {
             prow++;
         }
-        printf("|%d line\n", j);
+        printf("|%lu line\n", j);
     }
     free(offsetTbl);
     return 0;
