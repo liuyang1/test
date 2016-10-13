@@ -24,6 +24,10 @@ This atom is concept from lisp. Unique, immutable value. Use it to represent sym
 
 Arena-based algo
 
+# ch6, List
+
+# ch7, Table
+
 # comment
 
 - 2016-10-09

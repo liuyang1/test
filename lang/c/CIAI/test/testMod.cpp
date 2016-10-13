@@ -6,6 +6,7 @@
  */
 #include <stdio.h>
 #include <stdbool.h>
+#include "gtest/gtest.h"
 
 int mod_naive(int a, int b) {
     return a % b;
@@ -43,7 +44,6 @@ int mod_arith_1(int a, int b) {
 #define EXPECT_INT_EQ(a_, b_) {              \
         int a = a_, b = b_;                  \
         if (a != b) {                        \
-            printf("%d != %d fail\n", a, b); \
             return false;                    \
         }                                    \
 }
@@ -56,14 +56,13 @@ bool test_mod(int (*MOD)(int, int)) {
     return true;
 }
 
-#define CALL_TEST_MOD(func) {                                       \
-        bool r = test_mod(func);                                    \
-        printf("test_mod %-20s %s\n", # func, r ? "SUCC" : "FAIL"); \
+#define CALL_TEST_MOD(func, e) { \
+        bool r = test_mod(func); \
+        EXPECT_EQ(r, e);         \
 }
 
-int main() {
-    CALL_TEST_MOD(mod_naive);
-    CALL_TEST_MOD(mod_arith);
-    CALL_TEST_MOD(mod_arith_1);
-    return 0;
+TEST(Mod, simple) {
+    CALL_TEST_MOD(mod_naive, false);
+    CALL_TEST_MOD(mod_arith, true);
+    CALL_TEST_MOD(mod_arith_1, true);
 }

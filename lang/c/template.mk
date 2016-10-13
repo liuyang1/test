@@ -1,8 +1,13 @@
 CFLAGS += -Wall -Werror
-# LDFALGS :=
 
-SRCS ?= $(wildcard *.c)
-OBJS := $(SRCS:.c=.o)
+DFTSRCS = $(wildcard *.c)
+DFTSRCS += $(wildcard *.cpp)
+SRCS ?= $(DFTSRCS)
+
+OBJS := $(SRCS:.cpp=.o)
+OBJS := $(OBJS:.c=.o)
+
+BUILDTYPE ?= c
 
 TARGET ?= main
 
@@ -10,6 +15,7 @@ TARGET ?= main
 
 SUFFIX=$(suffix $(TARGET))
 # generate final file based on filetype of target
+ifeq ($(BUILDTYPE), c)
 ifeq ($(SUFFIX), .a)
 $(TARGET): $(OBJS)
 	ar rc $(TARGET) $(OBJS)
@@ -22,12 +28,22 @@ $(TARGET): $(OBJS)
 	gcc $(OBJS) $(LDFLAGS) -o $@
 endif
 
+else ifeq ($(BUILDTYPE), c++)
+$(TARGET): $(OBJS)
+	g++ $(OBJS) $(LDFLAGS) -o $@
+endif
+
 -include $(OBJS:.o=.d)
 
 %.o: %.c
 	@echo "CC \t$*.c"
 	@gcc -c  $(CFLAGS) $*.c -o $*.o
 	@gcc -MM $(CFLAGS) $*.c >  $*.d
+
+%.o: %.cpp
+	@echo "C++ \t$*.cpp"
+	@g++ -c $(CPPFLAGS) $*.cpp -o $*.o
+	@g++ -MM $(CPPFLAGS) $*.cpp > $*.d
 
 clean:
 	rm -rf *.o *.d core* $(TARGET)
