@@ -9,6 +9,10 @@ ref:
 - https://en.wikipedia.org/wiki/Longest_palindromic_substring
 
 """
+
+import operator
+
+
 def bestSeq(n):
     # use bestSeq will find most potential longest substring,
     # but will return wrong answer when want to find FIRST substring
@@ -21,7 +25,7 @@ def bestSeq(n):
     return r
 
 
-def longestPalindrome_1(s):
+def longestPalindrome(s):
     """
     O(n ^ 2) solution
     """
@@ -47,10 +51,55 @@ def longestPalindrome_1(s):
     return s[mp: mp + ml]
 
 
+def manacher(s):
+    """
+    complexity analysis:
+    notice MX only from 0 to N, rightmost always move to right ascending.
+    so O(N)
+    """
+    # interleave with "#" for handle odd substring and even string two cases
+    s = [i for j in zip("#" * len(s), s) for i in j]
+    s = "".join(s)
+    s += "#"
+    ln = len(s)
+
+    # p: centered with s[i]
+    # cen: center index of rightmost substring from 0 to now(i)
+    # mx: rightmost position + 1 of longest substring from 0 to now(i)
+    p = [0] * ln
+    mx, cen = 0, 0
+    for i in range(1, ln):
+        # mx > i: longest substring cover new i position
+        # example: #  c  #  a  #  b  #  a  #  b  #  a  #
+        # p        0  2  1  2  1  4  1  -  -  -  -  -  -
+        #                   ^     ^     ^     ^
+        #                   |    CEN    i     MX
+        #                2*CEN-i
+        # -  i and 2*CEN-i is palindrome with CEN
+        # -  from [2*CEN-MX, MX] is palindrome
+        # => left substring is palindrome, right substring also palindrome
+        # so we could save a lot of comparison now.
+        p[i] = min(p[2 * cen - i], mx - i) if mx > i else 1
+        # continue to extend substring with palindrome checking
+        while i + p[i] < ln and i - p[i] >= 0 and s[i + p[i]] == s[i - p[i]]:
+            p[i] += 1
+        # if new substring is more right, continue to use it.
+        if i + p[i] > mx:
+            mx = i + p[i]
+            cen = i
+    # get longest one, and its index
+    idx, radius = max(enumerate(p), key=operator.itemgetter(1))
+    radius -= 1  # original radius conclude center point, so remove it
+    ret = s[idx - radius: idx + radius + 1]
+    ret = [i for i in ret if i != '#']  # filter out #
+    ret = "".join(ret)
+    return ret
+
+
 class Solution(object):
 
     def longestPalindrome(self, s):
-        return longestPalindrome_1(s)
+        return manacher(s)
 
     def check(self, s, e):
         r = self.longestPalindrome(s)
@@ -77,6 +126,10 @@ def testPositive():
     sln.check("abac", "aba")
     # must return first substring
     sln.check("abcda", "a")
+    s = "detartrated"
+    sln.check(s, s)
+    s = "sator arepo tenet opera rotas"
+    sln.check(s, s)
 
 
 def testPerf():
@@ -85,6 +138,15 @@ def testPerf():
     sln.check(s, s)
 
 
-if __name__ == "__main__":
+def test():
     testPositive()
     testPerf()
+
+
+def profile():
+    import cProfile
+    cProfile.run('test()')
+
+
+if __name__ == "__main__":
+    test()
