@@ -1,5 +1,7 @@
 #include <stdarg.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdio.h>
 #include "assert.h"
 #include "mem.h"
 #include "list.h"
@@ -108,4 +110,21 @@ void **List_toArray(T list, void *end) {
     }
     array[i] = end;
     return array;
+}
+
+void List_show(T list) {
+    bool start = true;
+    char *fmt;
+    printf("(");
+    while (list != NULL) {
+        if (start) {
+            fmt = "%p";
+            start = false;
+        } else {
+            fmt = ", %p";
+        }
+        printf(fmt, list->first);
+        list = list->rest;
+    }
+    printf(")\n");
 }

@@ -1,7 +1,7 @@
 #ifndef LIST_INCLUDED
 #define LIST_INCLUDED
-#define T List_T
 
+#define T List_T
 typedef struct T *T;
 
 // Why reveal this struct?
@@ -36,6 +36,8 @@ extern int List_length(T list);
 extern void List_free(T *list);
 extern void List_map(T list, void apply(void **x, void *cl), void *cl);
 extern void **List_toArray(T list, void *end);
+extern void List_show(T list);
+#define List_show(a) {printf("%s: ", #a); List_show(a); }
 
 #undef T
 #endif

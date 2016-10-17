@@ -1,4 +1,4 @@
-TARGET := ciai
+TARGET := libciai.a
 ALL ?= $(wildcard *.c)
 MEM:=BASE
 
