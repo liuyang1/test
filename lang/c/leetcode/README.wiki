@@ -109,6 +109,10 @@ Ref:[[http://www.geeksforgeeks.org/maximum-of-all-subarrays-of-size-k/]]
 
     - easy, but have smarter solution
 
+* 412. Fizz Buzz
+
+    - simple string processing
+
 === range sum ===
 * 303. Range Sum Query (Immutable)
 * 304. Range Sum Query 2D (Immutable)
@@ -136,6 +140,9 @@ Ref:[[http://www.geeksforgeeks.org/maximum-of-all-subarrays-of-size-k/]]
 * 290. Word Pattern
 
     - prepare test case first, then try it.
+
+* 344. Reverse String
+* 345. Reverse Vowels of String
 
 == math ==
 === Basic ===
