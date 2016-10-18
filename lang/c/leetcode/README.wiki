@@ -249,12 +249,15 @@ possible unique paths?
 
     n &= (n - 1)
 
-== struct ==
-=== array ===
+== Struct ==
+=== Array ===
 * 162. Find Peak Element
 
     - easy, but mind bound condition
-=== linked list ===
+=== Linked List ===
+* 21. Merge sorted lists
+* 23. Merge k sorted lists
+
 * 61. Rotate List
 
 * 92. Reverse Part of Linked List II
