@@ -433,5 +433,22 @@ unsigned long long catalan(unsigned long long n) {
 }
 
 // math part END
+
+void showStr(char *str) {
+    printf("\'%s\'", str);
+}
+void showStr2(char **pstr, int n) {
+    int i;
+    bool start = true;
+    printf("[");
+    for (i = 0; i != n; i++) {
+        if (!start) {
+            printf(", ");
+        }
+        showStr(pstr[i]);
+        start = false;
+    }
+    printf("]\n");
+}
 #endif
 #endif

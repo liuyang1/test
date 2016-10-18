@@ -9,7 +9,7 @@ interviews.
     - ~~Practice NOT using IDE, compiler, editor to finish problem~~
         I have to use vim and gcc
 
-Progress:: 135 / 321
+Progress:: 147 / 405 = 36%
 
 = review =
 == basic ==
@@ -204,6 +204,10 @@ One number not in [0 .. n] array, find it.
     We even can avoid re-guess wrong one, so guess less times.
 
 === Combination ===
+* 17. Letter Combinations of a Phone Number
+
+    - production
+
 * 31. Next Permutations
 * 46. Permutations
 * 47. Permutations II
