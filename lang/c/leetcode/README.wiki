@@ -109,6 +109,10 @@ Ref:[[http://www.geeksforgeeks.org/maximum-of-all-subarrays-of-size-k/]]
 
     - easy, but have smarter solution
 
+* 344. Reverse String
+* 345. Reverse Vowels of String
+* 383. Ransome Note
+* 389. Find the Difference
 * 412. Fizz Buzz
 
     - simple string processing
@@ -140,9 +144,6 @@ Ref:[[http://www.geeksforgeeks.org/maximum-of-all-subarrays-of-size-k/]]
 * 290. Word Pattern
 
     - prepare test case first, then try it.
-
-* 344. Reverse String
-* 345. Reverse Vowels of String
 
 == math ==
 === Basic ===
@@ -256,6 +257,10 @@ possible unique paths?
 
     n &= (n - 1)
 
+* 371. Sum of Two Integers
+
+    without + or -, just bitwise operation
+
 == Struct ==
 === Array ===
 * 162. Find Peak Element
@@ -358,6 +363,8 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
 * 297. Serialize and Deserialize Tree
 
     My implement use lisp style
+
+* 404. Sum of the Left Leaves
 == algorithm ==
 === binary search ===
 - 35. Search Insert Position
