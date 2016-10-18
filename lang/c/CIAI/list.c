@@ -66,6 +66,18 @@ T List_pop(T list, void **x) {
     return head;
 }
 
+void *List_car(T list) {
+    return list->first;
+}
+
+T List_cdr(T list) {
+    return list->rest;
+}
+
+T List_cons(void *x, T list) {
+    return List_push(list, x);
+}
+
 T List_reverse(T list) {
     T head = NULL, next;
 
@@ -79,7 +91,7 @@ T List_reverse(T list) {
 
 int List_length(T list) {
     int n;
-    for (n = 0; list; list = list->rest) {
+    for (n = 0; list; list = List_cdr(list)) {
         n++;
     }
     return n;
@@ -112,7 +124,7 @@ void **List_toArray(T list, void *end) {
     return array;
 }
 
-void List_show(T list) {
+void List_show_in(T list) {
     bool start = true;
     char *fmt;
     printf("(");
@@ -121,10 +133,10 @@ void List_show(T list) {
             fmt = "%p";
             start = false;
         } else {
-            fmt = ", %p";
+            fmt = " %p";
         }
-        printf(fmt, list->first);
-        list = list->rest;
+        printf(fmt, List_car(list));
+        list = List_cdr(list);
     }
     printf(")\n");
 }

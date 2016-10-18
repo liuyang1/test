@@ -23,21 +23,34 @@ struct T {
  */
 extern T List_list(void *x, ...);
 
+/**
+ * ret = list + tail
+ * so after append, only need to List_free(ret).
+ */
 extern T List_append(T list, T tail);
 extern T List_copy(T list);
 
-extern T List_pop(T list, void **x);
-/** push one element to list, and return NEW list.
+/** push one element to head of list, and return NEW list.
  */
 extern T List_push(T list, void *x);
+/** pop one element from head of list, and return NEW list.
+ * push and pop, it works like STACK.
+ */
+extern T List_pop(T list, void **x);
+
+/** Lisp style interface */
+extern void *List_car(T list);
+extern T List_cdr(T list);
+extern T List_cons(void *x, T list);
 
 extern T List_reverse(T list);
 extern int List_length(T list);
 extern void List_free(T *list);
 extern void List_map(T list, void apply(void **x, void *cl), void *cl);
 extern void **List_toArray(T list, void *end);
-extern void List_show(T list);
-#define List_show(a) {printf("%s: ", #a); List_show(a); }
+
+#define List_show(a) {printf("%s: ", #a); List_show_in(a); }
+extern void List_show_in(T list);
 
 #undef T
 #endif
