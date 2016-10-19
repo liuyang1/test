@@ -29,15 +29,13 @@ char *reverseVowels(char *s) {
 #define EXPECT_EQ_STR(a, b) {if (strcmp(a, b) != 0) {        \
                                  printf("%s != %s\n", a, b); \
                                  return -1; }}
+#define UNIT(a, b) {char *p = strdup(a);        \
+                    char *r = reverseVowels(p); \
+                    EXPECT_EQ_STR(r, b);        \
+                    free(p); }
 int main() {
-    char s[] = "hello";
-    char *p = reverseVowels(s);
-    EXPECT_EQ_STR(p, "holle");
-    char s1[] = "leetcode";
-    char *p1 = reverseVowels(s1);
-    EXPECT_EQ_STR(p1, "leotcede");
-    char s2[] = "aA";
-    char *p2 = reverseVowels(s2);
-    EXPECT_EQ_STR(p2, "aA");
+    UNIT("hello", "holle");
+    UNIT("leetcode", "leotcede");
+    UNIT("aA", "Aa");
     return 0;
 }

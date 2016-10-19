@@ -13,8 +13,9 @@ char *reverseString(char *s) {
 }
 
 int main() {
-    char s[] = "helo";
+    char *s = strdup("helo");
     char *p = reverseString(s);
     printf("%s\n", p);
+    free(s);
     return 0;
 }
