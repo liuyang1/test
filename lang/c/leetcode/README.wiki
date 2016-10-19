@@ -297,6 +297,7 @@ possible unique paths?
 
     - reverse half end linked list, then compare, then reverse it back
 
+* 237. Delete current node in List
 === Stack ===
 * 155. Min Stack
 

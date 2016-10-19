@@ -2,10 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int cmpInt(const void *n0, const void *n1) {
-    return (*(int *)n0) - (*(int *)n1);
-}
-
 // This function affect order in nums.
 int threeSumClosest(int* nums, int numsSize, int target) {
     if (numsSize < 2 || nums == NULL) {

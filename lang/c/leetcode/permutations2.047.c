@@ -60,10 +60,6 @@ int permNum(int *nums, int numsSize) {
     return r;
 }
 
-int cmpInt(const void *n0, const void *n1) {
-    return (*(int *)n0) - (*(int *)n1);
-}
-
 /**
  * Return an array of arrays of size *returnSize.
  * Note: The returned array must be malloced, assume caller calls free().

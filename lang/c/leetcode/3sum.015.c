@@ -2,10 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int cmpInt(const void *n0, const void *n1) {
-    return (*(int *)n0) - (*(int *)n1);
-}
-
 // compare triplet
 // 1: GT; 0: EQ; -1: LT
 int cmpTri(const int *p0, const int *p1) {

@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <limits.h>
 
 #define TLOG(tag, fmt, ...) printf("%s:%d %s " fmt, \
                                    __FUNCTION__, __LINE__, tag, __VA_ARGS__);
@@ -450,5 +451,22 @@ void showStr2(char **pstr, int n) {
     }
     printf("]\n");
 }
+
+/**
+ * REMIND: simply decrease it's wrong.
+ * it may overflow.
+ */
+int cmpInt(const void *n0, const void *n1) {
+    int a = *(int *)n0;
+    int b = *(int *)n1;
+    if (a > b) {
+        return 1;
+    } else if (a == b) {
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
 #endif
 #endif

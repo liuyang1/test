@@ -1,9 +1,5 @@
 #include "leet.h"
 
-int cmpInt(const void *n0, const void *n1) {
-    return (*(int *)n0) - (*(int *)n1);
-}
-
 /**
  * Return an array of arrays of size *returnSize.
  * The sizes of the arrays are returned as *columnSizes array.
