@@ -1,6 +1,6 @@
 #include "leet.h"
 int combination(int n, int k) {
-    if (n - k < n) {
+    if (n - k < k) {
         k = n - k;
     }
     int i, j;
