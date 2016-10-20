@@ -415,6 +415,9 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
 
     c(n) = max(f(n - 1, 0), f(n - 1, 1))
 
+- 375. Guess Number
+
+    Table
 == others ==
 - 5. longest palindrome substring
 
