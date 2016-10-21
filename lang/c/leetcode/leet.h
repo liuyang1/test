@@ -355,6 +355,25 @@ void showArr2c(int *mat, int m, int n) {
     printf("]\n");
 }
 
+void showArr2v(int **mat, int m, int *n) {
+    int i;
+    printf("[\n");
+    for (i = 0; i != m; i++) {
+        printf("  ");
+        showArr(mat[i], n[i]);
+    }
+    printf("]\n");
+}
+
+void freeArr2v(int **mat, int m, int *n) {
+    int i;
+    for (i = 0; i != m; i++) {
+        free(mat[i]);
+    }
+    free(n);
+    free(mat);
+}
+
 void showLst(struct ListNode *p) {
     printf("[");
     int start;
