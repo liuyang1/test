@@ -319,6 +319,9 @@ void strnArr(char *s, int n, int *nums, int numsSize) {
 }
 
 bool cmpArr(int *a0, int n0, int *a1, int n1) {
+    if (n0 == 0 && n1 == 0) {
+        return true;
+    }
     if (a0 == NULL && a1 == NULL) {
         return true;
     } else if (a0 == NULL || a1 == NULL) {
