@@ -11,7 +11,7 @@
 
 #define TLOG(tag, fmt, ...) printf("%s:%d %s " fmt, \
                                    __FUNCTION__, __LINE__, tag, __VA_ARGS__);
-#define LOG(fmt, ...) printf("%s:%d "fmt, __FUNCTION__, __LINE__, __VA_ARGS__);
+#define LOG(fmt, ...) printf("%s:%d " fmt, __FUNCTION__, __LINE__, __VA_ARGS__);
 #ifndef LOG
 #define LOG(...)
 #endif
@@ -53,7 +53,7 @@ void reallocM(void *pp, int sz);
 #define RESET
 #endif
 static inline const char *expect(bool v) {
-    return v ? (GREEN "PASS"RESET) : (RED "FAIL"RESET);
+    return v ? (GREEN "PASS" RESET) : (RED "FAIL" RESET);
 }
 
 #ifndef NO_IMPL
