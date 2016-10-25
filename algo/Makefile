@@ -4,7 +4,7 @@ NVERSION	:= 0.1
 INCLUDES	:= 
 LIBS		:= -lm
 FILE_SUFFIX	:= .c
-CFLAGS      +=  -Wall -std=c99#-DUSING_RTC
+CFLAGS      +=  -Wall -std=c99 -Werror #-DUSING_RTC
 #DCFLAGS	:= $(DCFLAGS_PASS)
 DCFLAGS         += #-DUSING_RTC
 #LDFLAG		:= $(LDFLAGS_PASS)
@@ -26,7 +26,7 @@ $(OBJS): %.o : %$(FILE_SUFFIX)
 .PHONY:run clean edit
 edit:
 	vim ./$(SRCS)
-run:
+run: $(TARGET)
 	./$(TARGET)
 clean:
 	-rm -f $(OBJS) ./$(TARGET) *.o

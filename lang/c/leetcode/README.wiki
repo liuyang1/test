@@ -13,7 +13,7 @@ Progress:: 171 / 407 = 42%
 
 = review =
 == basic ==
-* 1. Two Sum
+* 001. Two Sum
 * 167. Two Sum II - input array is sorted
 Given an array of integers, find two numbers such that they add up to a
 specific target number.
@@ -29,6 +29,16 @@ Requirement: complexity O(n * log(n))
 NOTICE: qsort return list with ascending sequence, comparing function return
 1 when A GREATER than B.
 
+* 015. 3Sum
+Given an array S of n integer, find triplet such that a + b + c = 0?
+
+    - https://en.wikipedia.org/wiki/3SUM
+
+* 018. 4sum
+
+    - one more tricky to avoid duplicate result
+
+
 * 2. Add Two Numbers
 linked-list represent numbers, one node contains a single digit. Digits are
 stored in reverse order.
@@ -38,11 +48,6 @@ stored in reverse order.
 * 11. Container With Most Water
 
     - move the small bar to next larger one from endpoint to central.
-
-* 15. 3Sum
-Given an array S of n integer, find triplet such that a + b + c = 0?
-
-    - https://en.wikipedia.org/wiki/3SUM
 
 * 29. Divide
 
@@ -262,6 +267,10 @@ possible unique paths?
 * 371. Sum of Two Integers
 
     without + or -, just bitwise operation
+
+=== Big Number ===
+- 043. multiply Stings
+- 415. add String
 
 == Struct ==
 === Array ===
