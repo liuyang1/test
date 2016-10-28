@@ -24,11 +24,7 @@ int sumRange(struct NumArray* numArray, int i, int j) {
         // Out of range exception
         return 0;
     }
-    if (i == 0) {
-        return numArray->acc[j];
-    } else {
-        return numArray->acc[j] - numArray->acc[i - 1];
-    }
+    return numArray->acc[j] - (i != 0 ?  numArray->acc[i - 1] : 0);
 }
 
 /** Deallocates memory previously allocated for the data structure. */

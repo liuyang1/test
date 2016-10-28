@@ -285,9 +285,9 @@ bool eqTree(struct TreeNode *t0, struct TreeNode *t1) {
 }
 // }}} function on Tree END
 
-void showArr(int *nums, int numsSize) {
+void showArrAdv(int *nums, int numsSize, char *prefix, char *end) {
     int i;
-    printf("[");
+    printf("%s[", prefix);
     if (nums == NULL) {
         printf("nil");
     } else {
@@ -298,7 +298,11 @@ void showArr(int *nums, int numsSize) {
             printf("%d", nums[i]);
         }
     }
-    printf("]\n");
+    printf("]%s", end);
+}
+
+void showArr(int *nums, int numsSize) {
+    showArrAdv(nums, numsSize, "", "\n");
 }
 
 void strnArr(char *s, int n, int *nums, int numsSize) {
@@ -340,10 +344,14 @@ bool cmpArr(int *a0, int n0, int *a1, int n1) {
 }
 
 void showArr2(int **mat, int m, int n) {
+    if (mat == NULL) {
+        printf("[nil]\n");
+        return;
+    }
     int i;
     printf("[\n");
     for (i = 0; i != m; i++) {
-        showArr(mat[i], n);
+        showArrAdv(mat[i], n, "\t", "\n");
     }
     printf("]\n");
 }
