@@ -149,7 +149,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
         return size(root);
     }
     public boolean isEmpty() {
-        return size(root) != 0;
+        return size(root) == 0;
     }
     // TEST code
     // - red link lean left

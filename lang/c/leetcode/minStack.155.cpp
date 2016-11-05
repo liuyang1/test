@@ -4,6 +4,8 @@
  *
  * compile with command
  *      g++ -std=gnu++0x minStack.155.cpp -g -Og
+ *
+ * I'm so stupid, I don't aware of this style until reading CII.
  */
 
 #include <stdexcept>
@@ -45,9 +47,10 @@ class MinStack {
                 throw std::invalid_argument("cannot pop from empty stack");
             }
         }
+
     public:
         Node *mHead;
-        /** initialize your data structure here. */
+
         MinStack() {
             mHead = nullptr;
         }
