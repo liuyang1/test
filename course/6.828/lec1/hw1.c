@@ -93,8 +93,20 @@ runcmd(struct cmd *cmd)
   case '>':
   case '<':
     rcmd = (struct redircmd*)cmd;
-    fprintf(stderr, "redir not implemented\n");
-    // Your code here ...
+
+    // HW: IO redirection
+    int r = close(rcmd->fd);
+    if (r == -1) {
+        fprintf(stderr, "close %d fail", rcmd->fd);
+    }
+    // fprintf(stderr, "open file=%s mode=%d\n", rcmd->file, rcmd->mode);
+    // create the file with mode, whose value is octal value
+    rcmd->fd = open(rcmd->file, rcmd->mode, 00644);
+    if (rcmd->fd == -1) {
+        fprintf(stderr, "open %s with mode=%d fail\n", rcmd->file, rcmd->mode);
+    }
+    // HW: IO redirection end
+
     runcmd(rcmd->cmd);
     break;
 
