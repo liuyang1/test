@@ -49,4 +49,7 @@ pros::
 
 # lec1 homework
 
+## Why need close unused pipe end?
 
+- http://stackoverflow.com/questions/11599462/what-happens-if-a-son-process-wont-close-the-pipe-from-writing-while-reading
+ - http://stackoverflow.com/questions/19265191/why-should-you-close-a-pipe-in-linux

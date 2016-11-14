@@ -81,9 +81,11 @@ runcmd(struct cmd *cmd)
             continue;
         }
 
+        // fprintf(stderr, "exec cmd=%s\n", ecmd->argv[0]);
         if ((ret = execv(file, ecmd->argv)) != 0) {
             fprintf(stderr, "exev %s cmd fail with ret=%d\n", ecmd->argv[0], ret);
         }
+        // fprintf(stderr, "exec cmd=%s end\n", ecmd->argv[0]);
         break;
     }
     // HW end
@@ -112,8 +114,46 @@ runcmd(struct cmd *cmd)
 
   case '|':
     pcmd = (struct pipecmd*)cmd;
-    fprintf(stderr, "pipe not implemented\n");
-    // Your code here ...
+
+    // HW: pipes
+    int pipes[2];
+    int ret = pipe(pipes);
+    if (ret != 0) {
+        fprintf(stderr, "pipe return with %d\n", ret);
+        break;
+    }
+    int pid = fork();
+    if (pid > 0) { // parent process
+        // close unused write end
+        // we must do it, if not, it will hang
+        close(pipes[1]);
+        ret = dup2(pipes[0], STDIN_FILENO); // read end
+        if (ret == -1) {
+            fprintf(stderr, "dup2 fail ret=%d\n", ret);
+        }
+        close(pipes[0]);
+        runcmd(pcmd->right);
+
+        int status;
+        ret = waitpid(pid, &status, 0);
+        if (ret < 0) {
+            fprintf(stderr, "waitpid return with %d status=%d\n", ret, status);
+        }
+    } else if (pid == 0) { // child process
+
+        close(pipes[0]);
+        ret = dup2(pipes[1], STDOUT_FILENO); // write end
+        if (ret == -1) {
+            fprintf(stderr, "dup2 fail ret=%d\n", ret);
+        }
+        close(pipes[1]);
+        runcmd(pcmd->left);
+
+        exit(0);
+    } else {
+        fprintf(stderr, "fork return with %d\n", pid);
+    }
+    // HW: pipes end
     break;
   }    
   exit(0);
