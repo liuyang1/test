@@ -49,7 +49,23 @@ pros::
 
 # lec1 homework
 
-## Why need close unused pipe end?
+## shell
+
+### Why need close unused pipe end?
 
 - http://stackoverflow.com/questions/11599462/what-happens-if-a-son-process-wont-close-the-pipe-from-writing-while-reading
- - http://stackoverflow.com/questions/19265191/why-should-you-close-a-pipe-in-linux
+- http://stackoverflow.com/questions/19265191/why-should-you-close-a-pipe-in-linux
+
+## xv6 boot
+
+### cannot do anything after move mouse to `qemu` window
+
+qemu take over all mouse and keyboard, so nothing reponse. just press `Ctrl + Alt`, then mouse come back
+
+### gdb run result is different with the xv6-boot html page?
+
+new gdb disable auto load from `.gdbinit`, need config it by `add-auto-load-safe-path [pwd]` or `set auto-load safe-path /` to disable this feature.
+
+### explain result of `x/24x $esp` from gdb
+
+check hw1.txt file
