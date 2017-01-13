@@ -9,6 +9,6 @@
     printf("%s():%d %p != %p %s\n", __func__, __LINE__, a, b, "FAIL"); \
     return false; \
 }}
-#define ASSERT(b) {if(!b) {printf("%s FAIL\nassert!\n", #b); assert(0);}}
+#define ASSERT(b) {bool _b = b; if(!_b) {printf("%s FAIL\nassert!\n", #b); assert(0);}}
 
 #endif
