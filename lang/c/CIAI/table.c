@@ -1,3 +1,7 @@
+/*
+ * Table with hash table
+ * cmp function on key only 
+ */
 #include <limits.h>
 #include <stddef.h>
 #include "mem.h"

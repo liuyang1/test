@@ -26,7 +26,7 @@ Arena-based algo
 
 # ch6, List
 
-# ch7, Table
+# ch8, Table
 
 # comment
 
