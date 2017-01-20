@@ -155,8 +155,15 @@ int test_LogOutFile() {
     return 0;
 }
 
+int test_null() {
+    printf("%p\n", NULL); // (nil)
+    // printf("%s\n", NULL); // crash
+    return 0;
+}
+
 int main()
 {
+    test_null();
     test_align();
     test_seq();
     test_var_width();

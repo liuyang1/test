@@ -9,3 +9,4 @@ freopen: testFreopen.c
 clean:
 	rm -rf a.out
 	rm -rf *.strace *.stdout
+	rm -rf core*
