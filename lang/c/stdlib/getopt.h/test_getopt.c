@@ -59,6 +59,14 @@ int get_short_opt_arg(int argc, char **argv)
     // first char is -, it will return nonoption with oc == 1
     // after +/- or nothing, next char is colon, then we can distinguish
     //      between invalid option and missing option arguments.
+    // The options argument is a string that specifies the option characters
+    // that are valid for this program.
+    //  * An option character in this string can be followed by a colon (‘:’)
+    //      to indicate that it takes a required argument.
+    //  * If an option character is followed by two colons (‘::’), its argument
+    //      is optional;
+    // This is a GNU extension.
+    // Ref: https://www.gnu.org/software/libc/manual/html_node/Using-Getopt.html
     const char *short_options = ":ab:c::h";
     int oc;
     // opterr = 1; // default, getopt print error message for invalid options
@@ -128,13 +136,15 @@ int get_long_opt_arg(int argc, char **argv)
         {"all", no_argument, NULL, 'a'},
         {"bang", required_argument, NULL, 'b'},
         {"cee", optional_argument, NULL, 'c'},
+        {"dii", required_argument, NULL, 1},
         {"help", no_argument, &isHelp, 1},
         {0, 0, 0, 0}
     };
     char optstring[] = ":ab:c::h";
     int oc;
     while (1) {
-        oc = getopt_long(argc, argv, optstring, option_list, NULL);
+        int option_index;
+        oc = getopt_long(argc, argv, optstring, option_list, &option_index);
         if (oc == -1) {
             break;
         }
@@ -159,8 +169,8 @@ int get_long_opt_arg(int argc, char **argv)
                 }
                 break;
             case 1:
-                printf("when optstring[0]=%c, optarg=[%s]\n",
-                       optstring[0], optarg);
+                printf("find %dth option %s, optarg=[%s]\n",
+                       option_index, option_list[option_index].name, optarg);
                 break;
             case 0:
                 printf("auto setting *flag <= val\n");
