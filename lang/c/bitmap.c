@@ -60,6 +60,19 @@ int main() {
     printf("len: %lu\n", sizeof(a));
     printf("len: %lu\n", sizeof(a) / sizeof(a[0]));
 
+    int idx = 31;
+    printf("%08x\n", 1 << idx);
+    // circular shifting
+    idx = 32;
+    printf("%08x\n", 1 << idx);
+    idx = 63;
+    printf("%08x\n", 1 << idx);
+    idx = 64;
+    printf("%08x\n", 1 << idx);
+
+    // WARNING, and show result == 0x0
+    printf("%08x\n", 1 << 63);
+
 
     return 0;
 }
