@@ -17,7 +17,7 @@ POSIX conventions
 # option name should be single alphanumeric char. Multidigit options should not
     be allowed.
 # All options should begin with a '-' char.
-# For options that don't require options arguments, it shuold be possible to
+# For options that don't require options arguments, it should be possible to
     group multiple options after a signle '-' char.
 # When an option does require an option argument, the argument should be
     seprated from the option by a space.
@@ -122,11 +122,11 @@ int get_short_opt_arg(int argc, char **argv)
         const char *name; // name of option, without any dash
         int has_arg; // enum, no_argument, required_argument, optional_argument
         int *flag;
-        int val;
         // if flag == NULL, then getopt_long return VAL.
-        // if flag != NULL, *flag <= val, getopt_long return 0
+        // if flag != NULL, *flag = val, getopt_long return 0
+        int val;
     };
-    array of options, should end with all 0 field. so it will find end of
+    array of options, should end with all 0 field. so it could find end of
         options.
  */
 int get_long_opt_arg(int argc, char **argv)
