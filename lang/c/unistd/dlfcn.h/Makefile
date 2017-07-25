@@ -1,6 +1,6 @@
 LIBS=-ldl
-a.out: testDynOpen.c
-	gcc testDynOpen.c $(LIBS)
+a.out: testLazyDynOpen.c
+	gcc -Wall -Werror testLazyDynOpen.c $(LIBS)
 
 run: a.out
 	./a.out
