@@ -161,6 +161,41 @@ int test_null() {
     return 0;
 }
 
+int test_sharp() {
+    printf("\n> flag char # converted the representation to alternative form\n"
+           "> - o\n"
+           ">\tadd prefix 0 if it was not zero already.\n"
+           "> - x, X\n"
+           ">\tadd prefix 0x if it was not zero already.\n"
+           "> - a, A, e, E, f, F\n"
+           ">\talways contain a decimal point, even if not digits follow it.\n"
+           "> - g, G\n"
+           ">\tsame as \"a, A, ...\", but not remove trailing zeros\n");
+
+    printf("\n");
+
+    int a = 64;
+    printf("%d: %x %#x\n", a, a, a);
+    a = 0;
+    printf("%d: %x %#x\n", a, a, a);
+    printf("> REMIND: it don't add leading \'0x\' decorator for zero.\n");
+    a = -1;
+    printf("%d: %x %#x\n", a, a, a);
+
+    printf("\n");
+
+    double b = 1.0;
+    printf("%f: %#f %#g\n", b, b, b);
+    b = 2.1;
+    printf("%f: %#f %#g\n", b, b, b);
+    b = 1/3.0;
+    printf("%f: %#f %#g\n", b, b, b);
+    b = 100000 * 1000;
+    printf("%f: %#f %#g\n", b, b, b);
+    printf("> I don't find any difference with \'#\' flag.\n");
+    return 0;
+}
+
 int main()
 {
     test_null();
@@ -172,5 +207,6 @@ int main()
     test_printf_len();
     test_sprintf();
     test_LogOutFile();
+    test_sharp();
     return 0;
 }

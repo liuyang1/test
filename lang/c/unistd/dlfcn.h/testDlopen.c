@@ -28,6 +28,6 @@ int main()
     }
 
     Log("run symbol\n");
-    printf ("%f\n", (*cosine)(2.0));
+    printf ("%f\n", cosine(2.0));
     dlclose(handle);
 }
