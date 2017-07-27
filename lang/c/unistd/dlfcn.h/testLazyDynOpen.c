@@ -22,7 +22,6 @@ typedef struct {
 FuncSym mathsyms[] = {
     {"cos", NULL},
     {"sin", NULL},
-    {NULL, NULL},
 };
 
 #define MATHLIB     0
@@ -30,7 +29,6 @@ FuncSym mathsyms[] = {
 
 DlSym dls[] = {
     {"/lib/x86_64-linux-gnu/libm.so.6", NULL, mathsyms, sizeof(mathsyms) / sizeof(FuncSym)},
-    {NULL, NULL, NULL, 0},
 };
 
 
@@ -77,8 +75,8 @@ int tryLoad(int libidx, int symidx) {
 
 }
 
-int tryUnload() {
-    for (int i = 0; dls[i].dlfn != NULL; i++) {
+void tryUnload() {
+    for (int i = 0; i != sizeof(dls) / sizeof(dls[0]); i++) {
         if (dls[i].handle != NULL) {
             dlclose(dls[i].handle);
             Log("unload dl(%s)=%p\n", dls[i].dlfn, dls[i].handle);
@@ -86,19 +84,18 @@ int tryUnload() {
         }
 
         FuncSym *syms = dls[i].syms;
-        for (int j = 0; syms[j].symstr != NULL; j++) {
+        for (int j = 0; j != dls[i].symnum; j++) {
             syms[j].funcptr = NULL;
         }
     }
-    return 0;
 }
 
 void *getFuncPtr(int libidx, int symidx) {
-    if (libidx > sizeof(dls) / sizeof(DlSym)) {
+    if (libidx >= sizeof(dls) / sizeof(DlSym)) {
         Log("libidx %d > %ld, out of range\n", libidx, sizeof(dls) / sizeof(DlSym));
         return NULL;
     }
-    if (symidx > dls[libidx].symnum) {
+    if (symidx >= dls[libidx].symnum) {
         Log("symidx %d > %d, out of range\n", symidx, dls[libidx].symnum);
         return NULL;
     }
@@ -110,23 +107,37 @@ void *getFuncPtr(int libidx, int symidx) {
     return funcptr;
 }
 
-double consine_wrap(double x) {
-    double (*cosine)(double) = getFuncPtr(MATHLIB, COS_IDX);
-    return cosine(x);
+// !!! REMIND !!!
+// use SAME wrap function.
+// This is RISKY as system's gcc may automaticly link libm.
+//
+// IF the library is not system's lib, use SAME wrap function is acceptable.
+double cos(double x) {
+    double (*fn)(double) = getFuncPtr(MATHLIB, COS_IDX);
+    return fn(x);
 }
 
-double sine_wrap(double x) {
-    double (*sine)(double) = getFuncPtr(MATHLIB, SIN_IDX);
-    return sine(x);
+// use different wrap function
+double wrap_sin(double x) {
+    printf("here\n");
+    double (*fn)(double) = getFuncPtr(MATHLIB, SIN_IDX);
+    return fn(x);
 }
+
+// directly calling function
+double triple(double x) {
+    return x * 3.0;
+}
+
 
 int main()
 {
-    tryUnload();
-    Log("run symbol\n");
-    printf("%f\n", sine_wrap(2.0));
-    printf("%f\n", consine_wrap(2.0));
+    // unload at exit, It will simplify unload process.
+    atexit(tryUnload);
 
-    tryUnload();
+    printf("%f\n", wrap_sin(2.0));
+    printf("%f\n", cos(2.0));
+    printf("%f\n", triple(2.0));
+
     return 0;
 }
