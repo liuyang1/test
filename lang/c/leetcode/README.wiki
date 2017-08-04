@@ -435,6 +435,11 @@ NOT problem, but serial/deserial tree in OJ, implement one for local test
     manacher algo
 
 == Parser / Compiler ==
+- 010. simple regular expression
+
+    - build RE pattern
+    - recursively match
+
 - 224. Basic calculate
 
     - recursion from tail, so calculate from head
