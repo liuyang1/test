@@ -4,7 +4,7 @@
   (letrec ([f (lambda (acc1 acc2 y)
                 (if (= y x)
                   (+ acc1 acc2)
-                  (f (+ acc1 acc2) acc1 (+ y 1))))])
+                  (f acc2 (+ acc1 acc2) (+ y 1))))])
     (if (or (= x 1) (= x 2))
       1
       (f 1 1 3))))
