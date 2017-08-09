@@ -3,6 +3,8 @@ just some test or learning code
 
 ![struct](img/struct_voronoi_treemap.png)
 
+![codewars](https://www.codewars.com/users/liuyang1/badges/large)
+
 ## language
 ### python
 * centos_process    display CentOS process figure
