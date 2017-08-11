@@ -98,8 +98,6 @@
   (equal? (intersperse -1 (range 0))
           '()))
 
-;;; TOOD: after concat
-; (define (intercalate xs xss))
 
 ;;; Reducing Lists (folds)
 
@@ -130,7 +128,7 @@
 (equal? (foldr1 / (range 1 5))
         (/ 1 (/ 2 (/ 3 4))))
 
-;; fold1 :: Foldable t => (a -> a -> a) -> t a -> a
+;; foldl1 :: Foldable t => (a -> a -> a) -> t a -> a
 (define (foldl1 op xs)
   (if (null? (cdr xs))
     (car xs)
@@ -141,6 +139,12 @@
 
 (define (concat xss)
   (foldr ++ '() xss))
+
+(define (intercalate xs xss)
+  (concat (intersperse xs xss)))
+
+(equal? (intercalate '(1 1) '((0) (0) (0)))
+        '(0 1 1 0 1 1 0))
 
 (define (transpose xss)
   (let ((new (filter (lambda (xs) (not (null? xs))) xss)))
@@ -205,3 +209,114 @@
              '((1 2 3) (2 1 3) (2 3 1) (1 3 2) (3 1 2) (3 2 1))))
 
 ;;; Special folds
+(define (concatMap f xs)
+  (concat (map f xs)))
+
+(equal? (concatMap (lambda (x) (range (+ 1 x)))
+                   (range 5))
+        '(0 0 1 0 1 2 0 1 2 3 0 1 2 3 4))
+
+(define (and1 xs)
+  (define (and2 x y) (and x y))
+  (foldl and2 #t xs))
+
+(and
+  (equal? (and1 '())
+          #t)
+  (equal? (and1 '(#t #t #t))
+          #t)
+  (equal? (and1 '(#t #t #f))
+          #f))
+
+(define (or1 xs)
+  (define (or2 x y) (or x y))
+  (if (null? xs) #t
+    (foldl or2 #f xs)))
+
+(and
+  (equal? (or1 '())
+          #t)
+  (equal? (or1 '(#f #f #f))
+          #f)
+  (equal? (or1 '(#t #t #f))
+          #t))
+
+(define (any f xs)
+  (or1 (map f xs)))
+
+(equal? (any (lambda (x) (= (remainder x 2) 0))
+             (range 3))
+        #t)
+
+(define (all f xs)
+  (and1 (map f xs)))
+
+(equal? (all (lambda (x) (= (remainder x 2) 0))
+             (range 3))
+        #f)
+
+(define (sum xs)
+  (foldl + 0 xs))
+
+(equal? (sum (range 11))
+        55)
+
+(define (product xs)
+  (foldl * 1 xs))
+
+(equal? (product (range 1 6))
+        120)
+
+(define (maximum xs)
+  (foldl1 max xs))
+
+(equal? (maximum (range 10))
+        9)
+
+(define (minimum xs)
+  (foldl1 min xs))
+
+(equal? (minimum (range 10))
+        0)
+;;; Building Lists
+;;; Scans
+
+(define (scanl op unit xs)
+  (if (null? xs)
+    (list unit)
+    (let ((v (op unit (car xs))))
+     (cons unit (scanl op v (cdr xs))))))
+
+(equal? (scanl * 1 (range 1 6))
+        '(1 1 2 6 24 120))
+
+(define (scanl1 op xs)
+  (if (or (null? xs) (null? (cdr xs)))
+    xs
+    (scanl op (car xs) (cdr xs))))
+
+(and (equal? (scanl1 * (range 1 6))
+             '(1 2 6 24 120))
+     (equal? (scanl1 * '(2))
+             '(2)))
+
+(define (scanr op unit xs)
+  (if (null? xs)
+    (list unit)
+    (let ((v (scanr op unit (cdr xs))))
+     (cons (op (car xs) (car v))
+           v))))
+
+(equal? (scanr * 1 (range 1 6))
+        '(120 120 60 20 5 1))
+
+(define (scanr1 op xs)
+  (if (or (null? xs) (null? (cdr xs)))
+    xs
+    (scanr op (last xs) (init xs))))
+
+(equal? (scanr1 * (range 1 6))
+        '(120 120 60 20 5))
+
+;;; Infinite lists
+;;; Just implement with times here
