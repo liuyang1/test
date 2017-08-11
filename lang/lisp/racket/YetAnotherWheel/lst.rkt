@@ -483,3 +483,109 @@
 
 (define (notElem x xs)
   (not (elem x xs)))
+
+(define (find1 p xs)
+  (if (null? xs)
+    '()
+    (let ((x (car xs)))
+     (if (p x)
+       x
+       (find1 p (cdr xs))))))
+
+(equal? (find1 (lambda (x) (= (remainder x 5) 0)) (range 1 20))
+        5)
+
+(define (filter1 p xs)
+  (if (null? xs)
+    '()
+    (let ((x (car xs)))
+     (if (p x)
+       (cons x (filter1 p (cdr xs)))
+       (filter1 p (cdr xs))))))
+
+
+(equal? (filter1 (lambda (x) (= (remainder x 5) 0)) (range 1 20))
+        '(5 10 15))
+
+(define (partition1 f xs)
+  (cons (filter1 f xs)
+        (filter1 (lambda (x) (not (f x))) xs)))
+
+(equal? (partition1 (lambda (x) (= (remainder x 5) 0)) (range 10))
+        '((0 5) 1 2 3 4 6 7 8 9))
+
+;;; Indexing lists
+
+(define (!! xs i)
+  (if (= i 0)
+    (car xs)
+    (!! (cdr xs) (- i 1))))
+
+(equal? (!! (range 5) 3)
+        3)
+
+(define (findIndex f xs)
+  (define (helper f xs i)
+    (cond ((null? xs) -1)
+          ((f (car xs)) i)
+          (else (helper f (cdr xs) (+ i 1)))))
+  (helper f xs 0))
+
+(define (elemIndex x xs)
+  (findIndex (lambda (a) (= a x)) xs))
+
+(equal? (elemIndex 3 (range 5))
+        3)
+
+(define (findIndices f xs)
+  (define (helper f xs i)
+    (cond ((null? xs) '())
+          ((f (car xs)) (cons i (helper f (cdr xs) (+ i 1))))
+          (else (helper f (cdr xs) (+ i 1)))))
+  (helper f xs 0))
+
+(define (elemIndices x xs)
+  (findIndices (lambda (a) (= a x)) xs))
+
+(equal? (elemIndices 1 '(0 0 1 0 1 1 0))
+        '(2 4 5))
+
+;;; Zipping and Unzipping lists
+
+(define (zip xs ys)
+  (if (or (null? xs) (null? ys))
+    '()
+    (cons (list (car xs) (car ys))
+          (zip (cdr xs) (cdr ys)))))
+
+(equal? (zip (range 10) (range 10 15))
+        '((0 10) (1 11) (2 12) (3 13) (4 14)))
+
+;;; zip3 TODO:
+; (define (zip3 xs ys zs)
+;   (zip xs (zip ys zs))
+;   ; (zip (zip xs ys) zs)
+;   )
+;
+; (zip3 (range 10 ) (range 10 15) (range 20 22))
+
+(define (zipWith f xs ys)
+  (if (or (null? xs) (null? ys))
+    '()
+    (cons (f (car xs) (car ys))
+          (zipWith f (cdr xs) (cdr ys)))))
+
+(equal? (zipWith + (range 10) (range 10 15))
+        '(10 12 14 16 18))
+
+;;; "Set" operations
+
+(define (nub xs)
+  (if (null? xs)
+    '()
+    (let ((x (car xs)))
+     (cons x
+           (nub (filter (lambda (a) (not (= a x))) (cdr xs)))))))
+
+(equal? (nub '(0 0 1 1 3 4 1 0 3))
+        '(0 1 3 4))
