@@ -320,3 +320,166 @@
 
 ;;; Infinite lists
 ;;; Just implement with times here
+
+(define (iterate f a times)
+  (if (= times 0)
+    '()
+    (cons a (iterate f (f a) (- times 1)))))
+
+(equal? (iterate (lambda (x) (+ 1 x)) 0 4)
+        '(0 1 2 3))
+
+(define (repeat a times)
+  (if (= times 0)
+    '()
+    (cons a (repeat a (- times 1)))))
+
+(equal? (repeat 0 5)
+        '(0 0 0 0 0))
+
+(define (cycle xs times)
+  (if (= times 0)
+    '()
+    (++ xs (cycle xs (- times 1)))))
+
+(equal?
+  (cycle '(1 2 3) 3)
+  '(1 2 3 1 2 3 1 2 3))
+
+
+;;; Sublists
+(define (take n xs)
+  (if (= 0 n)
+    '()
+    (cons (car xs) (take (- n 1) (cdr xs)))))
+
+(equal? (take 3 (range 10))
+        '(0 1 2))
+
+(define (drop n xs)
+  (if (= 0 n)
+    xs
+    (drop (- n 1) (cdr xs))))
+
+(equal?
+  (drop 3 (range 10))
+  '(3 4 5 6 7 8 9))
+
+(define (splitAt n xs)
+  (cons (take n xs)
+        (drop n xs)))
+
+(equal?
+  (splitAt 3 (range 10))
+  '((0 1 2) 3 4 5 6 7 8 9))
+
+(define (takeWhile f xs)
+  (if (not (f (car xs)))
+    '()
+    (cons (car xs) (takeWhile f (cdr xs)))))
+
+(equal?
+  (takeWhile (lambda (x) (< x 3)) '(1 2 3 4 1 2 3 4))
+  '(1 2))
+
+(define (dropWhile f xs)
+  (if (f (car xs))
+    (dropWhile f (cdr xs))
+    xs))
+
+(equal?
+  (dropWhile (lambda (x) (< x 3)) '(1 2 3 4 5 1 2 3))
+  '(3 4 5 1 2 3))
+
+(define (span p xs)
+  (cons (takeWhile p xs)
+        (dropWhile p xs)))
+
+(define (break p xs)
+  (define (p1 x) (not (p x)))
+  (span p1 xs))
+
+(and
+  (equal? (span (lambda (x) (< x 3)) (range 10))
+          '((0 1 2) 3 4 5 6 7 8 9))
+  (equal? (break (lambda (x) (>= x 3)) (range 10))
+          '((0 1 2) 3 4 5 6 7 8 9)))
+
+(define (stripPrefix xs ys)
+  (cond ((null? xs) ys)
+        ((= (car xs) (car ys)) (stripPrefix (cdr xs) (cdr ys)))
+        (else '())))
+
+(and
+  (equal? (stripPrefix (range 3) (range 10))
+          '(3 4 5 6 7 8 9))
+  (equal? (stripPrefix '(1) (range 10))
+          '()))
+
+(define (group xs)
+  (define (helper xs st)
+    (if (null? xs)
+      (list st)
+      (let ((x (car xs)))
+       (if (= x (car st))
+         (helper (cdr xs) (cons x st))
+         (cons st (helper (cdr xs) (list x)))))))
+  (if (null? xs)
+    '()
+    (helper (cdr xs) (list (car xs)))))
+
+(and (equal? (group '(0 1 1 2 2 3 3 4 5 5))
+             '((0) (1 1) (2 2) (3 3) (4) (5 5)))
+     (equal? (group '(1 1))
+             '((1 1)))
+     (equal? (group '(1))
+             '((1)))
+     (equal? (group '())
+             '()))
+
+(define (inits xs)
+  (if (null? xs)
+    '()
+    (let ((x (car xs)))
+     (map (lambda (a) (cons x a))
+          (cons '() (inits (cdr xs)))))))
+
+(and (equal? (inits '())
+             '())
+     (equal? (inits (range 1))
+             '((0)))
+     (equal? (inits (range 2))
+             '((0) (0 1)))
+     (equal? (inits (range 3))
+             '((0) (0 1) (0 1 2)))
+     (equal? (inits (range 4))
+             '((0) (0 1) (0 1 2) (0 1 2 3))))
+
+;;; :) funny, I like it.
+(define (tails xs)
+  (reverse (map reverse (inits (reverse xs)))))
+
+(equal? (tails (range 4))
+        '((0 1 2 3) (1 2 3) (2 3) (3)))
+
+;;; Predicates
+
+;;; TODO
+
+;;; Searching Lists
+;;; Searching by equality
+
+(define (elem x xs)
+  (cond ((null? xs) #f)
+        ((= x (car xs)) #t)
+        (else (elem x (cdr xs)))))
+
+(and (equal? (elem 3 (range 0))
+             #f)
+     (equal? (elem 3 (range 5))
+             #t)
+     (equal? (elem 10 (range 5))
+             #f))
+
+(define (notElem x xs)
+  (not (elem x xs)))
