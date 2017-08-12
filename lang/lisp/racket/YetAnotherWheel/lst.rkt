@@ -47,10 +47,6 @@
      (equal? (last (list 1 2 3))
              3))
 
-;;; TODO:
-;;; uncons
-;;; null
-
 (define (length1 ls)
   (if (null? ls)
     0
@@ -207,6 +203,19 @@
              '((1 2) (2 1)))
      (equal? (permutations '(1 2 3))
              '((1 2 3) (2 1 3) (2 3 1) (1 3 2) (3 1 2) (3 2 1))))
+
+;; combinations :: Z -> [a] -> [[a]]
+(define (combinations n xs)
+  (cond ((or (= n 0) (null? xs)) '())
+        ((= n 1) (map list xs))
+        (else (++ (map (lambda (x) (cons (car xs) x))
+                       (combinations (- n 1) (cdr xs)))
+                  (combinations n (cdr xs))))))
+
+(and (equal? (combinations 3 (range 5))
+             '((0 1 2) (0 1 3) (0 1 4) (0 2 3) (0 2 4) (0 3 4) (1 2 3) (1 2 4) (1 3 4) (2 3 4)))
+     (equal? (combinations 3 (range 2))
+             '()))
 
 ;;; Special folds
 (define (concatMap f xs)
@@ -464,7 +473,49 @@
 
 ;;; Predicates
 
-;;; TODO
+(define (is-prefix-of xs ys)
+  (cond ((null? xs) #t)
+        ((null? ys) #f)
+        ((= (car xs) (car ys)) (is-prefix-of (cdr xs) (cdr ys)))
+        (else #f)))
+
+(and (equal? (is-prefix-of '(3 1 4) '(3 1 4 1 5))
+             #t)
+     (equal? (is-prefix-of '(3 5 1) '(3 1 4 1 5))
+             #f))
+
+(define (is-suffix-of xs ys)
+  (is-prefix-of (reverse1 xs)
+                (reverse1 ys)))
+
+(and (equal? (is-suffix-of '(1 5) '(3 1 4 1 5))
+             #t)
+     (equal? (is-suffix-of '(5 1) '(3 1 4 1 5))
+             #f))
+
+(define (is-subsequences xs ys)
+  (cond ((null? xs) #t)
+        ((null? ys) #f)
+        ((= (car xs) (car ys)) (is-subsequences (cdr xs) (cdr ys)))
+        (else (is-subsequences xs (cdr ys)))))
+
+(and (equal? (is-subsequences '(1 1) '(3 1 4 1 5))
+             #t)
+     (equal? (is-subsequences '(1 4 5 1) '(3 1 4 1 5))
+             #f))
+
+(define (is-infix-of xs ys)
+  (define (helper x y st)
+    (cond ((null? x) st)
+          ((null? y) #f)
+          ((= (car x) (car y)) (helper (cdr x) (cdr y) #t))
+          (else (helper xs (cdr y) #f))))
+  (helper xs ys #f))
+
+(and (equal? (is-infix-of '(1 4) '(3 1 4 1 5))
+             #t)
+     (equal? (is-infix-of '(1 1) '(3 1 4 1 5))
+             #f))
 
 ;;; Searching Lists
 ;;; Searching by equality
@@ -507,9 +558,15 @@
 (equal? (filter1 (lambda (x) (= (remainder x 5) 0)) (range 1 20))
         '(5 10 15))
 
-(define (partition1 f xs)
-  (cons (filter1 f xs)
-        (filter1 (lambda (x) (not (f x))) xs)))
+(define (partition1 p xs)
+  (define (helper xs pos neg)
+    (if (null? xs)
+      (cons (reverse1 pos) (reverse1 neg))
+      (let ((x (car xs)))
+       (if (p x)
+         (helper (cdr xs) (cons x pos) neg)
+         (helper (cdr xs) pos (cons x neg))))))
+  (helper xs '() '()))
 
 (equal? (partition1 (lambda (x) (= (remainder x 5) 0)) (range 10))
         '((0 5) 1 2 3 4 6 7 8 9))
@@ -561,13 +618,23 @@
 (equal? (zip (range 10) (range 10 15))
         '((0 10) (1 11) (2 12) (3 13) (4 14)))
 
-;;; zip3 TODO:
-; (define (zip3 xs ys zs)
-;   (zip xs (zip ys zs))
-;   ; (zip (zip xs ys) zs)
-;   )
-;
-; (zip3 (range 10 ) (range 10 15) (range 20 22))
+(define (zip3 xs ys zs)
+  (if (or (null? xs) (null? ys) (null? zs))
+    '()
+    (cons (list (car xs) (car ys) (car zs))
+          (zip3 (cdr xs) (cdr ys) (cdr zs)))))
+
+(equal? (zip3 (range 10 ) (range 10 15) (range 20 22))
+        '((0 10 20) (1 11 21)))
+
+(define (zips xss)
+  (if (or1 (map null? xss))
+    '()
+    (cons (map car xss)
+          (zips (map cdr xss)))))
+
+(equal? (zips (list (range 10 ) (range 10 15) (range 20 22)))
+        '((0 10 20) (1 11 21)))
 
 (define (zipWith f xs ys)
   (if (or (null? xs) (null? ys))
@@ -589,3 +656,42 @@
 
 (equal? (nub '(0 0 1 1 3 4 1 0 3))
         '(0 1 3 4))
+
+(define (deleteBy p xs)
+  (cond ((null? xs) '())
+        ((p (car xs)) (cdr xs))
+        (else (cons (car xs) (deleteBy p (cdr xs))))))
+
+(define (delete x xs)
+  (deleteBy (lambda (a) (= a x)) xs))
+
+(equal? (delete 1 '(3 1 4 1 5 9 2 6))
+        '(3 4 1 5 9 2 6))
+
+;;; Ordered lists
+
+; quick sort
+; LISP is so easy!
+(define (sort xs)
+  (if (or (null? xs) (null? (cdr xs)))
+    xs
+    (letrec ((x (car xs))
+             (ys (partition1 (lambda (a) (< a x)) (cdr xs))))
+      (++ (sort (car ys))
+          (cons x
+                (sort (cdr ys)))))))
+
+(equal? (sort '(3 1 4 1 5 9 2 6 5 4 5 8 9))
+        '(1 1 2 3 4 4 5 5 5 6 8 9 9))
+
+(define (sortOn f xs)
+  (if (or (null? xs) (null? (cdr xs)))
+    xs
+    (letrec ((x (car xs))
+             (ys (partition1 (lambda (a) (< (f a) (f x))) (cdr xs))))
+      (++ (sortOn f (car ys))
+          (cons x
+                (sortOn f (cdr ys)))))))
+
+(equal? (sortOn (lambda (x) (- x)) '(3 1 4 1 5 9 2 6 5 4 5 8 9))
+        (reverse1 '(1 1 2 3 4 4 5 5 5 6 8 9 9)))
