@@ -3,6 +3,7 @@
 ;;; implement function at this page: https://hackage.haskell.org/package/base-4.10.0.0/docs/Data-List.html
 
 ;;; Basic Functions
+;;; same function with LISP's append
 (define (++ ls0 ls1)
   (if (null? ls0)
     ls1
@@ -225,6 +226,15 @@
                    (range 5))
         '(0 0 1 0 1 2 0 1 2 3 0 1 2 3 4))
 
+;;; combine :: [a] -> [b] -> [(a, b)]
+(define (combine xs ys)
+  (concatMap (lambda (x)
+               (map (lambda (a) (cons x a)) ys))
+             xs))
+
+(equal? (combine (range 10 30 10) (range 4))
+        '((10 . 0) (10 . 1) (10 . 2) (10 . 3) (20 . 0) (20 . 1) (20 . 2) (20 . 3)))
+
 (define (and1 xs)
   (define (and2 x y) (and x y))
   (foldl and2 #t xs))
@@ -446,6 +456,8 @@
      (equal? (group '())
              '()))
 
+;;; inits :: [a] -> [[a]]
+;;; TODO: need pass () as first value
 (define (inits xs)
   (if (null? xs)
     '()
@@ -642,8 +654,8 @@
     (cons (f (car xs) (car ys))
           (zipWith f (cdr xs) (cdr ys)))))
 
-(equal? (zipWith + (range 10) (range 10 15))
-        '(10 12 14 16 18))
+(equal? (zipWith + (range 10) (range 0 40 10))
+        '(0 11 22 33))
 
 ;;; "Set" operations
 
@@ -695,3 +707,68 @@
 
 (equal? (sortOn (lambda (x) (- x)) '(3 1 4 1 5 9 2 6 5 4 5 8 9))
         (reverse1 '(1 1 2 3 4 4 5 5 5 6 8 9 9)))
+
+;;; splits :: [a] -> [([a], [a])]
+(define (splits xs)
+  (let ((nil (list '())))
+   (zip (++ nil (inits xs)) (++ (tails xs) nil))))
+
+(equal? (splits (range 3))
+        '((() (0 1 2)) ((0) (1 2)) ((0 1) (2)) ((0 1 2) ())))
+
+(define (factorial n)
+  (if (or (= n 0) (= n 1))
+    1
+    (* n (factorial (- n 1)))))
+(define (permutation-num n k)
+  (product (range (- n k -1) (+ n 1))))
+
+(and (equal? (factorial 6)
+             720)
+     (equal? (permutation-num 6 3)
+             120))
+
+;;; (a1 + a2 + a3 + ...)!
+;;; ----------------------
+;;; a1! * a2! * a3! * ...
+(define (permutation-group-num x xs)
+  (/ (factorial x)
+     (product (map factorial xs))))
+
+(and (equal? (permutation-group-num 5 '(3 2))
+             10)
+     (equal? (permutation-group-num 5 '(2 2))
+             30))
+
+;;; permutation-group :: [[a]] -> [[a]]
+(define (permutation-group xss)
+  (define (helper xs g)
+    (if (null? xs)
+      (list g)
+      (let ((ss (splits g))
+            (x (car xs)))
+        (concatMap (lambda (s)
+                     (let ((b (car s))
+                           (e (cadr s)))
+                       (let ((r (helper (cdr xs) e)))
+                        (map (lambda (ne) (++ b (cons x ne)))
+                             r))))
+                   ss))))
+  (define (f xs gs)
+    (concatMap (lambda (g) (helper xs g))
+               gs))
+  (if (or (null? xss) (null? (cdr xss)))
+    xss
+    (foldr f '(()) xss)))
+
+(and
+  (equal? (permutation-group '((2 2)))
+          '((2 2)))
+  (equal? (permutation-group '((1) (2 2)))
+          '((1 2 2) (2 1 2) (2 2 1)))
+  (equal? (permutation-group '((1 1 1) (2 2)))
+          '((1 1 1 2 2) (1 1 2 1 2) (1 1 2 2 1) (1 2 1 1 2) (1 2 1 2 1) (1 2 2 1 1) (2 1 1 1 2) (2 1 1 2 1) (2 1 2 1 1) (2 2 1 1 1)))
+  (equal? (permutation-group '((4 4) (1) (2 2)))
+          '((4 4 1 2 2) (4 1 4 2 2) (4 1 2 4 2) (4 1 2 2 4) (1 4 4 2 2) (1 4 2 4 2) (1 4 2 2 4) (1 2 4 4 2) (1 2 4 2 4) (1 2 2 4 4) (4 4 2 1 2) (4 2 4 1 2) (4 2 1 4 2) (4 2 1 2 4) (2 4 4 1 2) (2 4 1 4 2) (2 4 1 2 4) (2 1 4 4 2) (2 1 4 2 4) (2 1 2 4 4) (4 4 2 2 1) (4 2 4 2 1) (4 2 2 4 1) (4 2 2 1 4) (2 4 4 2 1) (2 4 2 4 1) (2 4 2 1 4) (2 2 4 4 1) (2 2 4 1 4) (2 2 1 4 4)))
+  (equal? (length (permutation-group '((4 4) (1) (2 2))))
+          (permutation-group-num 5 '(2 1 2))))
