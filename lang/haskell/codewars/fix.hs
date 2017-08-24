@@ -2,7 +2,8 @@ module Fixit where
 import Prelude hiding (reverse, foldr)
 
 fix :: (a -> a) -> a
-fix f = let x = f x in x
+-- fix f = let x = f x in x
+fix g = g (fix g)
 
 reverse' :: ([a] -> [a]) -> [a] -> [a]
 reverse' f [] = []
