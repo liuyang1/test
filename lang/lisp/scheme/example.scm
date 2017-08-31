@@ -1,10 +1,10 @@
+#lang racket
+
 (define (f return) (return 2) 3)
 
-(display (f (lambda (x) x)))
-(newline)
+(displayln (f (lambda (x) x)))
 
-(display (call/cc f))
-(newline)
+(displayln (call/cc f))
 ; when F is applying the parameter to 2 forces execution of the program
 ;   to jump to the point where call/cc was called
 ; and causes call/cc to return the value 2
@@ -26,7 +26,7 @@
     (for-each (lambda (element)
                 (call/cc (lambda (resume-here)
                            (set! control-state resume-here)
-                           (return element))))
+                           (return element)))) ; It's kind of YIELD
               lst)
     (return 'end))
   (define (generator) (call/cc control-state))
