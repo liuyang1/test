@@ -1,6 +1,8 @@
 typedef enum {
     Nothing = 0,
     Just,
+    Left,
+    Right,
 } MetaType;
 
 typedef enum {
@@ -17,7 +19,19 @@ typedef struct MaybeX {
     } x;
 } MaybeX;
 
-#define SHOWMAYBEINTLEN     20
+/**
+ * Either String Int
+ */
+typedef struct EitherX {
+    MetaType type;
+    ValType vtype;
+    union {
+        int val;
+        char *msg;
+    } x;
+} EitherX;
+
+#define SHOWMAYBEINTLEN     256
 bool isNothing(MaybeX v);
 bool isJust(MaybeX v);
 bool equal(MaybeX a, MaybeX b);
@@ -30,3 +44,9 @@ char *show(char *s, MaybeX v);
 
 MaybeX fmap(int (*func)(int), MaybeX v);
 MaybeX Applicative(MaybeX a, MaybeX b);
+
+bool isLeft(EitherX v);
+bool isRight(EitherX v);
+bool equalEither(EitherX v);
+
+
