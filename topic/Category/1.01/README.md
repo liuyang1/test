@@ -23,5 +23,25 @@ check compose.py, compose.cpp
 ```
 
 ## 互联网是范畴吗？链接是态射吗？
+
+```
+No.
+
+If google link to Facebook, Facebook link to Twitter, we cannot enuse hava link from google to Twitter.
+```
+
 ## 脸书是一个以人为对象，以朋友关系为态射的范畴吗？
+
+```
+No.
+
+我的附庸的附庸,不是我的附庸.
+```
+
 ## 一个有向图，在什么情况下是一个范畴？
+
+```
+- 完全没有任何连接
+- 只存在A -> B的链接
+- ... 这个问题,还没有想清楚
+```

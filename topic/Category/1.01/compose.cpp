@@ -27,15 +27,18 @@ int id(int x) {
     return x;
 }
 
+#define TESTCASE(f, g) \
+    std::cout << "(" #f " . " #g ")(" << a << ") = " << (compose(f, g))(a) << std::endl;
+
 int main() {
     int a = 5;
-    std::cout << "(inc . square)(" << a << ") = " << (compose(inc, square))(a) << std::endl;
-    std::cout << "(square . inc)(" << a << ") = " << (compose(square, inc))(a) << std::endl;
+    TESTCASE(inc, square);
+    TESTCASE(square, inc);
 
-    std::cout << "(inc . id)(" << a << ") = " << (compose(inc, id))(a) << std::endl;
-    std::cout << "(id . inc)(" << a << ") = " << (compose(id, inc))(a) << std::endl;
+    TESTCASE(inc, id);
+    TESTCASE(id, inc);
 
-    std::cout << "(id . square)(" << a << ") = " << (compose(id, square))(a) << std::endl;
-    std::cout << "(square . id)(" << a << ") = " << (compose(square, id))(a) << std::endl;
+    TESTCASE(square, id);
+    TESTCASE(id, square);
     return 0;
 }
