@@ -17,5 +17,9 @@ d = 0 `insertEvery` [1, 2, 3]
 
 pperm :: t -> [[t]] -> [[t]]
 pperm = concatMap . insertEvery
-e = 3 `pperm` (2 `pperm` ( 1 `pperm` [[]]))
+e = 2 `pperm` (1 `pperm` ( 0 `pperm` [[]]))
 -- => foldr style
+
+f = [[]] >>= (insertEvery 0) >>= (insertEvery 1) >>= (insertEvery 2)
+
+g = foldl (>>=) [[]] $ map insertEvery [0..2]
