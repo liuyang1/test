@@ -1,4 +1,22 @@
+/*
+The set [1,2,3,…,n] contains a total of n! unique permutations.
+
+By listing and labeling all of the permutations in order,
+We get the following sequence (ie, for n = 3):
+
+"123"
+"132"
+"213"
+"231"
+"312"
+"321"
+Given n and k, return the kth permutation sequence.
+
+Note: Given n will be between 1 and 9 inclusive.
+*/
+
 #include "leet.h"
+
 int perm(int n) {
     if (n <= 1) {
         return 1;
@@ -29,13 +47,16 @@ Context *ctx_create(int n, int k) {
     }
     return ctx;
 }
+
 void ctx_show(Context *ctx) {
     printf("ctx nth=%d size=%d mod=%d\t", ctx->nth, ctx->size, ctx->mod);
     showArr(ctx->nums, ctx->size);
 }
+
 bool ctx_end(Context *ctx) {
     return ctx->size <= 0;
 }
+
 int ctx_permseq(Context *ctx) {
     int i = ctx->nth / ctx->mod;
     int r = ctx->nums[i];
@@ -50,6 +71,7 @@ int ctx_permseq(Context *ctx) {
     }
     return r;
 }
+
 void ctx_destory(Context *ctx) {
     free(ctx->nums);
     free(ctx);
@@ -69,10 +91,12 @@ int digitLen(int n) {
     }
     return len;
 }
+
 int guessSize(int n) {
     return (n + 1) * digitLen(n) + 1;
 }
-char* getPermutation(int n, int k) {
+
+char *getPermutation(int n, int k) {
     int len = guessSize(n);
     char *r = malloc(sizeof(char) * len);
     int offset = 0;
@@ -94,16 +118,18 @@ bool allisdigit(char *r) {
     if (r == NULL) {
         return false;
     }
-    for (;*r != '\0'; r++) {
+    for (; *r != '\0'; r++) {
         if (!isdigit(*r)) {
             return false;
         }
     }
     return true;
 }
+
 bool chkresult(char *last, char *ret) {
     return allisdigit(ret) && (last == NULL || strcmp(last, ret) < 0);
 }
+
 bool fulltest(int n) {
     int i, thresh = perm(n);
     char *last = NULL, *ret;
@@ -129,6 +155,7 @@ bool fulltest(int n) {
     }
     return true;
 }
+
 bool nfulltest(int n) {
     bool r;
     int i;
@@ -141,6 +168,7 @@ bool nfulltest(int n) {
     }
     return true;
 }
+
 bool simpletest(int n, int k) {
     char *ret = getPermutation(n, k);
     bool r = allisdigit(ret);
@@ -148,6 +176,7 @@ bool simpletest(int n, int k) {
     free(ret);
     return r;
 }
+
 int main() {
     nfulltest(7);
     simpletest(10, 1000);

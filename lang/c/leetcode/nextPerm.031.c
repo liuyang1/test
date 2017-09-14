@@ -39,9 +39,31 @@ void nextPermutation(int *nums, int numsSize) {
     reverse(nums + i, numsSize - i);
 }
 
-#define CASE(a, e) { int *b = a;  \
+void permEx(int *nums, int numsSize, int left, int right) {
+    if (left == right) {
+        showArr(nums, numsSize);
+        return;
+    }
+    int i;
+    for (i = left; i != right; i++) {
+        swap(nums + left, nums + i);
+        permEx(nums, numsSize, left + 1, right);
+        swap(nums + left, nums + i);
+    }
+}
+
+void perm(int *nums, int numsSize) {
+    permEx(nums, numsSize, 0, numsSize);
+}
+
+void testPerm() {
+    int a[] = {0, 1, 2, 3};
+    perm(a, COUNT_OF(a));
+}
+
+#define CASE(a, e) { int *b = a;                      \
                      nextPermutation(b, COUNT_OF(a)); \
-                     showArr(b, COUNT_OF(a)); \
+                     showArr(b, COUNT_OF(a));         \
                      printf("%s\n", expect(cmpArr(b, COUNT_OF(a), e, COUNT_OF(e)))); }
 int main() {
     CASE(((int[]) {1, 2, 3}), ((int[]) {1, 3, 2}));
@@ -52,5 +74,7 @@ int main() {
     CASE(((int[]) {3, 2, 1}), ((int[]) {1, 2, 3}));
     CASE(((int[]) {1, 1}), ((int[]) {1, 1}));
     CASE(((int[]) {}), ((int[]) {}));
+
+    testPerm();
     return 0;
 }

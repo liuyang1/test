@@ -230,6 +230,10 @@ One number not in [0 .. n] array, find it.
     - Generator permutations
     - support duplicate
 
+* 60. Permutations Sequence
+
+    - from K inverse calc sequence
+
 * 62. Unique paths
 
 m * n grid, from left-upper corner move to bottom-right corner, How many
@@ -237,10 +241,6 @@ possible unique paths?
 
     Just `combination(m + n - 2, m - 1)`.
     Mind not overflow when calculate combination
-
-* 70. Permutations Sequence
-
-    - from K inverse calc sequence
 
 * 77. Combinations
 

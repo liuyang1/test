@@ -23,3 +23,8 @@ e = 2 `pperm` (1 `pperm` ( 0 `pperm` [[]]))
 f = [[]] >>= (insertEvery 0) >>= (insertEvery 1) >>= (insertEvery 2)
 
 g = foldl (>>=) [[]] $ map insertEvery [0..2]
+
+perm n = foldl (>>=) [[]] $ map insertEvery [0..(n - 1)]
+
+main = do
+    print $ perm 4
