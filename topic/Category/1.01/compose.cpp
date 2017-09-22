@@ -40,5 +40,9 @@ int main() {
 
     TESTCASE(square, id);
     TESTCASE(id, square);
+
+    void *b  = malloc(5);
+    printf("%p %p %p %p\n", main, compose(inc, square), b, &a);
+    // we find compose return function is in stack.
     return 0;
 }

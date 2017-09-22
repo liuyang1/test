@@ -1,4 +1,4 @@
-module Collatz where 
+module Collatz where
 
 collatz :: Int -> String
 collatz n
