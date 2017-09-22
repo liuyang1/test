@@ -35,10 +35,18 @@ churchMul c1 c2 h = c1 (c2 h)
 churchPow :: Cnum a -> (Cnum a -> Cnum a) -> Cnum a
 churchPow cb ce = ce cb
 
-add = toInt .: (churchAdd `on` toChurch)
+wrap cf = toInt .: (cf `on` toChurch)
+add = wrap churchAdd
+mul = wrap churchMul
+pow1 x y = toInt (churchPow (toChurch x) (toChurch y))
+-- pow2 = wrap churchPow
+-- This limit churchPow's two input argument have same type
+-- However, they are not.
 
 main = do
     print $ toInt (churchAdd two thr)
     print $ toInt (churchMul two thr)
     print $ toInt (churchPow two thr)
     print $ add 2 3
+    print $ mul 4 5
+    print $ pow1 4 5
