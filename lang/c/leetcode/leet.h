@@ -243,7 +243,8 @@ void showTree(struct TreeNode *t) {
     q_init(q, 100);
     q_put(q, t);
     struct TreeNode *p;
-    int nilcnt = 0, i, start = 1;
+    int nilcnt = 0, i;
+    const char *delim = "";
     printf("[");
     while (1) {
         if (!q_get(q, (void **)&p)) {
@@ -257,12 +258,8 @@ void showTree(struct TreeNode *t) {
                 printf(", NIL");
             }
             nilcnt = 0;
-            // use start flag to only show comman interlaced
-            if (start != 1) {
-                printf(", ");
-            }
-            printf("%d", p->val);
-            start = 0;
+            printf("%s%d", delim, p->val);
+            delim = ", ";
             q_put(q, p->left);
             q_put(q, p->right);
         }
@@ -387,14 +384,10 @@ void freeArr2v(int **mat, int m, int *n) {
 
 void showLst(struct ListNode *p) {
     printf("[");
-    int start;
-    for (start = 1; p != NULL; p = p->next) {
-        if (start != 0) {
-            printf("%d", p->val);
-            start = 0;
-        } else {
-            printf(", %d", p->val);
-        }
+    const char *delim;
+    for (delim = ""; p != NULL; p = p->next) {
+        printf("%s%d", delim, p->val);
+        delim = ", ";
     }
     printf("]\n");
 }
@@ -470,14 +463,12 @@ void showStr(char *str) {
 }
 void showStr2(char **pstr, int n) {
     int i;
-    bool start = true;
     printf("[");
-    for (i = 0; i != n; i++) {
-        if (!start) {
-            printf(", ");
-        }
+    const char *delim;
+    for (i = 0, delim = ""; i != n; i++) {
+        printf("%s", delim);
+        delim = ", ";
         showStr(pstr[i]);
-        start = false;
     }
     printf("]\n");
 }
@@ -499,4 +490,37 @@ int cmpInt(const void *n0, const void *n1) {
 }
 
 #endif
+#endif
+
+// #define TESTSELF
+#ifdef TESTSELF
+int testTree() {
+    int a[] = {1, 2, 3, 4, 5};
+    struct TreeNode *p = buildTree(a, COUNT_OF(a));
+    showTree(p);
+    freeTree(p);
+    return 0;
+}
+
+int testLst() {
+    int a[] = {1, 2, 3, 4, 5};
+    struct ListNode *p = buildLst(a, COUNT_OF(a));
+    showLst(p);
+    freeLst(p);
+    return 0;
+}
+
+int testStr2() {
+    char *astr[] = {"Hello", "first", "delim"};
+    showStr2(astr, COUNT_OF(astr));
+    return 0;
+}
+
+
+int main() {
+    testTree();
+    testLst();
+    testStr2();
+    return 0;
+}
 #endif

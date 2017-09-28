@@ -173,16 +173,12 @@ void pq_destory(PQ *p) {
 void pq_show(PQ *p) {
     printf("Prority Queue: %p cap=%d size=%d num=%d cmp=%p arr=%p\n",
            p, p->cap, p->size, p->num, p->cmp, p->arr);
-    bool first = true;
+    const char *delim = "";
     int i;
     printf("[");
     for (i = 0; i != p->size; i++) {
-        if (first) {
-            printf("%p", p->arr[i]);
-            first = false;
-        } else {
-            printf(", %p", p->arr[i]);
-        }
+        printf("%s%p", delim, p->arr[i]);
+        delim = ", ";
         if (p->show) {
             p->show(p->arr[i]);
         }
@@ -265,7 +261,7 @@ int *topKFrequent(int *nums, int numsSize, int k, int *returnSize) {
         return NULL;
     }
     // - hashtable to count frequence of number. O(n)
-    // - prority queue to sort most frequent k element
+    // - Priority queue to sort most frequent k element
     // - reverse pop from queue to get result
     HashTbl *t = ht_create(0);
     int i;
@@ -333,10 +329,10 @@ bool unit(int *a, int size, int k, int *e, int esz) {
         showArr(r, len);
         printf(" ?= ");
         showArr(e, esz);
-        printf(" %s\n", expect(ret));
         printf("a=%p r=%p e=%p size=%d len=%d esz=%d\n",
                a, r, e, size, len, esz);
     }
+    printf("%s\n", expect(ret));
     free(r);
     return ret;
 }
