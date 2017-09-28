@@ -1,4 +1,4 @@
-int lengthOfLongestSubstring(char* s) {
+int lengthOfLongestSubstring(char *s) {
     int i, len = strlen(s);
     if (len <= 1) {
         return len;

@@ -1,4 +1,4 @@
-bool containsDuplicate(int* nums, int numsSize) {
+bool containsDuplicate(int *nums, int numsSize) {
     int i, j;
     if (numsSize == 0) {
         return false;

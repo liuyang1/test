@@ -24,9 +24,9 @@ long long countDigitOne(long long n) {
 }
 
 #include <stdio.h>
-#define CASE(x, expect)     { \
-        long long _x = countDigitOne(x); \
-        printf("%lld %lld ?= %lld %s\n", \
+#define CASE(x, expect)     {                \
+        long long _x = countDigitOne(x);     \
+        printf("%lld %lld ?= %lld %s\n",     \
                x, _x, expect, expect == _x ? \
                "PASS" : "fail"); }
 

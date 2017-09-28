@@ -1,4 +1,4 @@
-bool isIsomorphic(char* s, char* t) {
+bool isIsomorphic(char *s, char *t) {
     if (s == NULL || t == NULL) {
         if (s == NULL && t == NULL) {
             return true;

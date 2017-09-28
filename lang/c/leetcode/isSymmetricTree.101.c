@@ -18,7 +18,8 @@ bool isSymmetricTwo(struct TreeNode *left, struct TreeNode *right) {
     }
     return isSymmetricTwo(left->left, right->right) && isSymmetricTwo(left->right, right->left);
 }
-bool isSymmetric(struct TreeNode* root) {
+
+bool isSymmetric(struct TreeNode *root) {
     if (root == NULL) {
         return true;
     }

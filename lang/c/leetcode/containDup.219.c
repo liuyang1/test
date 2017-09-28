@@ -1,4 +1,4 @@
-bool containsNearbyDuplicate(int* nums, int numsSize, int k) {
+bool containsNearbyDuplicate(int *nums, int numsSize, int k) {
     int i, j;
     if (numsSize == 0) {
         return false;

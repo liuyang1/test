@@ -6,7 +6,7 @@
  *     struct TreeNode *right;
  * };
  */
-int minDepth(struct TreeNode* root) {
+int minDepth(struct TreeNode *root) {
     if (root == NULL) {
         return 0;
     }

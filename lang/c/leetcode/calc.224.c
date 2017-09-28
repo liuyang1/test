@@ -10,6 +10,7 @@ static inline char *skipWhitespace(char *s) {
     }
     return s;
 }
+
 static inline char *rmParen(char *s) {
     int len = strlen(s);
     char *p0 = skipWhitespace(s);
@@ -41,6 +42,7 @@ static inline char *rmParen(char *s) {
     }
     return s;
 }
+
 static inline char *findOp(char *s) {
     int len = strlen(s);
     char *p;
@@ -57,7 +59,7 @@ static inline char *findOp(char *s) {
     return NULL;
 }
 
-int calculateI(char* s) {
+int calculateI(char *s) {
     LOG("calc [%s]\n", s);
     s = rmParen(s);
     LOG("per [%s]\n", s);
@@ -97,7 +99,7 @@ int calculate(char *s) {
 
 int main() {
 #define CASE(s, e) {int r = calculate(s); \
-    printf("[%.20s] %d ?= %d %s\n", s, r, e, expect(r == e));}
+                    printf("[%.20s] %d ?= %d %s\n", s, r, e, expect(r == e));}
     CASE("1+2", 3);
     CASE("111-222", -111);
     CASE("111", 111);

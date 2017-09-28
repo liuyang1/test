@@ -5,7 +5,7 @@
  *     struct ListNode *next;
  * };
  */
-struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2) {
+struct ListNode *addTwoNumbers(struct ListNode *l1, struct ListNode *l2) {
     int carry = 0, sum;
     struct ListNode *head = (struct ListNode *)malloc(sizeof(struct ListNode));
     struct ListNode *tail = head;

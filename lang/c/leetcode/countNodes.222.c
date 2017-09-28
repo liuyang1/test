@@ -50,7 +50,7 @@ int countNodes_naive(struct TreeNode *root) {
 #define CASE(a, e) {struct TreeNode *t = buildTree(a, sizeof(a) / sizeof(int)); \
                     int n = countFn(t);                                         \
                     printf("n=%d ?= e=%d %s\n", n, e, expect(n == e)); }
-bool basicTest(int(countFn)(struct TreeNode *)) {
+bool basicTest(int (countFn)(struct TreeNode *)) {
     CASE(((int[]) {}), 0);
     CASE(((int[]) {1}), 1);
     CASE(((int[]) {1, 2, 3, 4}), 4);
@@ -58,7 +58,7 @@ bool basicTest(int(countFn)(struct TreeNode *)) {
 }
 
 #define LEN (1000 * 1000 * 10)
-bool perfTest(int(countFn)(struct TreeNode *)) {
+bool perfTest(int (countFn)(struct TreeNode *)) {
     bool ret = true;
     int *a = malloc(sizeof(int) * LEN);
     bzero(a, sizeof(int) * LEN);

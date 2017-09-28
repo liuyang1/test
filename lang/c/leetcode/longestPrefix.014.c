@@ -21,13 +21,13 @@ final:
 }
 
 #define CASE(sa, e) {char *p = longestCommonPrefix(sa, sizeof(sa) / sizeof(char *)); \
-    printf("%s ?= %s %s\n", p, e, expect(strcmp(p, e) == 0)); \
-    free(p); }
+                     printf("%s ?= %s %s\n", p, e, expect(strcmp(p, e) == 0));       \
+                     free(p); }
 
 int main() {
-    CASE(((char *[]){"abc", "xyz"}), "");
-    CASE(((char *[]){"abc", "alpha"}), "a");
-    CASE(((char *[]){"zyx", "zoo", "zeta"}), "z");
-    CASE(((char *[]){"easy", "ease", "ea"}), "ea");
+    CASE(((char *[]) {"abc", "xyz"}), "");
+    CASE(((char *[]) {"abc", "alpha"}), "a");
+    CASE(((char *[]) {"zyx", "zoo", "zeta"}), "z");
+    CASE(((char *[]) {"easy", "ease", "ea"}), "ea");
     return 0;
 }

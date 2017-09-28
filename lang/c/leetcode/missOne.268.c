@@ -1,4 +1,4 @@
-int missingNumber(int* nums, int numsSize) {
+int missingNumber(int *nums, int numsSize) {
     int i;
     unsigned long long sum;
     for (i = 0, sum = 0; i != numsSize; i++) {

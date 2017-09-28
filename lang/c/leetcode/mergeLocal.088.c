@@ -1,6 +1,6 @@
 #include "leet.h"
 
-void merge(int* nums1, int m, int* nums2, int n) {
+void merge(int *nums1, int m, int *nums2, int n) {
     int i1, i2, i;
     for (i = m + n - 1, i1 = m - 1, i2 = n - 1; i1 >= 0 && i2 >= 0; i--) {
         if (nums1[i1] > nums2[i2]) {
@@ -42,18 +42,19 @@ int test(int *nums1, int m, int *nums2, int n) {
     free(p);
     return r;
 }
-#define CASE(a, b) { \
-    printf("%s\n", expect(test(a, sizeof(a) / sizeof(int), \
-                               b, sizeof(b) / sizeof(int)))); }
+
+#define CASE(a, b) {                                           \
+        printf("%s\n", expect(test(a, sizeof(a) / sizeof(int), \
+                                   b, sizeof(b) / sizeof(int)))); }
 int main() {
-    CASE(((int []){1}), ((int []){}));
-    CASE(((int []){}), ((int []){1, 2}));
-    CASE(((int []){1, 3, 5}), ((int []){}));
-    CASE(((int []){2, 3, 6}), ((int []){1, 4, 5}));
-    CASE(((int []){1, 4, 5}), ((int []){2, 3, 6}));
-    CASE(((int []){1, 3, 5, 6, 10}), ((int []){2, 4, 7, 8}));
-    CASE(((int []){2, 4, 7, 8}), ((int []){1, 3, 5, 6, 10}));
-    CASE(((int []){1, 9, 99}), ((int []){0, 4, 6, 8, 10, 20}));
+    CASE(((int[]) {1}), ((int[]) {}));
+    CASE(((int[]) {}), ((int[]) {1, 2}));
+    CASE(((int[]) {1, 3, 5}), ((int[]) {}));
+    CASE(((int[]) {2, 3, 6}), ((int[]) {1, 4, 5}));
+    CASE(((int[]) {1, 4, 5}), ((int[]) {2, 3, 6}));
+    CASE(((int[]) {1, 3, 5, 6, 10}), ((int[]) {2, 4, 7, 8}));
+    CASE(((int[]) {2, 4, 7, 8}), ((int[]) {1, 3, 5, 6, 10}));
+    CASE(((int[]) {1, 9, 99}), ((int[]) {0, 4, 6, 8, 10, 20}));
 
     return 0;
 }

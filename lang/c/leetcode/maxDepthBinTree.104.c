@@ -6,7 +6,7 @@
  *     struct TreeNode *right;
  * };
  */
-int maxDepth(struct TreeNode* root) {
+int maxDepth(struct TreeNode *root) {
     if (root == NULL) {
         return 0;
     }

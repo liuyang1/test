@@ -8,6 +8,7 @@ int say(char *o, char v, int cnt) {
     o++;
     return o - origin;
 }
+
 void iter(char *s, char *next) {
     char *p, v, *o;
     int c;
@@ -26,14 +27,15 @@ void iter(char *s, char *next) {
     o += say(o, v, c);
     *o = '\0';
 }
-char* countAndSay(int n) {
+
+char *countAndSay(int n) {
     if (n <= 0) {
         return NULL;
     }
     char *s = malloc(sizeof(char) * 2), *next;
     s[0] = '1'; s[1] = '\0';
     int i, len;
-    for (i= 1; i != n; i++) {
+    for (i = 1; i != n; i++) {
         len = strlen(s);
         // at most need 2 * N + 1 memory
         next = malloc(sizeof(char) * (2 * len + 1));

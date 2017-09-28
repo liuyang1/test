@@ -6,7 +6,7 @@
  *     struct TreeNode *right;
  * };
  */
-int depthBal(struct TreeNode* root) {
+int depthBal(struct TreeNode *root) {
     if (root == NULL) {
         return 0;
     }
@@ -20,6 +20,7 @@ int depthBal(struct TreeNode* root) {
     }
     return -1;
 }
-bool isBalanced(struct TreeNode* root) {
+
+bool isBalanced(struct TreeNode *root) {
     return -1 != depthBal(root);
 }

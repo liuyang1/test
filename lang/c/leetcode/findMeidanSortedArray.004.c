@@ -25,13 +25,13 @@ int findNthSortedArrays(int *nums1, int nums1Size,
     while (1) {
         mid = (beg + end) / 2;
         val = nums1[mid];
-        low = nth - mid - 1 < 0 ? val: nums2[nth - mid - 1];
-        high = nth - mid >= nums2Size ? low: nums2[nth - mid];
+        low = nth - mid - 1 < 0 ? val : nums2[nth - mid - 1];
+        high = nth - mid >= nums2Size ? low : nums2[nth - mid];
         // printf("xxx loop=%d nth=%d beg=%d end=%d mid=%d nums1=%p nums2=%p %d %d %d\n",
         //        loop++, nth, beg, end, mid, nums1, nums2, val, low, high);
         if (nth - mid - 1 >= nums2Size) {
             beg = (beg == mid) ? mid + 1 : mid;
-        // } else if (nth - mid - 1 < 0) {
+            // } else if (nth - mid - 1 < 0) {
         } else if ((nth == 0 && val < low) ||
                    (nth == nums1Size + nums2Size - 1 && val > high) ||
                    (nth - mid >= nums2Size && val >= low) ||
@@ -71,6 +71,7 @@ void runCaseFind(int lineno, int *num1, int len1, int *num2, int len2, int nth, 
         printf("case@%d PASS\n", lineno);
     }
 }
+
 void runCase(int lineno, int *num1, int len1, int *num2, int len2, double median)
 {
     double m = findMedianSortedArrays(num1, len1, num2, len2);
@@ -100,6 +101,7 @@ void case0() {
     RUNFIND(((int[]) {1, 2, 3}), ((int[]) {2, 2, 4}), 4, 3);
     RUNFIND(((int[]) {1, 2, 3}), ((int[]) {2, 2, 4}), 5, 4);
 }
+
 void case1() {
     RUNFIND(((int[]) {0}), ((int[]) {1}),  0, 0);
     RUNFIND(((int[]) {0}), ((int[]) {1}),  1, 1);
@@ -117,6 +119,7 @@ void case2() {
     RUNFIND(((int[]) {1, 2, 3}), ((int[]) {0}), 2, 2);
     RUNFIND(((int[]) {1, 2, 3}), ((int[]) {0}), 3, 3);
 }
+
 void case3() {
     RUNFIND(((int[]) {-1, 2, 3}), ((int[]) {0}), 0, -1);
     RUNFIND(((int[]) {-1, 2, 3}), ((int[]) {0}), 1, 0);
@@ -127,11 +130,11 @@ void case3() {
     RUNFIND(((int[]) {0}), ((int[]) {-1, 2, 3}),  2, 2);
     RUNFIND(((int[]) {0}), ((int[]) {-1, 2, 3}),  3, 3);
 }
+
 void case4() {
     RUNFIND(((int[]) {}), ((int[]) {1}), 0, 1);
     RUNFIND(((int[]) {}), ((int[]) {1}), 1, 1);
 }
-
 
 int main()
 {

@@ -1,7 +1,7 @@
 #include "leet.h"
 
 #define MAX(a, b)   ((a) > (b) ? (a) : (b))
-int lineRob(int* nums, int numsSize) {
+int lineRob(int *nums, int numsSize) {
     if (numsSize <= 0) {
         return 0;
     } else if (numsSize == 1) {
@@ -28,14 +28,12 @@ int rob(int *nums, int numsSize) {
 }
 
 #define CASE(a, e)     {int r = rob(a, sizeof(a) / sizeof(int)); \
-    printf("%d ?= %d %s\n", r, e, expect(r == e)); }
+                        printf("%d ?= %d %s\n", r, e, expect(r == e)); }
 int main() {
-    CASE(((int []) {}), 0);
-    CASE(((int []) {3}), 3);
-    CASE(((int []) {4, 5, 9, 2, 2, 10}), 19);
-    CASE(((int []) {4, 5, 9}), 9);
-    CASE(((int []) {2, 1, 1, 2}), 3);
+    CASE(((int[]) {}), 0);
+    CASE(((int[]) {3}), 3);
+    CASE(((int[]) {4, 5, 9, 2, 2, 10}), 19);
+    CASE(((int[]) {4, 5, 9}), 9);
+    CASE(((int[]) {2, 1, 1, 2}), 3);
     return 0;
 }
-
-

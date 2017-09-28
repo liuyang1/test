@@ -141,18 +141,18 @@ int *majorityElement(int *nums, int numsSize, int *returnSize) {
     return r;
 }
 
-#define CASE(a, e) { \
-    int n, *r = majorityElement(a, sizeof(a) / sizeof(int), &n); \
-    int i, flag, l = sizeof(e) / sizeof(int); \
-    if (n != l) { \
-        flag = false; \
-    } else { \
-        for (i = 0, flag = true; i != n; i++) { \
-            if (r[i] != e[i]) { flag = false; break; } \
-        } \
-    } \
-    printf("%s\n", flag ? "PASS" : "fail"); \
-    free(r); }
+#define CASE(a, e) {                                                 \
+        int n, *r = majorityElement(a, sizeof(a) / sizeof(int), &n); \
+        int i, flag, l = sizeof(e) / sizeof(int);                    \
+        if (n != l) {                                                \
+            flag = false;                                            \
+        } else {                                                     \
+            for (i = 0, flag = true; i != n; i++) {                  \
+                if (r[i] != e[i]) { flag = false; break; }           \
+            }                                                        \
+        }                                                            \
+        printf("%s\n", flag ? "PASS" : "fail");                      \
+        free(r); }
 
 int main() {
     CASE(((int[]) {1, 1, 1, 2, 2, 3, 3, 2, 2, 2, 3, 2, 2}), ((int[]) {2}));

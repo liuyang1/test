@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 // This function affect order in nums.
-int threeSumClosest(int* nums, int numsSize, int target) {
+int threeSumClosest(int *nums, int numsSize, int target) {
     if (numsSize < 2 || nums == NULL) {
         assert(0);
     }
@@ -13,7 +13,7 @@ int threeSumClosest(int* nums, int numsSize, int target) {
     int i;
     for (i = 0; i < numsSize - 2; i++) {
         int bgn, end;
-        for (bgn = i + 1, end = numsSize - 1; bgn < end; ) {
+        for (bgn = i + 1, end = numsSize - 1; bgn < end;) {
             int sum = nums[i] + nums[bgn] + nums[end];
             unsigned int d = abs(sum - target);
             if (d < diff) {
@@ -55,7 +55,7 @@ int test(int *nums, int numsSize, int target, int e) {
 int main() {
     int a[] = {-1, 0, 1, 2, -1, 4};
     test(a, sizeof(a) / sizeof(int), 0, 0);
-    int b[]= {-1, 2, 1, -4};
+    int b[] = {-1, 2, 1, -4};
     test(b, sizeof(b) / sizeof(int), 1, 2);
     return 0;
 }

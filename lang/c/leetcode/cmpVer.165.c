@@ -72,7 +72,7 @@ int compareVersion(char *s0, char *s1)
 }
 
 #include <stdio.h>
-#define CASE(s0, s1, e)        {char p0[] = s0; char p1[] = s1; printf("%s %s %s\n", s0, s1, \
+#define CASE(s0, s1, e)        {char p0[] = s0; char p1[] = s1; printf("%s %s %s\n", s0, s1,         \
                                                                        compareVersion(p0, p1) == e ? \
                                                                        "PASS" : "fail"); }
 int main()

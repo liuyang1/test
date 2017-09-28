@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #define MIN(a, b)       ((a) < (b) ? (a) : (b))
-int minimumTotal(int** triangle, int triangleRowSize, int *triangleColSizes) {
+int minimumTotal(int **triangle, int triangleRowSize, int *triangleColSizes) {
     int sz = triangleColSizes[triangleRowSize - 1];
     int *r = malloc(sizeof(int) * sz);
     int i, j;
@@ -42,6 +42,7 @@ int case0() {
     printf("%d ?= %d %s\n", r, e, expect(r == e));
     return 0;
 }
+
 int main() {
     case0();
     return 0;

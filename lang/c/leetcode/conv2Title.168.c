@@ -15,10 +15,10 @@ char *convertToTitle(int n) {
     return r;
 }
 
-#define CASE(n, e) {char *s = convertToTitle(n); \
-    printf("%d %s ?= %s %s\n", \
-           n, s, e, strcmp(s, e) == 0 ? "PASS" : "fail"); \
-    free(s); }
+#define CASE(n, e) {char *s = convertToTitle(n);                          \
+                    printf("%d %s ?= %s %s\n",                            \
+                           n, s, e, strcmp(s, e) == 0 ? "PASS" : "fail"); \
+                    free(s); }
 int main()
 {
     CASE(0, "");

@@ -1,4 +1,4 @@
-int lengthOfLastWord(char* s) {
+int lengthOfLastWord(char *s) {
     char *p;
     do {
         p = strrchr(s, ' ');
@@ -11,5 +11,5 @@ int lengthOfLastWord(char* s) {
         } else {
             return strlen(p + 1);
         }
-    } while(1);
+    } while (1);
 }

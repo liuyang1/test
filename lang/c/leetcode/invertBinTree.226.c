@@ -6,7 +6,7 @@
  *     struct TreeNode *right;
  * };
  */
-struct TreeNode* invertTree(struct TreeNode* root) {
+struct TreeNode *invertTree(struct TreeNode *root) {
     if (root == NULL) {
         return root;
     }

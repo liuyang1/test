@@ -15,22 +15,28 @@ Queue *q_create(int capcity) {
     q->beg = q->end = 0;
     return q;
 }
+
 void q_show(Queue *q) {
     printf("q=%p a=%p [%d, %d) / %d\t", q, q->a, q->beg, q->end, q->cap);
     showArr(q->a, q->cap);
 }
+
 int q_inc(Queue *q, int idx) {
     return (idx + 1) % (q->cap);
 }
+
 int q_dec(Queue *q, int idx) {
     return (idx + q->cap - 1) % (q->cap);
 }
+
 bool q_isempty(Queue *q) {
     return q->beg == q->end;
 }
+
 bool q_isfull(Queue *q) {
     return q_inc(q, q->end) == q->beg;
 }
+
 bool q_pushback(Queue *q, int v) {
     if (q_isfull(q)) {
         return false;
@@ -39,16 +45,19 @@ bool q_pushback(Queue *q, int v) {
     q->end = q_inc(q, q->end);
     return true;
 }
+
 #define ASSERT_EMPTY(q) { if (q_isempty(q)) { \
-    LOG("%s", "should not empty\n"); return -1; } }
+                              LOG("%s", "should not empty\n"); return -1; } }
 int q_peekback(Queue *q) {
     ASSERT_EMPTY(q);
     return q->a[q_dec(q, q->end)];
 }
+
 int q_peekfront(Queue *q) {
     ASSERT_EMPTY(q);
     return q->a[q->beg];
 }
+
 int q_popfront(Queue *q) {
     ASSERT_EMPTY(q);
     int r = q_peekfront(q);
@@ -56,6 +65,7 @@ int q_popfront(Queue *q) {
     q->beg = q_inc(q, q->beg);
     return r;
 }
+
 int q_popback(Queue *q) {
     ASSERT_EMPTY(q);
     int r = q_peekback(q);
@@ -63,6 +73,7 @@ int q_popback(Queue *q) {
     q->end = q_dec(q, q->end);
     return r;
 }
+
 void q_destory(Queue *q) {
     if (q) {
         if (q->a) {
@@ -71,6 +82,7 @@ void q_destory(Queue *q) {
         free(q);
     }
 }
+
 // ---- end of queue
 
 int *maxSlidingWindow(int *nums, int numsSize, int k, int *returnSize) {
@@ -112,8 +124,9 @@ int *maxSlidingWindow(int *nums, int numsSize, int k, int *returnSize) {
 
     return r;
 }
+
 #define CASE(a, k, e) {int sz, *r = maxSlidingWindow(a, COUNT_OF(a), k, &sz); \
-                       showArr(r, sz); \
+                       showArr(r, sz);                                        \
                        printf("%s\n", expect(cmpArr(e, COUNT_OF(e), r, sz))); \
                        if (r) { free(r); } }
 

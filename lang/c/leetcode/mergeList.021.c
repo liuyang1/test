@@ -5,7 +5,7 @@
  *     struct ListNode *next;
  * };
  */
-struct ListNode* mergeTwoLists(struct ListNode* l1, struct ListNode* l2) {
+struct ListNode *mergeTwoLists(struct ListNode *l1, struct ListNode *l2) {
     struct ListNode *l0 = NULL, *p0 = NULL, *p = NULL;
     while (l1 != NULL && l2 != NULL) {
         if (l1->val < l2->val) {

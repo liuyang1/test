@@ -25,6 +25,7 @@ void initCtx(Ctx *ctx, int n, int k) {
     ctx->cnt = 0;
     ctx->st = malloc(sizeof(int) * k);
 }
+
 bool next(Ctx *ctx) {
     int i;
     if (ctx->cnt == 0) {
@@ -70,7 +71,7 @@ void finitCtx(Ctx *ctx) {
     free(ctx->st);
 }
 
-int** combine(int n, int k, int** columnSizes, int* returnSize) {
+int **combine(int n, int k, int **columnSizes, int *returnSize) {
     Ctx ctx, *p = &ctx;
     initCtx(p, n, k);
 
@@ -94,12 +95,13 @@ int** combine(int n, int k, int** columnSizes, int* returnSize) {
 int testCtx() {
     Ctx ctx, *p = &ctx;
     initCtx(p, 6, 4);
-    while(next(p)) {
+    while (next(p)) {
         printf("%d:\t", p->cnt);
         showArr(p->st, 4);
     }
     return 0;
 }
+
 int testCmb(int n, int k) {
     int *colsz, retsz;
     int **r = combine(n, k, &colsz, &retsz);

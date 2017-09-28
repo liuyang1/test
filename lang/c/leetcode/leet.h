@@ -19,7 +19,7 @@
 
 #define SBOOL(x) ((x) ? "true" : "false")
 
-#define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
+#define COUNT_OF(x) ((sizeof(x) / sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 
 struct ListNode {
     int val;
@@ -33,8 +33,8 @@ struct TreeNode {
 };
 
 struct TreeLinkNode {
- int val;
- struct TreeLinkNode *left, *right, *next;
+    int val;
+    struct TreeLinkNode *left, *right, *next;
 };
 
 void showArr(int *nums, int numsSize);
@@ -75,7 +75,8 @@ struct ListNode *buildLst(int *nums, int numsSize) {
     p->next = NULL;
     return lst;
 }
-void freeLst(struct ListNode* head) {
+
+void freeLst(struct ListNode *head) {
     if (head == NULL) {
         return;
     }
@@ -280,6 +281,7 @@ bool eqTree(struct TreeNode *t0, struct TreeNode *t1) {
     }
     return false;
 }
+
 // }}} function on Tree END
 
 void showArrAdv(int *nums, int numsSize, char *prefix, char *end) {
@@ -425,11 +427,12 @@ void showTreeLink(struct TreeLinkNode *n) {
 }
 
 void initTreeNode(struct TreeNode *n, int val,
-              struct TreeNode *left, struct TreeNode *right) {
+                  struct TreeNode *left, struct TreeNode *right) {
     n->val = val;
     n->left = left;
     n->right = right;
 }
+
 void initTreeLink(struct TreeLinkNode *n, int val,
                   struct TreeLinkNode *left,
                   struct TreeLinkNode *right) {
@@ -461,6 +464,7 @@ unsigned long long catalan(unsigned long long n) {
 void showStr(char *str) {
     printf("\'%s\'", str);
 }
+
 void showStr2(char **pstr, int n) {
     int i;
     printf("[");
@@ -516,11 +520,11 @@ int testStr2() {
     return 0;
 }
 
-
 int main() {
     testTree();
     testLst();
     testStr2();
     return 0;
 }
+
 #endif

@@ -52,7 +52,7 @@ bool isInterleave(char *s1, char *s2, char *s3) {
     return r;
 }
 
-#define CASE(s1, s2, s3, e) {bool r = isInterleave(s1, s2, s3); \
+#define CASE(s1, s2, s3, e) {bool r = isInterleave(s1, s2, s3);      \
                              printf("[%s] [%s] [%s]\n%s ?= %s %s\n", \
                                     s1, s2, s3, SBOOL(r), SBOOL(e), expect(r == e)); }
 int main() {

@@ -54,10 +54,10 @@ int test0() {
     initTreeNode(at + 7, 3, NULL, NULL);
     initTreeNode(at + 8, 5, NULL, NULL);
 
-#define EXPECT(r, p, q, e)    { \
+#define EXPECT(r, p, q, e)    {                                            \
         struct TreeNode *t = lowestCommonAncestor(at + r, at + p, at + q); \
-        printf("%p ?= %p %s\n", \
-               t, at + e, expect(t == ((e < 0) ? NULL : at + e))); \
+        printf("%p ?= %p %s\n",                                            \
+               t, at + e, expect(t == ((e < 0) ? NULL : at + e)));         \
 }
 
     EXPECT(0, 1, 8, 1);

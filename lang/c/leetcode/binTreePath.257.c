@@ -181,10 +181,10 @@ char **binaryTreePaths(struct TreeNode *root, int *returnSize) {
 }
 
 #define CASE(a) {struct TreeNode *t = buildTree(a, sizeof(a) / sizeof(int)); \
-                 showTree(t); \
-                 int i, sz; char **r = binaryTreePaths(t, &sz); \
-                 for (i = 0; i != sz; i++) { \
-                     printf("%s\n", r[i]); free(r[i]); } \
+                 showTree(t);                                                \
+                 int i, sz; char **r = binaryTreePaths(t, &sz);              \
+                 for (i = 0; i != sz; i++) {                                 \
+                     printf("%s\n", r[i]); free(r[i]); }                     \
                  free(r); }
 
 int main() {

@@ -131,8 +131,8 @@ int iterTree(struct TreeNode *t) {
 }
 
 #define CASE(a) {struct TreeNode *t = buildTree(a, sizeof(a) / sizeof(int)); \
-                 printf("show: "); showTree(t); \
-                 printf("iter: "); iterTree(t); \
+                 printf("show: "); showTree(t);                              \
+                 printf("iter: "); iterTree(t);                              \
                  freeTree(t); }
 int main() {
     CASE(((int[]) {}));
