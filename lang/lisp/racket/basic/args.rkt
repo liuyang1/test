@@ -13,9 +13,14 @@
   (string-append "Hello " name))
 
 ;; Functions can pack extra arguments up in a list
+;; varidiac arguments, use apply to expand it
 (define (count-args . args)
   (format "You passed ~a args: ~a" (length args) args))
 (count-args 1 2 3) ; => "You passed 3 args: (1 2 3)"
+(define (sum-args . args)
+  (let ((v (apply max args)))
+   (format "apply (max ~a) get sum ~a" args v)))
+(sum-args 1 2 3)
 ;; ... or with the unsugared `lambda' form:
 (define count-args2
   (lambda args
