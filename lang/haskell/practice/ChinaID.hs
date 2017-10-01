@@ -1,6 +1,10 @@
-module ChinaId where
+module ChinaID where
 
 import Data.Char (digitToInt)
+
+{-
+check number is valid China ID or not
+-}
 
 chr2Ord 'x' = 10
 chr2Ord 'X' = 10
