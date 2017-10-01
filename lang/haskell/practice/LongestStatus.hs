@@ -1,3 +1,4 @@
+module Main where
 {- status xxx in log
 find all status log, and find which status stay longest, and stay times.
 -}
@@ -7,6 +8,7 @@ import Data.Ord
 import Data.List
 import Control.Arrow
 import Control.Monad
+-- depend on third party lib
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as C
 
