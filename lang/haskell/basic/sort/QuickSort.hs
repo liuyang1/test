@@ -1,3 +1,4 @@
+module QuickSort where
 import Data.List (partition)
 
 qsort :: Ord a => [a] -> [a]
