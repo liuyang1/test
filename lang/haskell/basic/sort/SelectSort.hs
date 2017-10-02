@@ -1,13 +1,16 @@
 module SelectSort where
 
+import Data.List ((\\))
+
 -- remove one time of a in xs
+-- It's same with (\\) in Data.List
 remove [] _ = []
 remove (x:xs) a
     | x == a = xs
     | otherwise = x: (remove xs a)
 
 selectSort [] = []
-selectSort xs = m : selectSort (remove xs m)
+selectSort xs = m : selectSort (xs \\ [m])
     where m = minimum xs
 
 sort = selectSort
