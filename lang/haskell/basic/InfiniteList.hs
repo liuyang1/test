@@ -3,7 +3,7 @@ module InfiniteList where
 next f x = (f x, f)
 
 -- How to generate infinite list
-ev nextf f x = v: (ev nextf g v)
+ev nextf f x = v: ev nextf g v
              where (v, g) = nextf f x
 
 zero = 0
@@ -27,7 +27,7 @@ fib = map fst $ ev next inc2 zero2
 -- 7 <= inc2 inc2 3
 -- 15 <= inc3 inc3 7
 -- ...
-skip f x = (f x, \x -> f (f x))
+skip f x = (f x, f . f)
 pow2n1 = ev skip inc zero
 
 main = do

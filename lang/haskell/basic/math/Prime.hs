@@ -1,7 +1,7 @@
 module Prime where
 
 -- merge two list, remove duplicate element
-union (x:xs) (y:ys) = case (compare x y) of
+union (x:xs) (y:ys) = case compare x y of
                         LT -> x : union xs (y:ys)
                         EQ -> x : union xs ys
                         GT -> y : union (x:xs) ys

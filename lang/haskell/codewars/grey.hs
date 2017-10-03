@@ -8,6 +8,7 @@ num2hex2 n = if n > 255 || n < 0 then [] else [num2hex (n `div` 16), num2hex (re
 num2grey n = "#" ++ (concat $ replicate 3 (num2hex2 n))
 
 shadesOfGrey :: Int -> [String]
-shadesOfGrey n = if n <= 0 then []
-                           else if n > 254 then shadesOfGrey 254
-                           else map num2grey [1..n]
+shadesOfGrey n
+  | n <= 0 = []
+  | n > 254 = shadesOfGrey 254
+  | otherwise = map num2grey [1..n]

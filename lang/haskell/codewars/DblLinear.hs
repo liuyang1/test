@@ -42,7 +42,7 @@ height Empty = 0
 height (Node _ h _ _) = h
 
 updateHeight Empty = Empty
-updateHeight (Node a _ left right)= Node  a ((max (height left) (height right)) + 1) left right
+updateHeight (Node a _ left right)= Node  a (max (height left) (height right) + 1) left right
 
 rotateLeft Empty = Empty
 rotateLeft (Node a h alpha (Node b _ beta gamma)) = Node b h (updateHeight $ Node a 1 alpha beta) gamma
@@ -71,8 +71,7 @@ treeDelMin Empty = Empty
 treeDelMin (Node a _ Empty right) = right
 treeDelMin (Node a _ left right) = updateHeight $ Node a 0 (treeDelMin left) right
 
-listToTree [] = Empty
-listToTree (x:xs) = treeInsert x (listToTree xs)
+listToTree = foldr treeInsert Empty
 
 g n t i
   | i == n = nt

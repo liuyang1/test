@@ -10,7 +10,7 @@ rightChild n = 2 * n + 2
 insert [] x = [x]
 insert xs x = swim (xs ++ [x])
 
-heapBuild xs = foldl insert [] xs
+heapBuild = foldl insert []
 
 -- sorry for permitive style
 enum xs = zip xs [0..(length xs)]
@@ -25,7 +25,7 @@ exch xs p0 p1 = setv (setv xs p0 v1) p1 v0
 swimOne xs n = let p = parent n
                 in if xs !! p > xs !! n then swimOne (exch xs p n) p else xs
 
-swim xs = swimOne xs ((length xs) - 1)
+swim xs = swimOne xs (length xs - 1)
 
 sinkOne xs n
     | n >= len = xs
@@ -78,5 +78,4 @@ test sort = do
         print $ [1] == sort [1]
         print $ ([]::[Integer]) == sort ([]::[Integer])
 
-main = do
-        test heapSort
+main = test heapSort

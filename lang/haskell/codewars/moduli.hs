@@ -9,4 +9,4 @@ check ms = all iscoprime $ comb2 ms
 fromNb2Str :: Integer -> [Integer] -> String
 fromNb2Str n ms
   | not (check ms) || product ms < n = "Not applicable"
-  | otherwise = concatMap (\x -> "-" ++ show x ++ "-") $ map (n `rem`) ms
+  | otherwise = concatMap ((\x -> "-" ++ show x ++ "-") . (n `rem`)) ms

@@ -16,9 +16,9 @@ index _ [] = []
 index (-1) xs = xs
 index 8 xs = xs
 index n xs = index (n + 1) (l ++ r)
-    where (l, r) = partition (\x -> x .&. (pow2 n) == 0) xs
+    where (l, r) = partition (\x -> x .&. pow2 n == 0) xs
 
-indexSort xs = index 0 xs
+indexSort = index 0
 
 sort = indexSort
 

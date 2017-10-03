@@ -14,9 +14,9 @@ gGotoTbl ins = genGotoTbl ins 0 [] Map.empty
 run dp ds ip is s tbl
   | ip >= length is = Just []
   -- input
-  | ins == '.' = Just (chr dd: (fromJust $ run dp ds ipn is s tbl))
+  | ins == '.' = Just (chr dd: fromJust (run dp ds ipn is s tbl))
   -- output
-  | ins == ',' && s == [] = Nothing
+  | ins == ',' && null s = Nothing
   | ins == ',' = run dp (ds//[(dp, head s)]) ipn is (tail s) tbl
   -- increment data pointer
   | ins == '>' = run (dp + 1) ds ipn is s tbl

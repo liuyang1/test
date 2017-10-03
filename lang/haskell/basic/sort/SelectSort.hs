@@ -7,7 +7,7 @@ import Data.List ((\\))
 remove [] _ = []
 remove (x:xs) a
     | x == a = xs
-    | otherwise = x: (remove xs a)
+    | otherwise = x: remove xs a
 
 selectSort [] = []
 selectSort xs = m : selectSort (xs \\ [m])

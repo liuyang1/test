@@ -60,14 +60,14 @@ uzc 'z' = "!!!!!"
 uzc x = if x < '!' || x > 'u' then [] else [x]
 
 toAscii85' [] = decorAscii []
-toAscii85' s = decorAscii (concat . (map zc) $ ((init ret) ++ [(rmTail padlen $ last ret)]))
+toAscii85' s = decorAscii (concatMap zc ((init ret) ++ [(rmTail padlen $ last ret)]))
   where padlen = 4 - (length (last cs))
         ret = map (int32toAscii85 . digit2Int32 . paddingNull 4) cs
         cs = chunk 4 s
 toAscii85 :: ByteString -> ByteString
 toAscii85 = B.pack . toAscii85' . B.unpack
 
-fromAscii85' s = if length rs == 0 then [] else rmTail padlen $ concat ret
+fromAscii85' s = if null rs then [] else rmTail padlen $ concat ret
   where padlen = 5 - (length (last cs))
         ret = map (ascii85ToInt32 . digit2Ascii . paddingU 5) cs
         cs = chunk 5 uns

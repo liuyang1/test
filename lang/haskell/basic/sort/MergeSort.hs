@@ -4,7 +4,7 @@ import Data.Function (on)
 
 merge [] ys = ys
 merge xs [] = xs
-merge xx@(x:xs) yy@(y:ys) = case (compare x y) of
+merge xx@(x:xs) yy@(y:ys) = case compare x y of
                           LT -> x: merge xs yy
                           EQ -> x: merge xs yy
                           GT -> y: merge xx ys
@@ -12,7 +12,7 @@ merge xx@(x:xs) yy@(y:ys) = case (compare x y) of
 mergeSort [] = []
 mergeSort [x] = [x]
 mergeSort xs = (merge `on` mergeSort) l r
-    where half = (length xs) `quot` 2
+    where half = length xs `quot` 2
           (l, r) = splitAt half xs
 
 

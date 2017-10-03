@@ -10,7 +10,7 @@ primeFs xs n p
   | otherwise = primeFs xs n (p + 1)
 prime_factors :: Integer -> String
 prime_factors 1 = "(1)"
-prime_factors n = foldl (++) "" . reverse . map fn . group $ primeFs [] n 2
+prime_factors n = concat . reverse . map fn . group $ primeFs [] n 2
   where fn x = let len = length x
                    n = head x
                 in if len /= 1 then "(" ++ show n ++ "**" ++ show len ++ ")"

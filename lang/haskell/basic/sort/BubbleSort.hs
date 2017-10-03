@@ -4,17 +4,17 @@ module BubbleSort where
 -- and naiveBubbleSort repeat (LENGTH xs) times.
 naiveBubble [] = []
 naiveBubble [x] = [x]
-naiveBubble (x:y:xs) = a:(naiveBubble (b:xs))
+naiveBubble (x:y:xs) = a: naiveBubble (b:xs)
     where (a, b) = if x <= y then (x, y) else (y, x)
 
-naiveBubbleSort xs = (iterate naiveBubble xs) !! (length xs)
+naiveBubbleSort xs = iterate naiveBubble xs !! length xs
 
 -- XXX bubble reorder sequence until find the order is correct
 bubble [] = ([], False)
 bubble [x] = ([x], False)
 bubble xx@(x:y:xs)
     | x <= y = (xx, False) -- wrong, need continue to reorder
-    | otherwise = (y:(fst $ bubble (x:xs)), True)
+    | otherwise = (y:fst (bubble (x:xs)), True)
 
 -- bubbleSort reoder sequence until find not change after reorder last time
 bubbleSort [] = []

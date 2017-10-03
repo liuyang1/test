@@ -12,5 +12,4 @@ fibnext (a, b) = (b, a + b)
 
 fib' = map snd $ iterate fibnext one
 
-main = do
-        print $ take 10 fib'
+main = print $ take 10 fib'

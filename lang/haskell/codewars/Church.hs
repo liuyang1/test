@@ -61,7 +61,7 @@ instance Eq Number where
   a == b = eval a == eval b
 
 fold :: Number -> (a -> a) -> a -> a
-fold (Nr n) s z = n s z
+fold (Nr n) = n
 
 eval :: Number -> Integer
 eval (Nr a) = a (+1) 0

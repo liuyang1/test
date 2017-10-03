@@ -4,14 +4,14 @@ module BaseConversion where
 import Data.List
 import Data.Maybe
 
-newtype Alphabet = Alphabet { getDigits :: [Char] } deriving (Show)
+newtype Alphabet = Alphabet { getDigits :: String } deriving (Show)
 bin, oct, dec, hex, alphaLower, alphaUpper, alpha, alphaNumeric, base64 :: Alphabet
-bin = Alphabet $ "01"
-oct = Alphabet $ ['0'..'7']
-dec = Alphabet $ ['0'..'9']
-hex = Alphabet $ ['0'..'9'] ++ ['a'..'f']
-alphaLower = Alphabet $ ['a'..'z']
-alphaUpper = Alphabet $ ['A'..'Z']
+bin = Alphabet "01"
+oct = Alphabet ['0'..'7']
+dec = Alphabet ['0'..'9']
+hex = Alphabet ['0'..'9'] ++ ['a'..'f']
+alphaLower = Alphabet ['a'..'z']
+alphaUpper = Alphabet ['A'..'Z']
 alpha = Alphabet $ ['a'..'z'] ++ ['A'..'Z']
 alphaNumeric = Alphabet $ ['0'..'9'] ++ ['a'..'z'] ++ ['A'..'Z']
 base64 = Alphabet $ ['A'..'Z'] ++ ['a'..'z'] ++ ['0'..'9'] ++ "+/"

@@ -23,7 +23,7 @@ toChurch n = churchSucc (toChurch (n - 1))
 
 inc x = x + 1
 
-toInt c = (c inc) 0
+toInt c = c inc 0
 
 churchAdd :: Cnum a -> Cnum a -> Cnum a
 churchAdd c1 c2 h = c1 h . c2 h
