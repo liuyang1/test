@@ -10,6 +10,7 @@ capital (x:xs) = (toUpper x): xs
 
 verse :: Int -> String
 verse n = intercalate "\n" $ map (capital . ($ n)) [line1, line2, line3, line4]
+-- unlines = intercalate "\n"
 
 showNum :: Int -> String
 showNum n = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"] !! n
