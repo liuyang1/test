@@ -1,38 +1,69 @@
 module Sudoku where
 
-import Data.List
+import Data.List (splitAt, transpose)
 
-m0 = 3
-ms = [0..(m0 - 1)]
-mm x = map (\i -> i + 3 * x) ms
-mmm x y = sequence [mm x,mm y]
-gm m x y = map (\(i:j:_) -> (m !! i) !! j) $ mmm x y
+type Mat = [[Int]]
 
-{-
-puzzle = [[5,3,0,0,7,0,0,0,0],
-          [6,0,0,1,9,5,0,0,0],
-          [0,9,8,0,0,0,0,6,0],
-          [8,0,0,0,6,0,0,0,3],
-          [4,0,0,8,0,3,0,0,1],
-          [7,0,0,0,2,0,0,0,6],
-          [0,6,0,0,0,0,2,8,0],
-          [0,0,0,4,1,9,0,0,5],
-          [0,0,0,0,8,0,0,7,9]]
--}
+puzzle = [[5,3,0,0,7,0,0,0,0]
+         ,[6,0,0,1,9,5,0,0,0]
+         ,[0,9,8,0,0,0,0,6,0]
+         ,[8,0,0,0,6,0,0,0,3]
+         ,[4,0,0,8,0,3,0,0,1]
+         ,[7,0,0,0,2,0,0,0,6]
+         ,[0,6,0,0,0,0,2,8,0]
+         ,[0,0,0,4,1,9,0,0,5]
+         ,[0,0,0,0,8,0,0,7,9]] :: Mat
 cands = [1..9]
+boxSize = 3
+matSize = 9
+-- 所有的位置坐标
+poss = sequence [[0..(matSize - 1)], [0..(matSize - 1)]]
+
+-- 返回棋盘中对应的行或者列,或者所处的3x3的小方格
+row, col :: Mat -> Int -> [Int]
 row m x = m !! x
 col m y = transpose m !! y
-sqr m x y = gm m (div x 3) (div y 3)
-fcons m x y = let c = filter (/= 0) (row m x ++ col m y ++ sqr m x y)
-               in filter (`notElem` c) cands
-ff m x y = let v = m !! x !! y
-            in if v == 0
-                  then let vv = fcons m x y in if length vv == 1 then head vv else 0
-                  else v
 
-splith n [] i r0 r1 = if r0 /= [] then reverse r0: r1 else r1
-splith n xs@(x:t) i r0 r1 = if i == n then splith n xs 0 [] (reverse r0:r1) else splith n t (i + 1) (x:r0) r1
-splitEvery n xs = reverse $ splith n xs 0 [] []
-sudoku :: [[Int]] -> [[Int]]
-sudoku m = let nm = splitEvery 9 . map (\(i:j:_) -> ff m i j) $ sequence [[0..8], [0..8]]
-            in if nm == m then m else sudoku nm
+regionN n x = take n [(roundN n x)..]
+    where roundN n x = (x `div` n) * n
+
+box :: Mat -> Int -> Int -> [Int]
+box m x y = map (\(i:j:_) -> (m !! i) !! j) $ boxPos x y
+    where boxPos x y = sequence [(regionN boxSize x), (regionN boxSize y)]
+-- 找到所有的备选项
+fcand :: Mat -> Int -> Int -> [Int]
+fcand m x y = filter (`notElem` c) cands
+    where c = row m x ++ col m y ++ box m x y
+
+updateCell :: Mat -> Int -> Int -> Int
+updateCell m x y
+    | v /= 0 = v
+    | v == 0 && length vs == 1 = head vs -- 只有在一个可选择结果的时候，直接选择
+    | otherwise = 0
+    where v = m !! x !! y
+          vs = fcand m x y
+
+-- 按段划分，类似于Python中的xs[::9]
+splitSeg :: Int -> [Int] -> Mat
+splitSeg n [] = []
+splitSeg n xs = h: splitSeg n t
+    where (h, t) = splitAt n xs
+
+rebuildMat :: [Int] -> Mat
+rebuildMat = splitSeg matSize
+
+-- 策略非常简单
+-- 采用直接推断的方式: 同行同列同小格的元素不再出现,如果剩余备选项只有一个，则固定选择。
+-- 否则，进入到下一个推测中
+sudoku :: Mat -> Mat
+sudoku m = if nm == m then m else sudoku nm
+    where nm = updateCand m
+          updateCand m = rebuildMat . map (\(i:j:_) -> updateCell m i j) $ poss
+
+showMat m = mapM_ print m
+
+main = do
+        print "orignal puzzle"
+        showMat puzzle
+        print "solution"
+        showMat $ sudoku puzzle
