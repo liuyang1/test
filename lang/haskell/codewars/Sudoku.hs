@@ -1,6 +1,7 @@
 module Sudoku where
 
 import Data.List
+
 m0 = 3
 ms = [0..(m0 - 1)]
 mm x = map (\i -> i + 3 * x) ms
