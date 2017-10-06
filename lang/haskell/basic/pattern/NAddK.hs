@@ -8,6 +8,7 @@ isEven n = case compare n 0 of
                GT -> isEven (n - 2)
 -- It don't work
 -- isEven (n + 2) = isEven n
+-- >>> Haskell 2010 不再支持这种形式的模式匹配
 
 main = do
         print $ False == isEven 3
