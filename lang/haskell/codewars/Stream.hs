@@ -66,8 +66,9 @@ takeS i (x :> xs)
 
 -- | Drop a given amount of elements from a stream.
 dropS :: Int -> Stream a -> Stream a
-dropS 0 s = s
-dropS i (x :> xs) = dropS (i - 1) xs
+dropS i xx@(x :> xs)
+    | i <= 0 = xx
+    | otherwise = dropS (i - 1) xs
 
 -- | Do take and drop simultaneous.
 splitAtS :: Int -> Stream a -> ([a], Stream a)
