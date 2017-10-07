@@ -27,6 +27,7 @@ void Except_raise(const T *e, const char *file, int line) {
     p->exception = e;
     p->file = file;
     p->line = line;
+    Except_stack = Except_stack->prev; // pop 56
 
     longjmp(p->env, Except_raised);
 }

@@ -14,7 +14,7 @@ This atom is concept from lisp. Unique, immutable value. Use it to represent sym
 
 | error type    |                                              | solution                |
 |---------------|----------------------------------------------|-------------------------|
-| user error    |                                              | handle it by program    |
+| user error    | expected, errnoeous user input               | handle it by program    |
 | runtime error | never expected, always indicate program bugs | should halt, use assert |
 | exception     | unexpcted, but may recovery from it.         | signal, raise exception(`setjmp` in C) |
 
