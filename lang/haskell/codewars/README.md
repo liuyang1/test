@@ -15,8 +15,9 @@ LastDigit | 3kyu  | 2017-10-07 |         |
 name              | level | date       | comment |
 ------------------|-------|------------|---------|
 MoleculeAtoms     | 3kyu  | 2017-10-07 | funny   |
-Stream            | 4kyu  | 2017-10-07 |         |
+Stream            | 4kyu  |            |         |
 LastDigit2        | 5kyu  |            |         |
-Reverse           | 6kyu  | 2017-10-07 |         |
+Reverse           | 6kyu  |            |         |
 Scramblies        | 5kyu  | 2017-10-08 |         |
-Primes in numbers | 5kyu  | 2017-10-08 |         |
+Primes in numbers | 5kyu  |            |         |
+Product Group     | 6kyu  |            |         |
