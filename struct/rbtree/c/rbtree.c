@@ -1,12 +1,10 @@
-#include <stdlib.h>
 #include <stdio.h>
-#include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
+
+#include "rbtree.h"
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
-
-typedef int keyType;
-typedef void *valType;
 
 int keycmp(keyType a, keyType b) {
     return a - b;
@@ -26,7 +24,7 @@ typedef struct Node {
     struct Node *right;
 } Node;
 
-void node_init(Node *n, keyType key, valType val, int num, Color color) {
+static void node_init(Node *n, keyType key, valType val, int num, Color color) {
     n->key = key;
     n->val = val;
     n->num = num;
@@ -34,15 +32,15 @@ void node_init(Node *n, keyType key, valType val, int num, Color color) {
     n->left = n->right = NULL;
 }
 
-int node_size(Node *n) {
+static int node_size(Node *n) {
     return n == NULL ? 0 : n->num;
 }
 
-bool node_isRed(Node *n) {
+static bool node_isRed(Node *n) {
     return n == NULL ? false : n->color == RED;
 }
 
-Node *node_rotateLeft(Node *h) {
+static Node *node_rotateLeft(Node *h) {
     Node *x = h->right;
     h->right = x->left;
     x->left = h;
@@ -53,7 +51,7 @@ Node *node_rotateLeft(Node *h) {
     return x;
 }
 
-Node *node_rotateRight(Node *h) {
+static Node *node_rotateRight(Node *h) {
     Node *x = h->left;
     h->left = x->right;
     x->right = h;
@@ -64,13 +62,13 @@ Node *node_rotateRight(Node *h) {
     return x;
 }
 
-void node_flipColors(Node *h) {
+static void node_flipColors(Node *h) {
     h->color = RED;
     h->left->color = BLACK;
     h->right->color = BLACK;
 }
 
-int node_height(Node *h) {
+static int node_height(Node *h) {
     if (h == NULL) {
         return 0;
     }
@@ -79,8 +77,10 @@ int node_height(Node *h) {
     return MAX(left, right) + 1;
 }
 
-#define LOG
-Node *node_put(Node *h, keyType key, valType val) {
+// #define LOG printf
+#define LOG(x) ((void)(x)) // omit unused statement error
+
+static Node *node_put(Node *h, keyType key, valType val) {
     if (h == NULL) {
         h = malloc(sizeof(Node));
         node_init(h, key, val, 1, RED);
@@ -115,7 +115,7 @@ Node *node_put(Node *h, keyType key, valType val) {
     return h; // return back, this is very important
 }
 
-valType node_get(Node *h, keyType key) {
+static valType node_get(Node *h, keyType key) {
     if (h == NULL) {
         return NULL;
     }
@@ -129,7 +129,7 @@ valType node_get(Node *h, keyType key) {
     }
 }
 
-bool node_cotains(Node *h, keyType key) {
+static bool node_cotains(Node *h, keyType key) {
     if (h == NULL) {
         return false;
     }
@@ -143,7 +143,7 @@ bool node_cotains(Node *h, keyType key) {
     }
 }
 
-void node_show(Node *h, int level) {
+static void node_show(Node *h, int level) {
     int i;
     for (i = 0; i != level; i++) {
         printf("  ");
@@ -158,59 +158,67 @@ void node_show(Node *h, int level) {
     }
 }
 
+#define T RBTreeIn
+
 typedef struct {
     Node *root;
-} RBTree;
+} T;
 
-RBTree *rbtree_create() {
-    RBTree *r = malloc(sizeof(RBTree));
+static void rbt_in_destroy(T *t) {
+    // TODO:
+    return;
+}
+static T *rbt_in_create() {
+    T *r = malloc(sizeof(T));
     r->root = NULL;
     return r;
 }
 
-void rbtree_put(RBTree *t, keyType key, valType val) {
+static void rbt_in_put(T *t, keyType key, valType val) {
     t->root = node_put(t->root, key, val);
     t->root->color = BLACK; // always reset root to BLACK color
 }
 
-valType rbtree_get(RBTree *t, keyType key) {
+static valType rbt_in_get(T *t, keyType key) {
     return node_get(t->root, key);
 }
 
-bool rbtree_contains(RBTree *t, keyType key) {
+static bool rbt_in_contains(T *t, keyType key) {
     return node_cotains(t->root, key);
 }
 
-void rbtree_show(RBTree *t) {
+static void rbt_in_show(T *t) {
     node_show(t->root, 0);
 }
 
-int rbtree_height(RBTree *t) {
+static int rbt_in_height(T *t) {
     return node_height(t->root);
 }
 
-int rbtree_size(RBTree *t) {
+static int rbt_in_size(T *t) {
     return node_size(t->root);
 }
 
-int rbtree_isEmpty(RBTree *t) {
-    return rbtree_size(t) == 0;
+static int rbt_in_isEmpty(T *t) {
+    return rbt_in_size(t) == 0;
 }
 
-int try_rbtree() {
-    RBTree *t = rbtree_create();
-    long int i;
-    for (i = 0; i != 10; i++) {
-        rbtree_put(t, random() % 100, (void *)i);
-        // rbtree_show(t);
-        // printf("--------------------------\n");
-    }
-    rbtree_show(t);
-
-    return 0;
+RBTree  rbtree_create() {
+    return rbt_in_create();
 }
 
-int main() {
-    try_rbtree();
-    return 0;
+void    rbtree_destroy(RBTree p) {
+    rbt_in_destroy(p);
+}
+void    rbtree_put(RBTree p, keyType key, valType val) {
+    rbt_in_put(p, key, val);
+}
+valType rbtree_get(RBTree p, keyType key) {
+    return rbt_in_get(p, key);
+}
+bool    rbtree_contains(RBTree p, keyType key) {
+    return rbt_in_contains(p, key);
+}
+void    rbtree_show(RBTree p) {
+    rbt_in_show(p);
 }
