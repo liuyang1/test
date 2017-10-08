@@ -1,5 +1,7 @@
 module InfiniteList where
 
+import Data.List (transpose)
+
 next f x = (f x, f)
 
 -- How to generate infinite list
@@ -30,9 +32,26 @@ fib = map fst $ ev next inc2 zero2
 skip f x = (f x, f . f)
 pow2n1 = ev skip inc zero
 
+merge = concat . transpose
+
+merge2 x y = merge [x, y]
+
+ints = 0: merge2 [1..] [(-1),(-2)..]
+
+-- we event could list all rational number in [0, 1]
+rats = (0, 1): (1, 1): concatMap h [2..]
+    where h n = [(i, n) | i <- [1..(n - 1)], gcd n i == 1]
+
+simpify (a, b) = (a `div` g, b `div` g)
+    where g = gcd a b
+
 main = do
         print $ take 10 nat
         print $ take 10 evens
         print $ take 10 fib
         print $ take 10 pow2'
         print $ take 10 pow2n1
+        print $ take 20 ints
+        print $ take 30 rats
+        print $ (2, 39) `elem` rats
+        print $ simpify (2, 38) `elem` rats
