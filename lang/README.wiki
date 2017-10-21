@@ -12,7 +12,7 @@
 
 == haskell ==
 - 1000+ line test code
-- 80+ kuta @ codewars
+- 90+ kuta @ codewars
 - 50+ H99 exercise
 
 == bash ==
