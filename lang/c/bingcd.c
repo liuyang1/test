@@ -27,7 +27,7 @@
 #define TIC {struct timeval start,stop; gettimeofday(&start,NULL);
 #define TOC gettimeofday(&stop,NULL);printf("%lu sec %luusec\n",stop.tv_sec - start.tv_sec, stop.tv_usec -start.tv_usec);}
 
-inline int
+int
 lsb32(unsigned long n)
 {
     int ret = 31;
@@ -102,9 +102,14 @@ testLoop(int (*f)(int, int)){
 }
 
 
-int testRight(){
-    printf("%d\n",gcd(12, 18));
-    printf("%d\n",gcd(18, 12));
+#define TEST(a, b, e) printf("gcd(%d, %d) = %d ?= %d\n", a, b, gcd(a, b), e);
+
+int testCorrect(){
+    TEST(0, 0, 0);
+    TEST(0, 1, 1);
+    TEST(4, 6, 2);
+    TEST(12, 18, 6);
+    TEST(18, 12, 6);
     return 0;
 }
 
@@ -118,8 +123,9 @@ int testPerf(){
     TOC;
     return 0;
 }
-    
+
 int main(){
+    testCorrect();
     testPerf();
     return 0;
 }
