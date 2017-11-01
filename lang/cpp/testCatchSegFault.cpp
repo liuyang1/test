@@ -1,4 +1,3 @@
-
 // mtime:	2012-10-29 14:31:25
 // auth:	liuy
 //
@@ -16,11 +15,11 @@
 
 using namespace std;
 
-int main(){
-	try{
-		*(int*)0=0;
-	}catch(exception& e){
-		cerr<<"Exception Segment Fault cathced :"<<e.what()<<endl;
-	}
-	return 0;
+int main() {
+    try {
+        *(int *)0 = 0;
+    } catch(exception & e) {
+        cerr << "Exception Segment Fault cathced :" << e.what() << endl;
+    }
+    return 0;
 }
