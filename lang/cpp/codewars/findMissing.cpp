@@ -19,16 +19,14 @@ static long findMissing(vector < long > list) {
 }
 
 // below test code
-string toString(vector < long > list) {
+string show(vector < long > list) {
     ostringstream oss;
     oss << "[";
-    bool first = true;
-    for (auto i: list) {
-        if (!first) {
+    for (size_t i = 0; i != list.size(); i++) {
+        if (i != 0) {
             oss << ", ";
         }
-        first = false;
-        oss << i;
+        oss << list[i];
     }
     oss << "]";
 
@@ -38,7 +36,7 @@ string toString(vector < long > list) {
 bool test_findMissing(vector < long > list, long expect) {
     auto r = expect == findMissing(list);
     string rs = r ? "==" : "!=";
-    cout << "findMissing(" << toString(list) << ") " << rs << " " << expect << endl;
+    cout << "findMissing(" << show(list) << ") " << rs << " " << expect << endl;
     return r;
 }
 
@@ -48,28 +46,14 @@ bool test_reversed(vector < long > list, long expect) {
     return test_findMissing(list, expect) && test_findMissing(rev, expect);
 }
 
-bool test_execpt() {
+bool test_execpt(vector < long > list) {
     try {
-        vector < long > list0 {0, 1};
-        findMissing(list0);
+        findMissing(list);
     } catch(char const *s) {
-        cerr << "Except: " << s << endl;
+        cerr << "Except: " << s << ", when handle " << show(list) << endl;
+        return true;
     }
-
-    try {
-        vector < long > list0 {0, 0, 0};
-        findMissing(list0);
-    } catch(char const *s) {
-        cerr << "Except: " << s << endl;
-    }
-
-    try {
-        vector < long > list0 {1, 2, 3};
-        findMissing(list0);
-    } catch(char const *s) {
-        cerr << "Except: " << s << endl;
-    }
-    return true;
+    return false;
 }
 
 int main() {
@@ -78,6 +62,9 @@ int main() {
     vector < long > list1 {1, 3, 4};
     test_reversed(list1, 2);
 
-    test_execpt();
+    vector < long > list2 {0, 1}, list3 {1, 2, 3}, list4 {0, 0, 0};
+    test_execpt(list2);
+    test_execpt(list3);
+    test_execpt(list4);
     return 0;
 }
