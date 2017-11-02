@@ -47,8 +47,9 @@ char *add_in(char *a, char *b) {
     size_t m = max(la, lb);
     char *c = malloc(sizeof(char) * (m + 2));
     size_t i;
-    int carry, v0, v1, v;
+    int carry;
     for (i = 0, carry = 0; i != m; i++) {
+        int v, v0, v1;
         v0 = i < la ? char2digit(a[i]) : 0;
         v1 = i < lb ? char2digit(b[i]) : 0;
         v = carry + v0 + v1;
@@ -65,9 +66,9 @@ char *add_in(char *a, char *b) {
 char *muls_in(char a, char *b) {
     size_t l = strlen(b), i;
     char *c = malloc(sizeof(char) * (l + 2));
-    int carry, v, va = char2digit(a);
+    int carry, va = char2digit(a);
     for (i = 0, carry = 0; i != l; i++) {
-        v = carry + va * char2digit(b[i]);
+        int v = carry + va * char2digit(b[i]);
         carry = v / 10;
         c[i] = digit2char(v % 10);
     }
@@ -78,7 +79,7 @@ char *muls_in(char a, char *b) {
     return c;
 }
 
-char *shift(char *s, size_t n) {
+char *shift_in(char *s, size_t n) {
     char *r = malloc(strlen(s) + n + 1);
     size_t i;
     for (i = 0; i != n; i++) {
@@ -92,8 +93,10 @@ char *multiply_in(char *a, char *b) {
     size_t i, l = strlen(a);
     char *sum = strdup("");
     for (i = 0; i != l; i++) {
+        // (a[0] + .. + a[i] * 10 ^ i + ..) * b
+        // = a[0] * b + .. + a[i] * b * 10 ^ i + ..
         char *s0 = muls_in(a[i], b);
-        char *s1 = shift(s0, i);
+        char *s1 = shift_in(s0, i);
         char *s2 = add_in(sum, s1);
         free(s0);
         free(s1);
@@ -104,10 +107,9 @@ char *multiply_in(char *a, char *b) {
 }
 
 char *funcOnString(char *(f)(char *, char *), char *a, char *b) {
-    a = reverse(skipZeros(a));
-    b = reverse(skipZeros(b));
-    char *c = f(a, b);
-    return checkZero(reverse(c));
+    // haskell style :)
+    // (checkZero . reverse) .: f `on` (reverse . skipZeros)
+    return checkZero(reverse(f(reverse(skipZeros(a)), reverse(skipZeros(b)))));
 }
 
 char *add(char *a, char *b) {
@@ -118,8 +120,18 @@ char *muls(char a, char *b) {
     return checkZero(reverse(muls_in(a, reverse(skipZeros(b)))));
 }
 
-char *multiply(char *a, char *b) {
+char *multiply_wrap(char *a, char *b) {
     return funcOnString(multiply_in, a, b);
+}
+
+char *multiply(char *a, char *b) {
+    // to accept string in static segment, duplicate it in enterance of code
+    a = strdup(a);
+    b = strdup(b);
+    char *c = multiply_wrap(a, b);
+    free(a);
+    free(b);
+    return c;
 }
 
 // test code
@@ -138,12 +150,20 @@ bool unit_add(const char *a, const char *b, const char *expect) {
     return r;
 }
 
+bool test_func_commutative(bool (f)(const char *, const char *, const char *),
+                           const char *a, const char *b, const char *expect) {
+    if (strcmp(a, b) == 0) {
+        return f(a, b, expect);
+    } else {
+        return f(a, b, expect) && f(b, a, expect);
+    }
+}
+
 bool test_add() {
-    unit_add("12", "3", "15");
-    unit_add("56", "789", "845");
-    unit_add("2", "0", "2");
-    unit_add("0", "2", "2");
-    unit_add("0", "0", "0");
+    test_func_commutative(unit_add, "12", "3", "15");
+    test_func_commutative(unit_add, "56", "789", "845");
+    test_func_commutative(unit_add, "2", "0", "2");
+    test_func_commutative(unit_add, "0", "0", "0");
     return true;
 }
 
@@ -175,21 +195,22 @@ bool unit_mul(const char *a, const char *b, const char *expect) {
 }
 
 bool test_mul() {
-    unit_mul("123", "456", "56088");
-    unit_mul("1234567890", "1234567890", "1524157875019052100");
-    unit_mul("2", "3", "6");
-    unit_mul("30", "69", "2070");
-    unit_mul("11", "85", "935");
-    unit_mul("2", "0", "0");
-    unit_mul("0", "30", "0");
-    unit_mul("0000001", "3", "3");
-    unit_mul("1009", "03", "3027");
-    unit_mul("98765", "56894", "5619135910");
-    unit_mul("1020303004875647366210", "2774537626200857473632627613",
-             "2830869077153280552556547081187254342445169156730");
-    unit_mul("58608473622772837728372827", "7586374672263726736374",
-             "444625839871840560024489175424316205566214109298");
-    unit_mul("9007199254740991", "9007199254740991", "81129638414606663681390495662081");
+    test_func_commutative(unit_mul, "123", "456", "56088");
+    test_func_commutative(unit_mul, "1234567890", "1234567890", "1524157875019052100");
+    test_func_commutative(unit_mul, "2", "3", "6");
+    test_func_commutative(unit_mul, "30", "69", "2070");
+    test_func_commutative(unit_mul, "11", "85", "935");
+    test_func_commutative(unit_mul, "2", "0", "0");
+    test_func_commutative(unit_mul, "0", "30", "0");
+    test_func_commutative(unit_mul, "0000001", "3", "3");
+    test_func_commutative(unit_mul, "1009", "03", "3027");
+    test_func_commutative(unit_mul, "98765", "56894", "5619135910");
+    test_func_commutative(unit_mul, "1020303004875647366210", "2774537626200857473632627613",
+                          "2830869077153280552556547081187254342445169156730");
+    test_func_commutative(unit_mul, "58608473622772837728372827", "7586374672263726736374",
+                          "444625839871840560024489175424316205566214109298");
+    test_func_commutative(unit_mul, "9007199254740991", "9007199254740991",
+                          "81129638414606663681390495662081");
     return true;
 }
 
