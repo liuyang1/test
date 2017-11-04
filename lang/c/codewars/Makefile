@@ -7,7 +7,7 @@ check: a.out
 	valgrind ./a.out --leak-check=full
 
 a.out: $(SRC)
-	gcc $(SRC) -Wall -Werror -g
+	clang $(SRC) -Wall -Werror -g
 
 clean:
 	rm -rf a.out core vgcore*

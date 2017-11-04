@@ -8,7 +8,6 @@
 
 // #define LOG printf
 #define LOG(...)
-const char validCharTbl[] = "+-<>,.[]";
 
 bool any(char c, const char *p) {
     bool r = false;
@@ -21,54 +20,62 @@ bool any(char c, const char *p) {
 void omit(char *in) {
     int i, j;
     for (i = j = 0; in[i] != '\0'; i++) {
-        if (any(in[i], validCharTbl)) {
+        if (any(in[i],  "+-<>,.[]")) {
             in[j++] = in[i];
         }
     }
     in[j] = '\0';
 }
 
-bool pair(char a, char b, char x, char y) {
+bool bipair(char a, char b, char x, char y) {
     return (a == x && b == y) || (a == y && b == x);
 }
 
 // no change: return false; change, reutrn true;
-bool reduceOne(char *in) {
+bool reduce(char *in) {
     bool ret = false;
     if (strlen(in) <= 1) {
         return ret;
     }
-    char *out = in;
-    int i, j = 0;
-    for (i = 0; in[i] != '\0' && in[i + 1] != '\0'; i++) {
-        if ((pair(in[i], in[i + 1], '+', '-')) ||
-            (pair(in[i], in[i + 1], '<', '>')) ||
-            (in[i] == '[' && in[i + 1] == ']')) {
-            i++;
+    int i, j = 0, cnt = 0;
+    char last = 0;
+    for (i = 0; in[i] != '\0'; i++) {
+        if (bipair(in[i], last, '+', '-') ||
+            bipair(in[i], last, '<', '>') ||
+            (last == '[' && in[i] == ']')) {
             ret = true;
+            j--;
+            cnt--;
+            // LOG("dec  char=%c to %d\n", last, cnt);
+            if (cnt == 0) {
+                last = 0;
+            }
         } else {
-            out[j++] = in[i];
+            in[j++] = in[i];
+            if (last == in[i]) {
+                cnt++;
+                // LOG("inc  char=%c to %d\n", last, cnt);
+            } else if (any(in[i], "+-<>[")) {
+                // LOG("find char=%c\n", in[i]);
+                last = in[i];
+                cnt = 1;
+            } else {
+                // LOG("reset last\n");
+                last = 0;
+            }
         }
     }
-    if (in[i]) {
-        out[j++] = in[i]; // save last char
-    }
-    out[j] = '\0';
+    in[j] = '\0';
     return ret;
-}
-
-char *reduce(char *in) {
-    while (reduceOne(in)) {
-    }
-    return in;
 }
 
 char *opt(const char *in) {
     char *s = strdup(in);
     omit(s);
     LOG("after omit: %s\n", s);
-    char *out = reduce(s);
-    return out;
+    reduce(s);
+    LOG("after reduce: %s\n", s);
+    return s;
 }
 
 bool validBracket(const char *in) {
@@ -106,7 +113,7 @@ bool validBracket(const char *in) {
 }
 
 char *translate(char *in) {
-    size_t OUTLEN = 128;
+    size_t OUTLEN = 40960;
     char *out = malloc(sizeof(char) * OUTLEN);
     out[0] = '\0';
     size_t offset = 0;
@@ -210,7 +217,6 @@ bool unit_translate(const char *in, const char *expect) {
 }
 
 int test_translate() {
-    // unit_translate("+++++[>++++.<-]", "");
     unit_translate("++++", "*p += 4;\n");
     unit_translate("----", "*p -= 4;\n");
     unit_translate(">>>>", "p += 4;\n");
@@ -238,8 +244,56 @@ int test_memory() {
     return 0;
 }
 
+int one_perf() {
+    int len = 4096 * 10;
+    char *s = malloc(sizeof(char) *  (len + 1));
+    int i;
+    for (i = 0; i != len / 2; i++) {
+        s[i] = '+';
+    }
+    for (; i != len; i++) {
+        s[i] = '-';
+    }
+    s[i] = '\0';
+    unit_translate(s, "");
+    char *ret = brainfuck_to_c(s);
+    printf("result: \"%s\"\n", ret);
+    free(ret);
+    free(s);
+    return 0;
+}
+
+int stack_perf() {
+    int len = 40;
+    char *s = malloc(sizeof(char) * (len + 1));
+    int i;
+    for (i = 0; i != len / 4;) {
+        s[i++] = '+';
+        s[i++] = '<';
+    }
+    for (; i != len / 2; ) {
+        s[i++] = '>';
+        s[i++] = '-';
+    }
+    s[i] = '\0';
+
+    char *ret = brainfuck_to_c(s);
+    printf("result: \"%s\"\n", ret);
+    free(ret);
+
+    free(s);
+    return 0;
+}
+
+int test_perf() {
+    one_perf();
+    // stack_perf();
+    return 0;
+}
+
 int main() {
     test_opt();
+    test_perf();
     test_valid();
     test_translate();
     test_memory();
