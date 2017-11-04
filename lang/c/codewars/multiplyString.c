@@ -135,6 +135,7 @@ char *multiply(char *a, char *b) {
 }
 
 // test code
+#ifndef INCLUDED
 char *symbol(bool r) {
     return r ? "==" : "/=";
 }
@@ -220,3 +221,4 @@ int main() {
     test_mul();
     return 0;
 }
+#endif
