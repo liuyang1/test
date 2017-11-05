@@ -1,10 +1,10 @@
-SRC=brainfuck_to_c.c
+SRC=divideString.c
 run: a.out
 	./a.out
 
 check: a.out
 	cppcheck $(SRC)
-	valgrind ./a.out --leak-check=full
+	valgrind --leak-check=full ./a.out
 
 a.out: $(SRC)
 	clang $(SRC) -Wall -Werror -g
