@@ -1,4 +1,4 @@
-SRC=divideString.c
+SRC=sqrtString.c
 run: a.out
 	./a.out
 

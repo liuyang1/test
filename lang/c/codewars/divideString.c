@@ -3,9 +3,9 @@
 #include <string.h>
 #include <assert.h>
 
-#define INCLUDED
+#define INCLUDED_MULTIPLYSTRING
 #include "multiplyString.c"
-#undef INCLUDED
+#undef INCLUDED_MULTIPLYSTRING
 
 int sign(int n) {
     return (n > 0) - (n < 0);
@@ -92,6 +92,7 @@ char **divide_strings(char *a, char *b) {
     return bp;
 }
 
+#ifndef INCLUDED_DIVIDESTRING
 /*************************  TEST CODE  ***************************************/
 
 bool unit_compare(char *a, char *b, int expect) {
@@ -169,3 +170,4 @@ int main() {
     test_divide();
     return 0;
 }
+#endif

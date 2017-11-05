@@ -113,7 +113,12 @@ char *funcOnString(char *(f)(char *, char *), char *a, char *b) {
 }
 
 char *add(char *a, char *b) {
-    return funcOnString(add_in, a, b);
+    a = strdup(a);
+    b = strdup(b);
+    char *c = funcOnString(add_in, a, b);
+    free(a);
+    free(b);
+    return c;
 }
 
 char *muls(char a, char *b) {
@@ -135,7 +140,25 @@ char *multiply(char *a, char *b) {
 }
 
 // test code
-#ifndef INCLUDED
+#ifndef INCLUDED_MULTIPLYSTRING
+
+bool unit_reverse(char *a, char *expect) {
+    a = strdup(a);
+    char *ret = reverse(a);
+    bool r = strcmp(ret, expect) == 0;
+    printf("reverse(%s) = %s %s\n", a, ret, expect);
+    free(a);
+    return r;
+}
+
+int test_reverse() {
+    unit_reverse("", "");
+    unit_reverse("1", "1");
+    unit_reverse("12", "21");
+    unit_reverse("123", "321");
+    unit_reverse("1234", "4321");
+    return 0;
+}
 char *symbol(bool r) {
     return r ? "==" : "/=";
 }
@@ -216,9 +239,9 @@ bool test_mul() {
 }
 
 int main() {
+    test_reverse();
     test_add();
     test_muls();
     test_mul();
-    return 0;
 }
 #endif
