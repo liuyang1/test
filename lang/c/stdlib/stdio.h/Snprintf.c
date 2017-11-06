@@ -8,10 +8,16 @@ typedef struct sct {
 int main(int argc, char *argv[])
 {
     sct_t *p = malloc(sizeof(sct_t));
-    if (p) {
-        snprintf(p->s, LEN, "EventQ/%d", 15);
-        puts(p->s);
-        free(p);
+    if (!p) {
+        perror("cannot allocate memory\n");
+        return -1;
     }
+    int n = snprintf(p->s, LEN, "EventQ/%d", 15);
+    printf("return n=%d\n", n);
+    if (n > LEN) {
+        printf("truncated output\n");
+    }
+    puts(p->s);
+    free(p);
     return 0;
 }
