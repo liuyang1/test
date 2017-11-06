@@ -10,7 +10,7 @@
 #include <stdbool.h>
 
 // is 0x00 in this int32_t.
-// with this function, we could search string by sizeof(int) one step, 
+// with this function, we could search string by sizeof(int) one step,
 // instead of one char per step as naive style.
 bool isZeroByte(int32_t v) {
     int32_t a = v + 0x7efefeff; // add magic
@@ -20,13 +20,13 @@ bool isZeroByte(int32_t v) {
 }
 
 #define showBool(b) (b ? "true" : "false")
-#define CHECK_BOOL_EQ(a_, b_) {                                                 \
-        bool a = a_, b = b_;                                                    \
-        printf("%s(%s) != %s(%s) %s\n",                                         \
-               # a_, showBool(a), # b_, showBool(b), a == b ? "SUCC" : "FAIL"); \
-        if (a != b) {                                                           \
-            return false;                                                       \
-        }                                                                       \
+#define CHECK_BOOL_EQ(a_, b_) {                                    \
+        bool a = a_, b = b_;                                       \
+        printf("%s ?= %s = %s %s\n",                               \
+               # a_, # b_, showBool(b), a == b ? "SUCC" : "FAIL"); \
+        if (a != b) {                                              \
+            return false;                                          \
+        }                                                          \
 }
 int main() {
     CHECK_BOOL_EQ(true, isZeroByte(0x31006261));
