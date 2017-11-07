@@ -43,5 +43,4 @@ static inline bool eqDouble(double x, double y) {
     return fabs(2 * (x - y) / (x + y)) < 0.001;
 }
 
-
 #endif

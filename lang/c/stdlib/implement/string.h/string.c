@@ -1,4 +1,4 @@
-#include "../kr.h"
+#include "kr.h"
 #define STRLEN      1024
 
 // 5.3
@@ -148,5 +148,29 @@ int main() {
     test_strend();
     test_strncpy();
     test_strncmp();
+    return 0;
+}
+
+char *strdup_p(const char *s) {
+    char *q, *p = malloc(sizeof(char) * (strlen(s) + 1));
+    for (q = p; *s != '\0'; q++, p++) {
+        *q = *s;
+    }
+    *q = '\0';
+    return p;
+}
+
+char *strndup_p(const char *s, size_t n) {
+    size_t slen = strlen(s);
+    int len = slen < n ? slen : n;
+    char *q, *p = malloc(sizeof(char) * (len + 1));
+    for (q = p; *s != '\0' && q - p != len; q++, p++) {
+        *q = *s;
+    }
+    *q = '\0';
+    return p;
+}
+
+int unit_strdup(const char *s) {
     return 0;
 }

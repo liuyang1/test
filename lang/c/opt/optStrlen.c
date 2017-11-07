@@ -10,7 +10,7 @@
 #include <stdbool.h>
 
 // is 0x00 in this int32_t.
-// with this function, we could search string by sizeof(int) one step,
+// with this function, we could search string by sizeof(int) per step,
 // instead of one char per step as naive style.
 bool isZeroByte(int32_t v) {
     int32_t a = v + 0x7efefeff; // add magic
