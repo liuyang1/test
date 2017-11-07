@@ -44,8 +44,8 @@ int test_strncat() {
                        strncat_p(t0, b, n); strncat(t1, b, n);  \
                        printf("strncat(\"%s\", \"%s\", %d) => " \
                               "\"%s\" ?= \"%s\" %s\n",          \
-                              a, b, n,                          \
-                              t0, t1, expect(strcmp(t0, t1) == 0)); }
+                              a, b, n, t0, t1,                  \
+                              expect(strcmp(t0, t1) == 0)); }
     CASE("hello", "world!", 4);
     CASE("hello", "world!", 7);
     CASE("hello", "world!", 10);
@@ -101,12 +101,11 @@ char *strncpy_p(char *dst, const char *src, size_t n) {
 
 int test_strncpy() {
 #undef CASE
-#define CASE(b, n) {char t0[STRLEN] = {0}, t1[STRLEN] = {0}; \
-                    strncpy_p(t0, b, n); strncpy(t1, b, n);  \
-                    printf("strncpy(\"%s\", %d) => "         \
-                           "\"%s\" ?= \"%s\" %s\n",          \
-                           b, n,                             \
-                           t0, t1, expect(strcmp(t0, t1) == 0)); }
+#define CASE(b, n) {char t0[STRLEN] = {0}, t1[STRLEN] = {0};               \
+                    strncpy_p(t0, b, n); strncpy(t1, b, n);                \
+                    printf("strncpy(\"%s\", %d) => \"%s\" ?= \"%s\" %s\n", \
+                           b, n, t0, t1,                                   \
+                           expect(strcmp(t0, t1) == 0)); }
     CASE("world!", 4);
     CASE("world!", 7);
     CASE("world!", 10);
@@ -142,18 +141,12 @@ int test_strncmp() {
     return 0;
 }
 
-int main() {
-    test_strcat();
-    test_strncat();
-    test_strend();
-    test_strncpy();
-    test_strncmp();
-    return 0;
-}
-
 char *strdup_p(const char *s) {
     char *q, *p = malloc(sizeof(char) * (strlen(s) + 1));
-    for (q = p; *s != '\0'; q++, p++) {
+    if (p == NULL) {
+        return NULL;
+    }
+    for (q = p; *s != '\0'; q++, s++) {
         *q = *s;
     }
     *q = '\0';
@@ -164,13 +157,58 @@ char *strndup_p(const char *s, size_t n) {
     size_t slen = strlen(s);
     int len = slen < n ? slen : n;
     char *q, *p = malloc(sizeof(char) * (len + 1));
-    for (q = p; *s != '\0' && q - p != len; q++, p++) {
+    if (p == NULL) {
+        return NULL;
+    }
+    for (q = p; *s != '\0' && q - p != len; q++, s++) {
         *q = *s;
     }
     *q = '\0';
     return p;
 }
 
-int unit_strdup(const char *s) {
+bool unit_strdup(const char *s) {
+    char *r = strdup_p(s);
+    char *e = strdup(s);
+    bool ret = strcmp(r, e) == 0;
+    printf("strdup(%s) = %s ? = %s %s\n", s, r, e, expect(ret));
+    free(r);
+    free(e);
+    return ret;
+}
+
+bool unit_strndup(const char *s, int n) {
+    char *r = strndup_p(s, n);
+    char *e = strndup(s, n);
+    bool ret = strcmp(r, e) == 0;
+    printf("strndup(%s, %d) = %s ? %s %s\n", s, n, r, e, expect(ret));
+    free(r);
+    free(e);
+    return ret;
+}
+
+int test_strdup() {
+    unit_strdup("Hello, World!");
+    unit_strdup("");
+    return 0;
+}
+
+int test_strndup() {
+    const char s[] = "Hello, World!";
+    int len = strlen(s);
+    for (int i = 0; i != len + 1; i++) {
+        unit_strndup("Hello, World!", i);
+    }
+    return 0;
+}
+
+int main() {
+    test_strcat();
+    test_strncat();
+    test_strend();
+    test_strncpy();
+    test_strncmp();
+    test_strdup();
+    test_strndup();
     return 0;
 }

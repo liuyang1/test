@@ -5,7 +5,7 @@ DST=a.out
 INC=-I $(TOP)/lang/c/KR
 
 a.out: $(SRC)
-	@gcc -Wall -Werror $(INC) $^ $>
+	@gcc -Wall -Werror -g $(INC) $^ $>
 	@echo CC $^
 
 run: $(DST)
@@ -16,4 +16,4 @@ check: $(DST)
 	valgrind ./$(DST)
 
 clean:
-	rm -rf $(DST)
+	rm -rf $(DST) *.o core* vgcore*
