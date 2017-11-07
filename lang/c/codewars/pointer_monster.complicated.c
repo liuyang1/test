@@ -1,25 +1,20 @@
 #include <stdio.h>
 
-// Sorry, using "typedef" is considered cheat code.
 char a[4][7] = {"Common", "Point", "Boost", "Better"};
-typedef char FixedStr[7];
 
-FixedStr *b[4] = {a + 3, a + 1, a, a + 2};
-typedef FixedStr *FixedStrArr[4];
+char (*b[4])[7] = {a + 3, a + 1, a, a + 2};
 
-FixedStrArr *c(void) {
+char (*(*c(void))[4])[7] {
     return &b;
 }
 
-FixedStr **d(void) {
+char (**d(void))[7] {
     return c()[1] - 3;
 }
 
 char buf[256];
 
-typedef FixedStr **(Func)(void);
-
-char *pointer_monster(Func f)
+char *pointer_monster(char (**f(void))[7])
 {
     int len;
 
