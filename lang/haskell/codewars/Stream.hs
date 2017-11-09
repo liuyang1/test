@@ -58,6 +58,9 @@ filterS p (x :> xs)
     | p x = x :> filterS p xs
     | otherwise = filterS p xs
 
+mapS :: (a -> b) -> Stream a -> Stream b
+mapS f (x :> s) = f x :> mapS f s
+
 -- | Take a given amount of elements from a stream.
 takeS :: Int -> Stream a -> [a]
 takeS i (x :> xs)
@@ -101,3 +104,14 @@ fibS = 0 :> 1:> zipWithS (+) fibS (tailS fibS)
 primeS :: Stream Integer
 primeS = sieve (fromS 2)
     where sieve (x :> xs) = x :> sieve (filterS (\i -> i `mod` x /= 0) xs)
+
+factorFreq n p
+    | n `mod` p /= 0 = 0
+    | otherwise = 1 + factorFreq (n `div` p) p
+
+-- 质数质数表示法
+primeFactorS :: Integer -> Stream Integer
+-- primeFactorS n = mapS (factorFreq n) primeS
+primeFactorS n = mapS (factorFreq n) primeS
+
+a = takeS 10 $ primeFactorS 112
