@@ -11,7 +11,7 @@ int sign(int n) {
     return (n > 0) - (n < 0);
 }
 
-int compare(char *a, char *b) {
+int compare_in(char *a, char *b) {
     int i, last = 0;
     for (i = 0;; i++) {
         if (a[i] == '\0' && b[i] != '\0') {
@@ -29,8 +29,17 @@ int compare(char *a, char *b) {
     }
 }
 
+int compare(char *a, char *b) {
+    char *na = strdup(a);
+    char *nb = strdup(b);
+    int cmp = compare_in(reverse(skipZeros(na)), reverse(skipZeros(nb)));
+    free(na);
+    free(nb);
+    return cmp;
+}
+
 char *sub_in(char *x, char *y) {
-    assert(compare(x, y) >= 0);
+    assert(compare_in(x, y) >= 0);
     size_t ly = strlen(y);
     char *c = malloc(sizeof(char) * (strlen(x) + 1));
     size_t i;
@@ -58,7 +67,7 @@ char *sub_in(char *x, char *y) {
 char **divide_strings_in(char *x, char *y) {
     char *y2 = multiply_in("2", y);
     char **r;
-    if (compare(x, y2) >= 0) {
+    if (compare_in(x, y2) >= 0) {
         r = divide_strings_in(x, y2);
         char *a = multiply_in("2", r[0]);
         free(r[0]);
@@ -68,7 +77,7 @@ char **divide_strings_in(char *x, char *y) {
         r[0] = strdup("");
         r[1] = strdup(x);
     }
-    if (compare(r[1], y) >= 0) {
+    if (compare_in(r[1], y) >= 0) {
         char *a = add_in(r[0], "1");
         char *b = sub_in(r[1], y);
         free(r[0]);
@@ -110,13 +119,15 @@ bool unit_rev_commutative(char *a, char *b, int expect) {
     return unit_compare(a, b, expect) && unit_compare(b, a, -1 * expect);
 }
 
-int test_compare() {
+int test_compare_in() {
+    unit_rev_commutative("00", "0", 0);
+    unit_rev_commutative("00", "9", -1);
     unit_rev_commutative("1", "2", -1);
     unit_rev_commutative("1", "1", 0);
-    unit_rev_commutative("01", "2", 1);
+    unit_rev_commutative("10", "2", 1);
     unit_rev_commutative("1234", "1234", 0);
-    unit_rev_commutative("21", "01", 1);
-    unit_rev_commutative("21", "12", -1);
+    unit_rev_commutative("12", "10", 1);
+    unit_rev_commutative("12", "21", -1);
     return 0;
 }
 
@@ -166,7 +177,7 @@ int test_divide() {
 
 int main() {
     test_sub_in();
-    test_compare();
+    test_compare_in();
     test_divide();
     return 0;
 }

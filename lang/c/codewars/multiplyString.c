@@ -106,6 +106,10 @@ char *multiply_in(char *a, char *b) {
     return sum;
 }
 
+/** 内部处理的格式为reverse(skipZeros(n)) 处理过后的数据
+ * 也就是没有前导的零符号（直接使用空字符表示0）
+ * 按照进位顺序排列的数字数组，该数组以'\0'为结束
+ */
 char *funcOnString(char *(f)(char *, char *), char *a, char *b) {
     // haskell style :)
     // (checkZero . reverse) .: f `on` (reverse . skipZeros)
