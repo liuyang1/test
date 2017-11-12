@@ -36,12 +36,12 @@ endif
 -include $(OBJS:.o=.d)
 
 %.o: %.c
-	@echo "CC \t$*.c"
+	@echo "CC $*.c"
 	@gcc -c  $(CFLAGS) $*.c -o $*.o
 	@gcc -MM $(CFLAGS) $*.c >  $*.d
 
 %.o: %.cpp
-	@echo "C++ \t$*.cpp"
+	@echo "C++ $*.cpp"
 	@g++ -c $(CPPFLAGS) $*.cpp -o $*.o
 	@g++ -MM $(CPPFLAGS) $*.cpp > $*.d
 

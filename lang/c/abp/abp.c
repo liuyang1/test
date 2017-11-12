@@ -160,14 +160,14 @@ typedef struct abp_st {
     void *pArg; // param to allocFn
     RecordTbl *pTbl;
     pthread_t thread;
-} ABP;
-
-typedef struct abp_st ABP;
+    int num;
+} abp_st;
 
 // internal funciton declaration
+void *allocRoutineI(void *arg);
 
-ABP *abp_create(int num, void *(allocFn)(void *), void *pArg) {
-    ABP *p = malloc(sizeof(ABP));
+ABP abp_create(int num, void *(allocFn)(void *), void *pArg) {
+    ABP p = malloc(sizeof(ABP[0]));
     if (p == NULL) {
         goto error0;
     }
@@ -177,22 +177,23 @@ ABP *abp_create(int num, void *(allocFn)(void *), void *pArg) {
     p->pTbl = rt_create(p->num);
     int ret = pthread_create(&p->thread, NULL, allocRoutineI, p->pArg);
     if (ret != 0) {
-        goto error;
+        goto error4;
+    }
     return p;
     void *retptr;
-// error4:
+error4:
     ret = pthread_join(p->thread, &retptr);
     free(p);
 error0:
     return NULL;
 }
 
-void abp_labelDestroy(ABP *p) {
+void abp_labelDestroy(ABP p) {
     assert(p != NULL);
 
 }
 
-void abp_waitDestory(ABP *p) {
+void abp_waitDestory(ABP p) {
     assert(p != NULL);
 }
 
