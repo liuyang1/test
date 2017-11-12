@@ -1,3 +1,8 @@
+/**
+ * CHANGES: 2017-11-12 improve stack implement;
+ *                     support unlimited stack depth
+ */
+#include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -8,19 +13,37 @@ typedef struct {
     int idx;
 } stack;
 
-void create(stack *p, int len) {
+/** stack whose element is char
+ */
+void *create(int len) {
+    stack *p = malloc(sizeof(stack));
     p->arr = malloc(sizeof(char) * len);
     p->len = len;
     p->idx = 0;
+    return p;
 }
 
 void destory(stack *p) {
     free(p->arr);
+    free(p);
+}
+
+void chkExtend(stack *p) {
+    if (p->idx == p->len) {
+        p->len *= 2;
+        void *np = realloc(p->arr, sizeof(char) * p->len);
+        if (np == NULL) {
+            perror("Out Of Memory\n");
+            abort();
+        }
+        p->arr = np;
+    }
 }
 
 void push(stack *p, char c) {
-    p->arr[p->idx++] = c;
+    chkExtend(p);
     assert(p->idx < p->len);
+    p->arr[p->idx++] = c;
 }
 
 char pop(stack *p) {
@@ -43,10 +66,9 @@ validBraces_ = null . foldr op []
           op x xs = x: xs
 */
 bool valid_braces(char *s) {
-    stack stk, *p = &stk;
-    create(p, 4096); // known issue: limit stack size
+    stack *p = create(2);
     for (; *s != '\0'; s++) {
-        char c = peek(&stk);
+        char c = peek(p);
         if ((*s == '}' && c == '{') ||
             (*s == ']' && c == '[') ||
             (*s == ')' && c == '(')) {
@@ -55,8 +77,9 @@ bool valid_braces(char *s) {
             push(p, *s);
         }
     }
+    bool ret = empty(p);
     destory(p);
-    return empty(p);
+    return ret;
 }
 
 // test code
@@ -81,6 +104,7 @@ int test() {
     unit("[([)", false);
     unit("())({}}{()][][", false);
     unit("({})[({})]", true);
+    unit("((((((((((((((((((((((()))))))))))))))))))))))", true);
     return 0;
 }
 
