@@ -9,7 +9,7 @@
 // #define LOG printf
 #define LOG(...)
 
-void reallocM(void *pp, int sz) {
+void reallocM(void *pp, size_t sz) {
     void *origin = *(void **)pp;
     void *p = origin;
     p = realloc(origin, sz);
@@ -17,7 +17,7 @@ void reallocM(void *pp, int sz) {
     if (p == NULL) {
         // when realloc fail, return p == NULL
         // directly p = realloc(p, sz); will memory leak
-        fprintf(stderr, "fail to extend buffer to %d", sz);
+        fprintf(stderr, "fail to extend buffer to %zd", sz);
         free(origin);
         abort();
     }
@@ -61,7 +61,8 @@ bool reduce(char *in) {
      */
     char *lastp = NULL;
     unsigned int *cntp = NULL;
-    int stkidx = -1, stklen = 0;
+    int stkidx = -1;
+    size_t stklen = 0;
     for (i = 0; in[i] != '\0'; i++) {
         if (stkidx >= 0 && (bipair(in[i], lastp[stkidx], '+', '-') ||
                             bipair(in[i], lastp[stkidx], '<', '>') ||
