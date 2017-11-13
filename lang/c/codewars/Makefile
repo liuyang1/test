@@ -1,4 +1,5 @@
-SRC=sqrtString.c
+SRC=Egy.c
+LIB=-lm
 run: a.out
 	./a.out
 
@@ -7,7 +8,7 @@ check: a.out
 	valgrind --leak-check=full ./a.out
 
 a.out: $(SRC)
-	clang $(SRC) -Wall -Werror -g
+	clang $(SRC) -Wall -Werror -g $(LIB)
 
 clean:
 	rm -rf a.out core vgcore*
