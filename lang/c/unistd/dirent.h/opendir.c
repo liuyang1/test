@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <time.h>
+#include <sys/types.h>
 #include <sys/stat.h>
 
 #define BUFLEN  128
@@ -16,7 +17,10 @@
 
 int createdir(char *dirname)
 {
-    if (mkdir(dirname, S_IRWXG | S_IRWXU) < 0) {
+    mode_t process_mask = umask(0);
+    int ret = mkdir(dirname, S_IRWXU | S_IRWXG | S_IRWXO);
+    umask(process_mask);
+    if (ret < 0) {
         perror("create dump dir fail\n");
         return 0;
     }
