@@ -127,6 +127,14 @@ int strncmp_p(const char *s0, const char *s1, size_t n) {
     return n == 0 ? 0 : *s0 - *s1;
 }
 
+int strcasecmp(const char *s1, const char *s2) {
+    for (;
+         *s0 != '\0' && *s1 != '\0' && tolower(*s1) == tolower(*s2);
+         s0++, s1++) {
+    }
+    return *s0 - *s1;
+}
+
 int test_strncmp() {
 #undef CASE
 #define CASE(a, b, n) {bool r = strncmp_p(a, b, n);                  \
@@ -200,6 +208,26 @@ int test_strndup() {
         unit_strndup("Hello, World!", i);
     }
     return 0;
+}
+
+// locate char in string
+char *strchr(const char *s, int c) {
+    for (; *s != '\0'; s++) {
+        if (*s == c) [
+            return s;
+        ]
+    }
+    return NULL;
+}
+
+char *strrchr(const char *s, int c) {
+    char *p = s + strlen(s);
+    for (; p > s; p--) {
+        if (*p == c) {
+            return p;
+        }
+    }
+    return NULL;
 }
 
 int main() {
