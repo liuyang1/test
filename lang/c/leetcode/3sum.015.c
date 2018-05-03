@@ -1,56 +1,16 @@
+/** Solution:
+ * Find (i, j, k), that nums[i] + nums[j] + nums[k] = 0 (0 < i < j < k < N)
+ * return non-duplicate [(nums[i], nums[j], nums[k]), ..]
+ * convert to:
+ * Find (j, k), that nums[j] +nums[k] = -nums[i] (j, k C- (i, N) )
+ *
+ * It's N times two-sum problem
+ *
+ * Complexity: O(N * logN + N * N) = O(N^2)
+ */
 #include "leet.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-// compare triplet
-// 1: GT; 0: EQ; -1: LT
-int cmpTri(const int *p0, const int *p1) {
-    int i, diff;
-    for (i = 0; i != 3; i++) {
-        diff = p0[i] - p1[i];
-        if (diff != 0) {
-            return diff;
-        }
-    }
-    return 0;
-}
-
-// binary search duplicate triplet
-// 1: find; 0: not find
-int findDup_bin(int **a, int size, int *p) {
-    int bgn, end, mid;
-    for (bgn = 0, end = size - 1; bgn <= end;) {
-        mid = (bgn + end) / 2;
-        int c = cmpTri(a[mid], p);
-        if (c == 0) {
-            return 1;
-        } else if (c < 0) {
-            bgn = mid + 1;
-        } else {
-            end = mid - 1;
-        }
-    }
-    return 0;
-}
-
-// search duplicate triplet from tail
-// for user case of this problem, a is sorted, and p >= a[-1],
-// just check if p == a[-1] is enough
-int findDup_tail(int **a, int size, int *p) {
-    int i;
-    for (i = size - 1; i >= 0; i--) {
-        int c = cmpTri(a[i], p);
-        if (c == 0) {
-            return 1;
-        } else if (c < 0) {
-            break;
-        } else if (c > 0) {
-            // should not here
-            continue;
-        }
-    }
-    return 0;
-}
 
 /**
  * Return an array of arrays of size *returnSize.
@@ -73,13 +33,10 @@ int **threeSum(int *nums, int numsSize, int *returnSize) {
                 p[0] = nums[i];
                 p[1] = nums[bgn];
                 p[2] = nums[end];
-                if (findDup_tail(ret, size, p)) {
-                    free(p);
-                } else {
-                    size++;
-                    reallocM(&ret, sizeof(int *) * size);
-                    ret[size - 1] = p;
-                }
+                // append result
+                size++;
+                reallocM(&ret, sizeof(int *) * size);
+                ret[size - 1] = p;
                 // continue to search next pair
                 // nums[bgn] + nums[end] = -nums[i];
                 bgn++;
@@ -90,9 +47,26 @@ int **threeSum(int *nums, int numsSize, int *returnSize) {
                 bgn++;
             }
         }
+        // skip duplicate nums[i]
+        while (nums[i] == nums[i + 1]) {
+            i++;
+        }
     }
     *returnSize = size;
     return ret;
+}
+
+// compare triplet
+// 1: GT; 0: EQ; -1: LT
+int cmpTri(const int *p0, const int *p1) {
+    int i, diff;
+    for (i = 0; i != 3; i++) {
+        diff = p0[i] - p1[i];
+        if (diff != 0) {
+            return diff;
+        }
+    }
+    return 0;
 }
 
 int test(int *nums, int numsSize) {
@@ -101,9 +75,16 @@ int test(int *nums, int numsSize) {
 
     printf(">>> ");
     showArr(nums, numsSize);
-    int i;
-    for (i = 0; i != size; i++) {
-        showArr(ret[i], 3);
+    showArr2(ret, size, 3);
+    int i, j;
+    for (i = 0; i != size - 1; i++) {
+        for (j = i + 1; j != size; j++) {
+            if (cmpTri(ret[i], ret[j]) == 0) {
+                printf("!!! find duplicate triplet\n");
+                showArr(ret[i], 3);
+                showArr(ret[j], 3);
+            }
+        }
     }
     printf("\n");
 

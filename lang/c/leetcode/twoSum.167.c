@@ -1,3 +1,8 @@
+/**
+ * same solution with twoSum.001.2.c
+ * but input data is sorted
+ */
+
 #include "leet.h"
 int *twoSum(int *n, int sz, int target, int *retsz) {
     int *ret = (int *)malloc(sizeof(int) * 2);

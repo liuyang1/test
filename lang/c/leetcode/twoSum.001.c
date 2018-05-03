@@ -1,5 +1,11 @@
+#include <stdlib.h>
+
 /**
- * Note: The returned array must be malloced, assume caller calls free().
+ * Note: The returned array must be malloced, assume caller calls free()
+ *
+ * Naive Solution:
+ * just enumerate {i, j} unordered pair, and try all sum
+ *
  * Complexity: O(numSize ^ 2)
  */
 

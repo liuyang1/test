@@ -1,8 +1,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 /**
- * Note: The returned array must be malloced, assume caller calls free().
+ * Note: The returned array must be malloced, assume caller calls free()
+ *
+ * Solution:
+ * - sort array
+ * - search from bottom and top same time, try to sum
+ *      if less, increase bottom
+ *      if greater, decrease top
+ *      if equal, output final result
+ *
  * Complexity: O(n * log(n))
+ * Actually, sort step is more complex than sum-step
  */
 
 typedef struct {

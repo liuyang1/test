@@ -1,3 +1,13 @@
+/** Solution:
+ * Find (i, j, k, l), that a[i] + a[j] + a[k] + a[l] = 0 (0 < i < j < k < l < N)
+ * return non-duplicate [(a[i], a[j], a[k], a[l]), ..]
+ * convert to:
+ * Find (k, l), that a[k] + a[l] = -a[i]-a[j] (k, l C- (j, N), i < j)
+ *
+ * It's N * N times two-sum problem
+ *
+ * Complexity: O(N * logN + N * N * N) = O(N^3)
+ */
 #include "leet.h"
 
 /**
@@ -39,7 +49,8 @@ int **fourSum(int *nums, int size, int target, int *rsize) {
                     ret[rs - 1] = p;
 
                     k = next(a, k, l);
-                    l--; // a[k] is must different, so a[l] must be different.
+                    l--; // a[k] is must different
+                         // so even move to same a[l], but will skip it
                 } else if (s < t) {
                     k = next(a, k, l);
                 } else {

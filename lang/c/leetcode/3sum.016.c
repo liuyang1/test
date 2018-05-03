@@ -1,3 +1,13 @@
+/** Solution:
+ * Find (i, j, k), that MIN(| nums[i] + nums[j] + nums[k] - C |) (0 < i < j < k < N)
+ * three-sum, find the closet one
+ * convert to:
+ * Find (j, k), than MIN(| nums[j] + nums[k] + (nums[i] - C) |) (j, k C- (i, N))
+ *
+ * It's N times two-sum problem
+ *
+ * Complexity: O(N * logN + N * N) = O(N^2)
+ */
 #include "leet.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,7 +32,7 @@ int threeSumClosest(int *nums, int numsSize, int target) {
             }
             if (sum == target) {
                 // find target, end loop
-                goto end;
+                return ret;
             } else if (sum > target) {
                 end--;
             } else {
@@ -30,7 +40,6 @@ int threeSumClosest(int *nums, int numsSize, int target) {
             }
         }
     }
-end:
     return ret;
 }
 
