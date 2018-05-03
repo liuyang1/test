@@ -1,10 +1,22 @@
+/**
+ * use +, -, >>, << to caculate divide
+ */
 #include <stdio.h>
 #include <limits.h>
 
-/** a = b * x + y
- * XXX: this function for a, b < 0 version
+/**
+ * - this function for a, b < 0 version
+ *   Why use negative number?
+ *      The signed integer number is [-2^k, 2^k-1], k = 31
+ *      so use [-2^k, 0] to represent all kinds
+ * - b != 0
+ *
+ * Keep this invarint
+ *     a = b * x + y
+ *     x .., y = a / b
+ *     x = divide_in(a, b, &y);
  */
-long int divide_in(long int a, long int b, long int *res) {
+long int divide_in(long int a, long int b, long int *py) {
     long int x = 0, y = a;
     if (a < b) {
         x = divide_in(a, b << 1, &y);
@@ -14,8 +26,8 @@ long int divide_in(long int a, long int b, long int *res) {
         x++;
         y -= b;
     }
-    if (res) {
-        *res = y;
+    if (py) {
+        *py = y;
     }
     return x;
 }
@@ -39,6 +51,7 @@ int divide(int dividend, int divisor) {
     if (dividend > 0 && divisor > 0) {
         return divide(-dividend, -divisor);
     } else if (dividend < 0 && divisor < 0) {
+        // directly skip in this case
     } else if (dividend < 0) {
         return -1 * divide(dividend, -divisor);
     } else {

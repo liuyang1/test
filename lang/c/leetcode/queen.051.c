@@ -84,7 +84,7 @@ void strBoard(char ***board, int *chosen, int n) {
 }
 
 /**
- * @brief recurse to search queen soltuion
+ * @brief recurse to search queen solution
  *
  * @param r          OUT arr of queen string arr, size is (N + 1) * N * returnSize
  * @param returnSize OUT solution number

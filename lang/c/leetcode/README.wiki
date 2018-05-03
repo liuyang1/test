@@ -66,7 +66,7 @@ stored in reverse order.
     - clockwise assign value in grid
 
 * 51. N-Queens
-* 51. N-Queens II
+* 52. N-Queens II
 
     - recursion
 
