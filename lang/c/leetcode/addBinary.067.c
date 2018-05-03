@@ -1,3 +1,18 @@
+/**
+ * addBinary on bit string (no leading zero)
+ */
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+int char2digit(char c) {
+    return c - '0';
+}
+
+char digit2char(int c) {
+    return c + '0';
+}
+
 char *addBinary(char *a, char *b) {
     int alen = strlen(a);
     int blen = strlen(b);
@@ -5,19 +20,15 @@ char *addBinary(char *a, char *b) {
     char *r = malloc(sizeof(char) * rlen + 1);
     r[rlen] = '\0';
 
-    int i, j, k, carry;
+    int i, j, k, s, carry;
     for (i = alen - 1, j = blen - 1, k = rlen - 1, carry = 0;
          i >= 0 || j >= 0;
-         i--, j--, k--, carry /= 2) {
-        if (i >= 0) {
-            carry += a[i] - '0';
-        }
-        if (j >= 0) {
-            carry += b[j] - '0';
-        }
-        r[k] = carry % 2 + '0';
+         i--, j--, k--) {
+        s = (i >= 0) * char2digit(a[i]) + (j >= 0) * char2digit(b[j]) + carry;
+        r[k] = digit2char(s % 2);
+        carry = s / 2;
     }
-    r[0] = carry + '0';
+    r[0] = digit2char(carry);
 
     // remove extra leading zero, but keep it if only one zero
     for (i = 0; i != rlen; i++) {
@@ -43,7 +54,9 @@ char *addBinary(char *a, char *b) {
 int main()
 {
     CASE("0", "0", "0");
-    CASE("0001", "1000", "1001");
+    CASE("1", "1000", "1001");
+    CASE("1111", "1", "10000");
+    CASE("1111", "10001", "100000");
     CASE(
         "110010100000000000010111100111100101010010111101101100010001111101100110101011000110111111110000",
         "11000000001101110101000111110011100100100001110111011010001001",

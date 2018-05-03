@@ -1,5 +1,18 @@
+/**
+ * simple RE: regular expression matching
+ * support:
+ * - '.'    to match any single char
+ * - c'*'   char c, repeat zero or any times
+ * - c      match char c
+ *
+ * Solution:
+ * - create Pattern List
+ * - the key is to support ASTERISK to match zero or anytimes:
+ *      use recursive call to implement it.
+ */
 #include "leet.h"
 
+// use linked list to store pattern
 typedef struct pat_t {
     enum {
         RAWCHAR = 0,
@@ -74,13 +87,10 @@ bool matchPat(pat *p, char *s) {
         case ANYSINGLECHAR:
             return matchPat(p->next, s + 1);
         case ANYREPEATCHAR:
-            if (p->c == '.') {
-                return matchPat(p->next, s) || matchPat(p, s + 1);
-            } else {
-                return matchPat(p->next, s) || (p->c == *s && matchPat(p, s + 1));
-            }
+            return matchPat(p->next, s) ||
+                   ((p->c == '.' || p->c == *s) && matchPat(p, s + 1));
         default:
-            return true;
+            return false;
     }
 }
 
@@ -95,7 +105,7 @@ bool isMatch(char *s, char *p) {
 bool unit(char *s, char *p, bool e) {
     bool r = isMatch(s, p);
     bool ret = r == e;
-    printf("isMatch(%s, %s) == %s != %s %s\n",
+    printf("isMatch(%s, %s) == %s ?= %s >>> %s\n",
            s, p, SBOOL(r), SBOOL(e), expect(ret));
     return ret;
 }
