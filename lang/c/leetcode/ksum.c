@@ -10,12 +10,19 @@
  *
  * It's N ^ (k - 2) times two-sum problem
  *
- * COmplexity: O(n ^ (k - 1))
+ * Bias-optimization
+ * - if all potential combination is too big, so we don't need continue to check it
+ *
+ * Left-Right-optimzation
+ * - try to loop from left, then right, This is USELESS
+ *
+ * Complexity: O(n ^ (k - 1))
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 int next(int *nums, int size, int k) {
     do {
@@ -24,16 +31,23 @@ int next(int *nums, int size, int k) {
     return k;
 }
 
-int **ksum(int *nums, int size, int k, int target, int *rsize) {
+int **ksum(int *nums, int size, int k, int target, int *rsize, bool *pbias) {
     // sorted, assert k >= 2
     int **ret = NULL;
     int sz = 0;
+    if (pbias != NULL) {
+        *pbias = false;
+    }
     if (k > 2) {
         int i;
-        for (i = 0; i != size - k;) {
+        for (i = 0; i != size - k + 1;) {
             // recursion to k - 1 problem
             int rlen;
-            int **r = ksum(nums + i + 1, size - i - 1, k - 1, target - nums[i], &rlen);
+            bool bias;
+            int **r = ksum(nums + i + 1, size - i - 1, k - 1, target - nums[i], &rlen, &bias);
+            if (bias) {
+                break;
+            }
 
             // integrate with low level answer
             if (rlen != 0) {
@@ -50,7 +64,10 @@ int **ksum(int *nums, int size, int k, int target, int *rsize) {
                 sz += rlen;
             }
 
-            i = next(nums, size - k, i);
+            i = next(nums, size - k + 1, i);
+        }
+        if (pbias != NULL && sz == 0) {
+            *pbias = i != size - k +1;
         }
     } else if (k == 2) {
         int b, e, s;
@@ -72,6 +89,9 @@ int **ksum(int *nums, int size, int k, int target, int *rsize) {
                 e--;
             }
         }
+        if (pbias != NULL && sz == 0) {
+            *pbias = b == 0;
+        }
     }
     *rsize = sz;
     return ret;
@@ -83,10 +103,33 @@ int main() {
     int a[] = {-10, -4, -3, -2, -1, -1, 0, 0, 1, 2, 2, 3, 3, 4, 5};
     int k = 5;
     int rlen;
-    int **r = ksum(a, sizeof(a) / sizeof(a[0]), k, 0, &rlen);
+    int **r = ksum(a, sizeof(a) / sizeof(a[0]), k, 0, &rlen, NULL);
 
     showArr2(r, rlen, k);
+    printf("rlen=%d\n", rlen);
     int i;
+    // duplicate checking
+    int j, m, dupcnt = 0;
+    for (i = 0; i != rlen; i++) {
+        for (j = i + 1; j != rlen; j++) {
+            bool dup = true;
+            for (m = 0; m != k; m++) {
+                if (r[i][m] != r[j][m]) {
+                    dup = false;
+                    break;
+                }
+            }
+            if (dup) {
+                printf("%d:\t", i);
+                showArr(r[i], k);
+                printf("%d:\t", j);
+                showArr(r[j], k);
+                dupcnt++;
+            }
+        }
+    }
+    printf("dupcnt=%d\n", dupcnt);
+
     for (i = 0; i != rlen; i++) {
         free(r[i]);
     }
