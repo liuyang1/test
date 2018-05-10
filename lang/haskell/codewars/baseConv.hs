@@ -9,7 +9,7 @@ bin, oct, dec, hex, alphaLower, alphaUpper, alpha, alphaNumeric, base64 :: Alpha
 bin = Alphabet "01"
 oct = Alphabet ['0'..'7']
 dec = Alphabet ['0'..'9']
-hex = Alphabet ['0'..'9'] ++ ['a'..'f']
+hex = Alphabet $ ['0'..'9'] ++ ['a'..'f']
 alphaLower = Alphabet ['a'..'z']
 alphaUpper = Alphabet ['A'..'Z']
 alpha = Alphabet $ ['a'..'z'] ++ ['A'..'Z']

@@ -4,7 +4,7 @@ insertEvery :: t -> [t] -> [[t]]
 insertEvery x [] = [[x]]
 insertEvery x ys@(y: yt) = (x: ys) : map (y :) (insertEvery x yt)
 
-permutation = foldr (concatMap . insertEvery) [[]]
+-- permutation = foldr (concatMap . insertEvery) [[]]
 
 a = insertEvery <$> [0] <*> [[1, 2, 3]]
 
@@ -26,4 +26,4 @@ g = foldl (>>=) [[]] $ map insertEvery [0..2]
 
 perm n = foldl (>>=) [[]] $ map insertEvery [0..(n - 1)]
 
-main = print $ perm 4
+main = mapM_ print $ perm 4
