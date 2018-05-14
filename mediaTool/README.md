@@ -13,3 +13,9 @@ IVF is simple container for VP8, VP9 format.
 This tool use for parse IVF format.
 
     python ivf.py [ES filename]
+
+## peakbitrate.py
+
+based on `ffmpeg`, `ffprobe` to calculate peak bitrate
+
+    python peakbitrate.py [stream name]
