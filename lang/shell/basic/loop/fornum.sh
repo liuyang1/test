@@ -3,6 +3,16 @@ for i in 1 2; do
     echo $i
 done
 
+# compatible to old shell
+i=0
+while true; do
+    i=$((i+1))
+    echo "do test $i times"
+    if [ $i -eq 10 ]; then
+        break;
+    fi
+done
+
 # bash 3.0+
 for i in {1..3}; do
     echo $i
