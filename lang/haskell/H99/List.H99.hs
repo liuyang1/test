@@ -3,6 +3,8 @@ module List where
 
 import System.Random
 
+import Data.List (sortOn)
+
 myLast [] = undefined
 myLast [x] = x
 myLast (x:xs) = myLast xs
@@ -116,6 +118,33 @@ rndSelect xs n = (fmap (map (xs !!) . take n . randomRs (0, (length xs) - 1)) g)
 
 -- 26, combination
 combinations n xxs@(x:xs)
-  | n == 1 = map (: []) xs
   | n == length xxs = [xxs]
+  | n == 1 = map (: []) xxs
   | otherwise = map (x :) (combinations (n - 1) xs) ++ combinations n xs
+
+combinationExtra n xxs@(x:xs)
+  | n == length xxs = [(xxs, [])]
+  | n == 1 = map (\a -> ([a], filter (/= a) xxs)) xxs
+  | otherwise = map (\(a, b) -> (x:a, b)) (combinationExtra (n - 1) xs) ++
+                map (\(a, b) -> (a, x:b)) (combinationExtra n xs)
+
+-- 27. group
+-- Group the elements of a set into disjoint subsets.
+--
+-- a) In how many ways can a group of 9 people work in 3 disjoint subgroups of
+--      2, 3 and 4 persons? Write a function that generates all the
+--      possibilities and returns them in a list.
+-- b) Generalize the above predicate in a way that we can specify a list of
+--      group sizes and the predicate will return a list of groups.
+myGroup [n] xxs = map ((:[]) . fst) $ combinationExtra n xxs
+myGroup (n:ns) xxs = concatMap (\(a, b) -> map (a:) $ myGroup ns b) ys
+    where ys = combinationExtra n xxs
+
+-- 28. sort
+-- sort with length
+lsort :: [[a]] -> [[a]]
+lsort = sortOn length
+
+-- sort with length frequency
+lfsort :: [[a]] -> [[a]]
+lfsort xs = sortOn (\x -> length $ filter (\a -> length a == length x) xs) xs
