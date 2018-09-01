@@ -1,4 +1,45 @@
+# Strassen algo
+
+When matrix's size is greater than [4096, 4096], then Strassen algo is better than naive algo.
+
 # Exercise
+
+## 4.2.1
+
+skip
+
+## 4.2.2
+
+check mat_mul.c
+
+## 4.2.3
+
+padding with zeros
+
+## 4.2.4 How to improve 3x3 matrix calc?
+
+The naive method, use 3x3x3 = 27 times.
+
+TODO
+
+## 4.2.5 V.Pan
+
+check pan.py
+
+The best methold is 2nd.
+
+all are better than Strassen algo
+
+## 4.2.6 (kn,n) x (n,kn)
+
+(kn,n) x (n,kn)
+
+This result is (kn, kn). It need k^2 times (n, n) multiplication
+
+(n,nk) * (kn, n)
+
+The result is (n, n). It need k times (n, n) matrix multiplication
+
 
 ## 4.2.7 3-multiplication to evaluate (a+bi)(c+di)
 
@@ -37,6 +78,8 @@ We also could write mulplication algo with this Karatsuba's algo.
     This will help to avoid overflow issue
 
 #### Toom-Cook algo
+
+>>>  This part just extension with Karatsuba algo.
 
 It's kind of generalized Karatsuba algo. It split number to 3 sections but not only 2 sections.
 So we could improve 5/9 instead of 3/4.

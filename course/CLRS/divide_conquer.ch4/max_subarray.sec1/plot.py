@@ -1,4 +1,6 @@
 from pylab import *
+import sys
+fn = sys.argv[1]
 
 
 def loadData(f):
@@ -7,13 +9,15 @@ def loadData(f):
         lines = fp.read().split('\n')
         head = lines[0].split()
         for line in lines[1:]:
+            if len(line) == 0 or line[0] == '#':
+                break
             v = [int(i) for i in line.split()]
             if len(v) != 0:
                 lst.append(v)
         return head, zip(*lst)
 
 
-head, data = loadData("perf.txt")
+head, data = loadData(fn)
 x = data[0]
 ys = data[1:]
 
@@ -28,4 +32,4 @@ ylabel("time/us")
 legend(head[1:], loc='upper left')
 title("Algo time complexity")
 
-savefig('perf.png')
+savefig(fn + ".png")
