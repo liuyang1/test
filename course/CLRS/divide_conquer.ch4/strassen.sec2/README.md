@@ -61,6 +61,8 @@ so we could use Strassen's algo
     ad + bc = (ac + bc + ad + bd) - ac - bd
             = P1 - P2 - P3
 
+check complex.c
+
 ### extension reading
 
 This come from Karatsuba's algo/Guass.

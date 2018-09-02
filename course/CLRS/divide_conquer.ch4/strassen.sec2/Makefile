@@ -9,8 +9,11 @@ pg: mat_mul.c
 run: mat_mul
 	./mat_mul
 
+complex: complex.c
+	gcc complex.c -std=c99 -lm -o complex
+
 core:
 	gdb mat_mul core
 
 clean:
-	rm -rf *.o mat_mul *.out core
+	rm -rf *.o mat_mul *.out core complex
