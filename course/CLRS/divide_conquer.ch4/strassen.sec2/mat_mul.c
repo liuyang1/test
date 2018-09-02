@@ -5,6 +5,7 @@
 #include <assert.h>
 
 #include <sys/time.h>
+#include <pthread.h>
 
 typedef struct {
     int *p;
@@ -129,19 +130,44 @@ static void mat_halve(Mat A, Mat *A11, Mat *A12, Mat *A21, Mat *A22) {
     mat_init(A22, A.p, x1, y1, halfrow, halfcol, A.stride);
 }
 
+typedef struct {
+    Mat A, B, C;
+    void *f;
+    int depth;
+} Arg;
+void *mat_mul_async(void *arg) {
+    Arg *p = arg;
+    void (*fn)(Mat, Mat, Mat, void *, int) = p->f;
+    fn(p->A, p->B, p->C, p->f, p->depth + 1);
+    return arg;
+}
+
+static void *kall(pthread_t *thread,
+                  Mat A, Mat B, Mat C, void *f, int depth) {
+    Arg *arg = malloc(sizeof(Arg));
+    arg->A = A;
+    arg->B = B;
+    arg->C = C;
+    arg->f = f;
+    arg->depth = depth;
+    pthread_create(thread, NULL, mat_mul_async, arg);
+    return NULL;
+}
+
 // we need one extra buffer to store temp matrix
 // As the result C's memory is empty, actually we could reduce this number to 4.
 // But it will make code complex.
 #define M_NUM   8
 #define CHECK_SQUARE(A) assert(A.row == A.col)
-static void mat_mul_strassen_square_even(Mat A, Mat B, Mat C, void *f) {
+static void mat_mul_strassen_square_even(Mat A, Mat B, Mat C,
+                                         void *f, int depth) {
     CHECK_MAT_MUL(A, B, C);
     CHECK_SQUARE(A);
     CHECK_SQUARE(B);
     CHECK_SQUARE(C);
     assert(A.row % 2 == 0);
     int half = A.row / 2;
-    void (*fn)(Mat, Mat, Mat, void *) = f;
+    void (*fn)(Mat, Mat, Mat, void *, int) = f;
     Mat A11, A12, A21, A22;
     mat_halve(A, &A11, &A12, &A21, &A22);
     Mat B11, B12, B21, B22;
@@ -160,13 +186,38 @@ static void mat_mul_strassen_square_even(Mat A, Mat B, Mat C, void *f) {
     // mat_show(B11); mat_show(B12); mat_show(B21); mat_show(B22);
 
     // only need calling fn 7 times, but not 8 times
-    fn(mat_sub(A12, A22, M[0]), mat_add(B21, B22, M[1]), M[7], fn);
-    fn(mat_sub(A21, A11, M[0]), mat_add(B11, B12, M[1]), M[6], fn);
-    fn(mat_add(A11, A22, M[0]), mat_add(B11, B22, M[2]), M[1], fn);
-    fn(mat_add(A11, A12, M[0]), B22, M[5], fn);
-    fn(A22, mat_sub(B21, B11, M[0]), M[4], fn);
-    fn(A11, mat_sub(B12, B22, M[0]), M[3], fn);
-    fn(mat_add(A21, A22, M[0]), B11, M[2], fn);
+    if (depth == 0) {
+#define THREAD_NUM  3
+        pthread_t t[3];
+        void *pret;
+        kall(t, mat_sub(A12, A22, M[0]), mat_add(B21, B22, M[1]), M[7],
+             fn, depth);
+        kall(t + 1, mat_sub(A21, A11, M[0]), mat_add(B11, B12, M[1]), M[6],
+             fn, depth);
+        kall(t + 2, mat_add(A11, A22, M[0]), mat_add(B11, B22, M[2]), M[1],
+             fn, depth);
+        // leave this for main thread
+        fn(mat_add(A11, A12, M[0]), B22, M[5], fn, depth);
+        for (i = 0; i != THREAD_NUM; i++) {
+            pthread_join(t[i], &pret);
+            free(pret);
+        }
+        kall(t, A22, mat_sub(B21, B11, M[0]), M[4], fn, depth);
+        kall(t + 1, A11, mat_sub(B12, B22, M[0]), M[3], fn, depth);
+        kall(t + 2, mat_add(A21, A22, M[0]), B11, M[2], fn, depth);
+        for (i = 0; i != THREAD_NUM; i++) {
+            pthread_join(t[i], &pret);
+            free(pret);
+        }
+    } else {
+        fn(mat_sub(A12, A22, M[0]), mat_add(B21, B22, M[1]), M[7], fn, depth);
+        fn(mat_sub(A21, A11, M[0]), mat_add(B11, B12, M[1]), M[6], fn, depth);
+        fn(mat_add(A11, A22, M[0]), mat_add(B11, B22, M[2]), M[1], fn, depth);
+        fn(mat_add(A11, A12, M[0]), B22, M[5], fn, depth);
+        fn(A22, mat_sub(B21, B11, M[0]), M[4], fn, depth);
+        fn(A11, mat_sub(B12, B22, M[0]), M[3], fn, depth);
+        fn(mat_add(A21, A22, M[0]), B11, M[2], fn, depth);
+    }
 
     mat_sub(mat_add(mat_add(M[7], M[4], C11), M[1], C11), M[5], C11);
     mat_add(M[3], M[5], C12);
@@ -192,7 +243,7 @@ static void mat_mul_strassen_square_even(Mat A, Mat B, Mat C, void *f) {
     }
 }
 
-static void mat_mul_strassen_square(Mat A, Mat B, Mat C, void *f) {
+static void mat_mul_strassen_square(Mat A, Mat B, Mat C, void *f, int depth) {
     assert(C.p != A.p && C.p != B.p);
     if (A.row != A.col) {
         assert(0); // TODO
@@ -211,7 +262,7 @@ static void mat_mul_strassen_square(Mat A, Mat B, Mat C, void *f) {
         mat_add(A, Ac, Ac);
         mat_add(B, Bc, Bc);
 
-        mat_mul_strassen_square_even(Ap, Bp, Cp, f);
+        mat_mul_strassen_square_even(Ap, Bp, Cp, f, depth);
 
         int i, j;
         for (i = 0; i != C.row; i++) {
@@ -224,12 +275,12 @@ static void mat_mul_strassen_square(Mat A, Mat B, Mat C, void *f) {
         mat_deinit_buf(&Bp);
         mat_deinit_buf(&Cp);
     } else {
-        mat_mul_strassen_square_even(A, B, C, f);
+        mat_mul_strassen_square_even(A, B, C, f, depth);
     }
 }
 
 void mat_mul_strassen(Mat A, Mat B, Mat C) {
-    mat_mul_strassen_square(A, B, C, mat_mul_strassen_square);
+    mat_mul_strassen_square(A, B, C, mat_mul_strassen_square, 1);
 }
 
 static void mat_mul_introspect_in(Mat A, Mat B, Mat C, void *f) {
@@ -239,12 +290,28 @@ static void mat_mul_introspect_in(Mat A, Mat B, Mat C, void *f) {
     if (A.row <= 2048) {
         mat_mul(A, B, C);
     } else {
-        mat_mul_strassen_square(A, B, C, mat_mul_introspect_in);
+        mat_mul_strassen_square(A, B, C, mat_mul_introspect_in, 1);
+    }
+}
+
+static void mat_mul_mt_in(Mat A, Mat B, Mat C, void *f, int depth) {
+    if (A.row != A.col || B.row != B.col) {
+        printf("A size=%dx%d B.size=%dx%d\n", A.row, A.col, B.row, B.col);
+        assert(0); // not support
+    }
+    if (A.row <= 32) {
+        mat_mul(A, B, C);
+    } else {
+        mat_mul_strassen_square(A, B, C, mat_mul_mt_in, depth);
     }
 }
 
 void mat_mul_introspect(Mat A, Mat B, Mat C) {
     return mat_mul_introspect_in(A, B, C, NULL);
+}
+
+void mat_mul_mt(Mat A, Mat B, Mat C) {
+    return mat_mul_mt_in(A, B, C, NULL, 0);
 }
 
 void basic_2x2(void (*f)(Mat, Mat, Mat)) {
@@ -392,6 +459,7 @@ void basic_test() {
     test_group(mat_mul);
     test_group(mat_mul_strassen);
     test_group(mat_mul_introspect);
+    test_group(mat_mul_mt);
 }
 
 void perf_test() {
@@ -399,7 +467,7 @@ void perf_test() {
     int i;
     for (i = 2; i != 1024 * 8; i *= 2) {
         LOG("%d\t", i);
-        perf(mat_mul_introspect, i);
+        perf(mat_mul_mt, i);
         // printf("\t");
         // perf(mat_mul, i);
         // LOG("\t");
@@ -410,6 +478,7 @@ void perf_test() {
 }
 
 int main() {
+    basic_test();
     perf_test();
     return 0;
 }
