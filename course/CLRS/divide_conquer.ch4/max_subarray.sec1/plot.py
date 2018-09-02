@@ -25,7 +25,7 @@ ys = data[1:]
 _, ax = subplots()
 grid()
 for y in ys:
-    ax.loglog(x, y)
+    ax.loglog(x, y, '-o')
 
 xlabel(head[0])
 ylabel("time/us")

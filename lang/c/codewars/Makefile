@@ -1,5 +1,6 @@
-SRC=Egy.c
+SRC=multiplyString.c
 LIB=-lm
+CC=gcc
 run: a.out
 	./a.out
 
@@ -8,7 +9,7 @@ check: a.out
 	valgrind --leak-check=full ./a.out
 
 a.out: $(SRC)
-	clang $(SRC) -Wall -Werror -g $(LIB)
+	$(CC) $(SRC) -Wall -Werror -g $(LIB)
 
 clean:
 	rm -rf a.out core vgcore*
