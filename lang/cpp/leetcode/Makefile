@@ -1,8 +1,8 @@
 test: a.out
 	./a.out
 
-a.out: maxSubArray.053.cpp
-	g++ -Wall -Werror maxSubArray.053.cpp -std=c++11
+a.out: findShortestSubArray.697.cpp
+	g++ -Wall -Werror findShortestSubArray.697.cpp -std=c++11
 
 clean:
 	rm -rf *.o a.out
