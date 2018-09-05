@@ -18,5 +18,10 @@ cutRod1 ps = (map f [0 ..] !!)
           cut n m = if n >= m then ps !! (m - 1) + cutRod1 ps (n - m)
                               else 0
 
+cutRod2 ps n = go [] 0
+    where l = length ps
+          go xs i = if i == n then xs else go (x: xs) (i + 1)
+              where x = maximum $ [ps !! i | i < l] ++ zipWith (+) xs ps
+
 main = do args <- getArgs
-          print $ cutRod1 prices $ read (args !! 0)
+          print $ cutRod1 prices $ read $ head args
