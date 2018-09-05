@@ -20,7 +20,7 @@ padding with zeros
 
 The naive method, use 3x3x3 = 27 times.
 
-TODO
+Actually, we need 33 times multiplication.
 
 ## 4.2.5 V.Pan
 
