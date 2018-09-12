@@ -5,6 +5,7 @@ module VanDerCorputSeq where
 -- https://zh.wikipedia.org/wiki/%E8%8C%83%E5%BE%B7%E7%A7%91%E7%9A%AE%E7%89%B9%E5%BA%8F%E5%88%97
 -- https://zhuanlan.zhihu.com/p/20197323
 -- https://web.archive.org/web/20120621193817/http://www.puc-rio.br/marco.ind/quasi_mc.html
+-- http://web.maths.unsw.edu.au/~fkuo/sobol/
 
 
 radical b = reverse . go b

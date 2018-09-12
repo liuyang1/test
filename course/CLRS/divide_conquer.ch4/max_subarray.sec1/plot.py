@@ -11,7 +11,7 @@ def loadData(f):
         for line in lines[1:]:
             if len(line) == 0 or line[0] == '#':
                 break
-            v = [int(i) for i in line.split()]
+            v = [float(i) for i in line.split()]
             if len(v) != 0:
                 lst.append(v)
         return head, zip(*lst)
