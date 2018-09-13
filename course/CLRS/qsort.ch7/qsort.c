@@ -51,6 +51,16 @@ static void assign(void *a, void *b, size_t size) {
     memcpy(a, b, size);
 }
 
+void free_bin_tree(Node *n) {
+    if (n == NULL) {
+        return;
+    }
+    free(n->val);
+    free_bin_tree(n->left);
+    free_bin_tree(n->right);
+    free(n);
+}
+
 static Node *qsort_bintree_in(void *base, size_t nmemb, size_t size, CmpFun cmp) {
     char *p = base;
     if (nmemb == 0) {
@@ -102,6 +112,7 @@ void qsort_bintree(void *base, size_t nmemb, size_t size, CmpFun cmp) {
     Node *root = qsort_bintree_in(base, nmemb, size, cmp);
     // show_int_bin_tree(root); // for debug
     bintree_to_arr(root, base, nmemb, size);
+    free_bin_tree(root);
 }
 
 int main() {
