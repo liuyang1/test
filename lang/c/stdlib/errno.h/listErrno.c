@@ -1,17 +1,144 @@
 #include <stdio.h>
 #include <errno.h>
 
-#define SHOW(x) printf("%-16s: %d\n", #x, x)
+#define SHOW(x, s) printf("%-16s %3d %s\n", # x, x, s)
 int main() {
-    SHOW(EBADF);
-    SHOW(EFAULT);
-    SHOW(ERANGE);
-    SHOW(EDOM);
-    SHOW(EILSEQ); // illegal sequence
-    SHOW(ENOSPC); // no space
-    SHOW(EAGAIN); // for async IO
-    // there is no data available right now, try again later
-    SHOW(EWOULDBLOCK);
+    // /usr/include/asm-generic/errno-base.h
+    SHOW(EPERM, "Operation not permitted");
+    SHOW(ENOENT, "No such file or directory");
+    SHOW(ESRCH, "No such process");
+    SHOW(EINTR, "Interrupted system call");
+    SHOW(EIO, "I/O error");
+    SHOW(ENXIO, "No such device or address");
+    SHOW(E2BIG, "Argument list too long");
+    SHOW(ENOEXEC, "Exec format error");
+    SHOW(EBADF, "Bad file number");
+    SHOW(ECHILD, "No child processes");
+    SHOW(EAGAIN, "Try again");
+    SHOW(ENOMEM, "Out of memory");
+    SHOW(EACCES, "Permission denied");
+    SHOW(EFAULT, "Bad address");
+    SHOW(ENOTBLK, "Block device required");
+    SHOW(EBUSY, "Device or resource busy");
+    SHOW(EEXIST, "File exists");
+    SHOW(EXDEV, "Cross-device link");
+    SHOW(ENODEV, "No such device");
+    SHOW(ENOTDIR, "Not a directory");
+    SHOW(EISDIR, "Is a directory");
+    SHOW(EINVAL, "Invalid argument");
+    SHOW(ENFILE, "File table overflow");
+    SHOW(EMFILE, "Too many open files");
+    SHOW(ENOTTY, "Not a typewriter");
+    SHOW(ETXTBSY, "Text file busy");
+    SHOW(EFBIG, "File too large");
+    SHOW(ENOSPC, "No space left on device");
+    SHOW(ESPIPE, "Illegal seek");
+    SHOW(EROFS, "Read-only file system");
+    SHOW(EMLINK, "Too many links");
+    SHOW(EPIPE, "Broken pipe");
+    SHOW(EDOM, "Math argument out of domain of func");
+    SHOW(ERANGE, "Math result not representable");
 
+    // #include <asm-generic/errno-base.h>
+    SHOW(EDEADLK, "Resource deadlock would occur");
+    SHOW(ENAMETOOLONG, "File name too long");
+    SHOW(ENOLCK, "No record locks available");
+    SHOW(ENOSYS, "Function not implemented");
+    SHOW(ENOTEMPTY, "Directory not empty");
+    SHOW(ELOOP, "Too many symbolic links encountered");
+    SHOW(EWOULDBLOCK, "Operation would block");
+    SHOW(ENOMSG, "No message of desired type");
+    SHOW(EIDRM, "Identifier removed");
+    SHOW(ECHRNG, "Channel number out of range");
+    SHOW(EL2NSYNC, "Level 2 not synchronized");
+    SHOW(EL3HLT, "Level 3 halted");
+    SHOW(EL3RST, "Level 3 reset");
+    SHOW(ELNRNG, "Link number out of range");
+    SHOW(EUNATCH, "Protocol driver not attached");
+    SHOW(ENOCSI, "No CSI structure available");
+    SHOW(EL2HLT, "Level 2 halted");
+    SHOW(EBADE, "Invalid exchange");
+    SHOW(EBADR, "Invalid request descriptor");
+    SHOW(EXFULL, "Exchange full");
+    SHOW(ENOANO, "No anode");
+    SHOW(EBADRQC, "Invalid request code");
+    SHOW(EBADSLT, "Invalid slot");
+    SHOW(EDEADLOCK, "EDEADLK");
+    SHOW(EBFONT, "Bad font file format");
+    SHOW(ENOSTR, "Device not a stream");
+    SHOW(ENODATA, "No data available");
+    SHOW(ETIME, "Timer expired");
+    SHOW(ENOSR, "Out of streams resources");
+    SHOW(ENONET, "Machine is not on the network");
+    SHOW(ENOPKG, "Package not installed");
+    SHOW(EREMOTE, "Object is remote");
+    SHOW(ENOLINK, "Link has been severed");
+    SHOW(EADV, "Advertise error");
+    SHOW(ESRMNT, "Srmount error");
+    SHOW(ECOMM, "Communication error on send");
+    SHOW(EPROTO, "Protocol error");
+    SHOW(EMULTIHOP, "Multihop attempted");
+    SHOW(EDOTDOT, "RFS specific error");
+    SHOW(EBADMSG, "Not a data message");
+    SHOW(EOVERFLOW, "Value too large for defined data type");
+    SHOW(ENOTUNIQ, "Name not unique on network");
+    SHOW(EBADFD, "File descriptor in bad state");
+    SHOW(EREMCHG, "Remote address changed");
+    SHOW(ELIBACC, "Can not access a needed shared library");
+    SHOW(ELIBBAD, "Accessing a corrupted shared library");
+    SHOW(ELIBSCN, ".lib section in a.out corrupted");
+    SHOW(ELIBMAX, "Attempting to link in too many shared libraries");
+    SHOW(ELIBEXEC, "Cannot exec a shared library directly");
+    SHOW(EILSEQ, "Illegal byte sequence");
+    SHOW(ERESTART, "Interrupted system call should be restarted");
+    SHOW(ESTRPIPE, "Streams pipe error");
+    SHOW(EUSERS, "Too many users");
+    SHOW(ENOTSOCK, "Socket operation on non-socket");
+    SHOW(EDESTADDRREQ, "Destination address required");
+    SHOW(EMSGSIZE, "Message too long");
+    SHOW(EPROTOTYPE, "Protocol wrong type for socket");
+    SHOW(ENOPROTOOPT, "Protocol not available");
+    SHOW(EPROTONOSUPPORT, "Protocol not supported");
+    SHOW(ESOCKTNOSUPPORT, "Socket type not supported");
+    SHOW(EOPNOTSUPP, "Operation not supported on transport endpoint");
+    SHOW(EPFNOSUPPORT, "Protocol family not supported");
+    SHOW(EAFNOSUPPORT, "Address family not supported by protocol");
+    SHOW(EADDRINUSE, "Address already in use");
+    SHOW(EADDRNOTAVAIL, "Cannot assign requested address");
+    SHOW(ENETDOWN, "Network is down");
+    SHOW(ENETUNREACH, "Network is unreachable");
+    SHOW(ENETRESET, "Network dropped connection because of reset");
+    SHOW(ECONNABORTED, "Software caused connection abort");
+    SHOW(ECONNRESET, "Connection reset by peer");
+    SHOW(ENOBUFS, "No buffer space available");
+    SHOW(EISCONN, "Transport endpoint is already connected");
+    SHOW(ENOTCONN, "Transport endpoint is not connected");
+    SHOW(ESHUTDOWN, "Cannot send after transport endpoint shutdown");
+    SHOW(ETOOMANYREFS, "Too many references: cannot splice");
+    SHOW(ETIMEDOUT, "Connection timed out");
+    SHOW(ECONNREFUSED, "Connection refused");
+    SHOW(EHOSTDOWN, "Host is down");
+    SHOW(EHOSTUNREACH, "No route to host");
+    SHOW(EALREADY, "Operation already in progress");
+    SHOW(EINPROGRESS, "Operation now in progress");
+    SHOW(ESTALE, "Stale NFS file handle");
+    SHOW(EUCLEAN, "Structure needs cleaning");
+    SHOW(ENOTNAM, "Not a XENIX named type file");
+    SHOW(ENAVAIL, "No XENIX semaphores available");
+    SHOW(EISNAM, "Is a named type file");
+    SHOW(EREMOTEIO, "Remote I/O error");
+    SHOW(EDQUOT, "Quota exceeded");
+
+    SHOW(ENOMEDIUM, "No medium found");
+    SHOW(EMEDIUMTYPE, "Wrong medium type");
+    SHOW(ECANCELED, "Operation Canceled");
+    SHOW(ENOKEY, "Required key not available");
+    SHOW(EKEYEXPIRED, "Key has expired");
+    SHOW(EKEYREVOKED, "Key has been revoked");
+    SHOW(EKEYREJECTED, "Key was rejected by service");
+
+    /* for robust mutexes */
+    SHOW(EOWNERDEAD, "Owner died");
+    SHOW(ENOTRECOVERABLE, "State not recoverable");
     return 0;
 }
