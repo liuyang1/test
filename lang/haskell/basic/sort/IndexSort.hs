@@ -23,21 +23,30 @@ indexSort = index 0
 -- 20180914 new implementation
 -- - don't based on Bits Operation (so we may extend to other base, not only 2)
 -- - support unlimited number instead of maximum threshould
-b = 2
-radicalR 0 = []
-radicalR x = r: radicalR q
+
+radicalB b 0 = []
+radicalB b x = r: radicalB b q
     where (q, r) = x `divMod` b
 
-deradicalR xs = sum $ zipWith (\c e -> c * b ^ e) xs [0..]
+deradicalB b xs = sum $ zipWith (\c e -> c * b ^ e) xs [0..]
+
+elemAt xs n = if length xs > n then xs !! n else 0
 
 -- quick binary bucket sort based on IDX element
-resort idx = uncurry (++) . partition (\x -> 0 == index x idx)
-    where index xs n = if length xs > n then xs !! n else 0
+resort2 idx = uncurry (++) . partition (\x -> 0 == elemAt x idx)
 
-radixSort = map deradicalR . conv . map radicalR
+resortB b idx = foldl (++) [] . go 0
+    where go i xs = if i == b then [] else pos: go (i + 1) neg
+              where (pos, neg) = partition (\x -> i == elemAt x idx) xs
+
+radixSortB b = map (deradicalB b) . conv . map (radicalB b)
     where conv xs = go 0 xs
               where lm = if null xs then 0 else maximum $ map length xs
-                    go i xs = if i /= lm then go (i + 1) (resort i xs) else xs
+                    go i xs
+                      | i == lm = xs
+                      | otherwise = go (i + 1) (resortB b i xs)
+
+radixSort = radixSortB 10
 
 seq0 = [0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15]
 
