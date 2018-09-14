@@ -13,22 +13,49 @@ pow2 n
         where p = pow2 (n `quot` 2)
 
 index _ [] = []
-index (-1) xs = xs
 index 8 xs = xs
 index n xs = index (n + 1) (l ++ r)
-    where (l, r) = partition (\x -> x .&. pow2 n == 0) xs
+    where m = pow2 n
+          (l, r) = partition (\x -> x .&. m == 0) xs
 
 indexSort = index 0
 
-sort = indexSort
+-- 20180914 new implementation
+-- - don't based on Bits Operation (so we may extend to other base, not only 2)
+-- - support unlimited number instead of maximum threshould
+b = 2
+radicalR 0 = []
+radicalR x = r: radicalR q
+    where (q, r) = x `divMod` b
+
+deradicalR xs = sum $ zipWith (\c e -> c * b ^ e) xs [0..]
+
+-- quick binary bucket sort based on IDX element
+resort idx = uncurry (++) . partition (\x -> 0 == index x idx)
+    where index xs n = if length xs > n then xs !! n else 0
+
+radixSort = map deradicalR . conv . map radicalR
+    where conv xs = go 0 xs
+              where lm = if null xs then 0 else maximum $ map length xs
+                    go i xs = if i /= lm then go (i + 1) (resort i xs) else xs
+
+seq0 = [0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15]
+
+test f = do
+        print "test on simple test"
+        print $ [2, 3, 4, 10] == f [10, 2, 4, 3]
+        print $ [0..15] == f seq0
+        print "test on duplicate element"
+        print $ [2, 2, 3, 4, 10, 10] == f [10, 2, 2, 4, 3, 10]
+        print "test on reverse sequence"
+        print $ [1..10] == f [10, 9..1]
+        print "test on corner case"
+        print $ [0] == f [0]
+        print $ [1] == f [1]
+        print $ ([]::[Integer]) == f ([]::[Integer])
 
 main = do
-        print "test on simple test"
-        print $ [2, 3, 4, 10] == sort [10, 2, 4, 3]
-        print "test on duplicate element"
-        print $ [2, 2, 3, 4, 10, 10] == sort [10, 2, 2, 4, 3, 10]
-        print "test on reverse sequence"
-        print $ [1..10] == sort [10, 9..1]
-        print "test on corner case"
-        print $ [1] == sort [1]
-        print $ ([]::[Integer]) == sort ([]::[Integer])
+    print "---- indexSort"
+    test indexSort
+    print "---- radixSort"
+    test radixSort
