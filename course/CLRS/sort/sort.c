@@ -11,16 +11,17 @@ int cmp_int(const void *a, const void *b) {
     return *pa - *pb;
 }
 
-void show_int_arr(int *base, size_t nmemb) {
+void show_int_arr(unsigned int *base, size_t nmemb) {
     size_t i;
     for (i = 0; i != nmemb; i++) {
-        printf("%d ", base[i]);
+        printf("%u ", base[i]);
     }
     printf("\n");
 }
 
 /** Binary Tree with quick sort
- * ref: https://tekmarathon.com/2013/09/20/analogy-between-binary-search-tree-and-quicksort-algorithm/
+ * ref:
+ *https://tekmarathon.com/2013/09/20/analogy-between-binary-search-tree-and-quicksort-algorithm/
  */
 
 typedef struct Node {
@@ -115,11 +116,46 @@ void qsort_bintree(void *base, size_t nmemb, size_t size, CmpFun cmp) {
     free_bin_tree(root);
 }
 
+/** Radix Sort
+ * ref: https://en.wikipedia.org/wiki/Radix_sort
+ */
+typedef unsigned int ValT;
+const size_t ValBits = 32;
+
+void radix_sort(ValT *p, size_t num) {
+    size_t i, j, m, n;
+    ValT mask;
+    ValT *buck0 = malloc(sizeof(ValT) * num);
+    ValT *buck1 = malloc(sizeof(ValT) * num);
+    for (i = 0, mask = 1; i != ValBits; i++, mask = mask << 1) {
+        for (j = m = n = 0; j != num; j++) {
+            if ((p[j] & mask) == 0) {
+                buck0[m++] = p[j];
+            } else {
+                buck1[n++] = p[j];
+            }
+        }
+        assert(m + n == num);
+        if (m == 0 || n == 0) {
+            break;
+        }
+        for (j = 0; j != m; j++) {
+            p[j] = buck0[j];
+        }
+        for (; j != num; j++) {
+            p[j] = buck1[j - m];
+        }
+    }
+    free(buck0);
+    free(buck1);
+}
+
 int main() {
-    int a[] = {0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15};
+    unsigned int a[] = {0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15};
     size_t n = sizeof(a) / sizeof(a[0]);
     show_int_arr(a, n);
-    qsort_bintree(a, n, sizeof(a[0]), cmp_int);
+    // qsort_bintree(a, n, sizeof(a[0]), cmp_int);
+    radix_sort(a, n);
     show_int_arr(a, n);
     return 0;
 }
