@@ -7,7 +7,10 @@
 typedef int (*CmpFun)(const void *, const void *);
 typedef void (*SortFun)(void *base, size_t nmemb, size_t size, CmpFun cmp);
 
+unsigned int gCmpCnt = 0;
+unsigned int gAssignCnt = 0;
 int cmp_int(const void *a, const void *b) {
+    gCmpCnt++;
     const int *pa = a;
     const int *pb = b;
     return *pa - *pb;
@@ -23,6 +26,7 @@ void show_int_arr(unsigned int *base, size_t nmemb) {
 
 static void assign(void *a, void *b, size_t size) {
     assert(a != NULL && b != NULL && size != 0 && a != b);
+    gAssignCnt++;
     memcpy(a, b, size);
 }
 
@@ -56,6 +60,9 @@ void select_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
 /** check pair every time, reorder it
  * This will floating one biggest bubble to END every time
  * so we could check the END position to saving useless loop
+ * - This big one is rabbit
+ * - This small one is turtle :)
+ * so it should naming to sinking sort instead of bubble sort :)
  */
 void bubble_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
     size_t i, j, tail, ntail;
@@ -75,6 +82,135 @@ void bubble_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
     free(t);
 }
 
+/** Cocktail Shaker Sort or Bidirectional Bubble Sort
+ *  It check from head to tail, then back from tail to head (Bidirectional)
+ *  so it could save time as bubble sorting's optimizing skill.
+ */
+void cocktail_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
+    size_t i, j, head, nhead, tail, ntail;
+    void *t = malloc(size);
+    for (i = head = 0, tail = nmemb - 1; i != nmemb; i++) {
+#if 1
+        for (j = head; j != tail; j++) {
+            if (cmp(base + j * size, base + (j + 1) * size) > 0) {
+                swap(base + j * size, base + (j + 1) * size, size, t);
+                ntail = j;
+            }
+        }
+        if (tail == ntail) {
+            break;
+        }
+        tail = ntail;
+        printf("head=%d tail=%d cnt=%d\n", head, tail, gCmpCnt);
+        show_int_arr(base, nmemb);
+#endif
+        for (j = tail; j != head; j--) {
+            if (cmp(base + j * size, base + (j - 1) * size) < 0) {
+                swap(base + j * size, base + (j - 1) * size, size, t);
+                nhead = j;
+            }
+        }
+        if (head == nhead) {
+            break;
+        }
+        head = nhead;
+        printf("head=%d tail=%d cnt=%d\n", head, tail, gCmpCnt);
+        show_int_arr(base, nmemb);
+    }
+
+    free(t);
+}
+
+/** Insert Sort
+ *  sotr card when play bridge card
+ */
+void insert_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
+    if (nmemb <= 1) {
+        return;
+    }
+    size_t i, k;
+    void *t = malloc(size);
+    for (i = 1; i != nmemb; i++) {
+#if 1
+        // search correct position from tail
+        assign(t, base + i * size, size);
+        for (k = i - 1; k >= 0 && cmp(base + k * size, t) > 0; k--) {
+            assign(base + (k + 1) * size, base + k * size, size);
+        }
+        assign(base + (k + 1) * size, t, size);
+#else
+        size_t j;
+        // This is WRONG, as waster too many checking times
+        // search correct position from head
+        for (j = 0; j != i && cmp(base + j * size, base + i * size) <= 0; j++) {
+        }
+        // insert
+        assign(t, base + i * size, size);
+        for (k = i; k != j; k--) {
+            assign(base + k * size, base + (k - 1) * size, size);
+        }
+        assign(base + j * size, t, size);
+#endif
+        show_int_arr(base, nmemb);
+    }
+}
+
+void insertR_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
+    if (nmemb <= 1) {
+        return;
+    }
+    insertR_sort(base + size, nmemb - 1, size, cmp);
+    void *t = malloc(size);
+    assign(t, base, size);
+    size_t i;
+    for (i = 1; i != nmemb && cmp(t, base + i * size) > 0; i++) {
+        assign(base + (i - 1) * size, base + i * size, size);
+    }
+    assign(base + (i - 1) * size, t, size);
+    // show_int_arr(base, nmemb);
+    free(t);
+}
+
+/** Binary insert sort
+ *  It only save time for search correct position,
+ *  but whole algo is O(N^2) as we still need slow shift operation
+ */
+void insertB_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
+    size_t i, k, b, e, m;
+    void *t = malloc(size);
+    for (i = 1; i != nmemb; i++) {
+        assign(t, base + i * size, size);
+        for (b = 0, e = i; b <= e;) {
+            m = (b + e) / 2;
+            if (cmp(t, base + m * size) < 0) {
+                e = m - 1;
+            } else {
+                b = m + 1;
+            }
+        }
+        m = (b + e) / 2;
+        if (m != i) {
+            for (k = i - 1; k > m; k--) {
+                assign(base + (k + 1) * size, base + k * size, size);
+            }
+            assign(base + (m + 1) * size, t, size);
+        }
+    }
+    free(t);
+}
+
+/** insert sort with linked list
+ *  Yes, it's quick when insert data;
+ *  However, linked list cannot be random accessed,
+ *  so we cannot binary search on it
+ *  This algo is O(N^2), too.
+ */
+// insertL_sort
+
+/** insert sort with skip list
+ *  with skip list struct, it could reach O(NlogN)
+ */
+// insertS_sort
 /** Merge sort
  *  when merge to two sub sequences, we need extra storage.
  */
@@ -235,15 +371,39 @@ void radix_sort(ValT *p, size_t num) {
     free(buck1);
 }
 
+size_t inversion(void *base, size_t nmemb, size_t size, CmpFun cmp) {
+    size_t cnt = 0;
+    size_t i, j;
+    for (i = 0; i != nmemb - 1; i++) {
+        for (j = i + 1; j != nmemb; j++) {
+            cnt += cmp(base + i * size, base + j * size) > 0;
+        }
+    }
+    return cnt;
+}
+
+double inversion_ratio(size_t cnt, size_t nmemb) {
+    return 2. * cnt / (nmemb + 0.) / (nmemb - 1.);
+}
+
 int main() {
     unsigned int a[] = {0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15};
     size_t n = sizeof(a) / sizeof(a[0]);
+    size_t sz = sizeof(a[0]);
     show_int_arr(a, n);
+    // double ratio = inversion_ratio(inversion(a, n, sizeof(a[0]), cmp_int),
+    //                                n);
+    // printf("inversion ratio=%f\n", ratio);
     // qsort_bintree(a, n, sizeof(a[0]), cmp_int);
     // radix_sort(a, n);
     // select_sort(a, n, sizeof(a[0]), cmp_int);
     // bubble_sort(a, n, sizeof(a[0]), cmp_int);
-    merge_sort(a, n, sizeof(a[0]), cmp_int);
+    // cocktail_sort(a, n, sizeof(a[0]), cmp_int);
+    // insert_sort(a, n, sizeof(a[0]), cmp_int);
+    // insertR_sort(a, n, sizeof(a[0]), cmp_int);
+    insertB_sort(a, n, sz, cmp_int);
+    // merge_sort(a, n, sizeof(a[0]), cmp_int);
+    printf("gCmpCnt=%d gAssignCnt=%d\n", gCmpCnt, gAssignCnt);
     show_int_arr(a, n);
     return 0;
 }

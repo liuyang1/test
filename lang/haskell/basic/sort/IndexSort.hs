@@ -48,6 +48,14 @@ radixSortB b = map (deradicalB b) . conv . map (radicalB b)
 
 radixSort = radixSortB 10
 
+insert y [] = [y]
+insert y xx@(x:xs)
+  | y < x = y:xx
+  | otherwise = x: insert y xs
+
+insertSort [] = []
+insertSort (x: xs) = insert x (insertSort xs)
+
 seq0 = [0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15]
 
 test f = do
@@ -68,3 +76,5 @@ main = do
     test indexSort
     print "---- radixSort"
     test radixSort
+    print "---- insertSort"
+    test insertSort
