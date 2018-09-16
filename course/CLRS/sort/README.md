@@ -3,24 +3,42 @@
 ## based on compartion
 
 - [x] bubble sort
-- [x] cocktail shaker sort
-- odd-even sort
-    - TODO
+    - [x] cocktail shaker sort
+    - [x] odd-even sort
+        - [x] parallel odd-even sort
+    - [x] comb sort
+
 - [x] insert sort
+    - [x] insert sort with recursion
+    - [x] insert sort with binary search
+    - [x] insert sort with linked list
+    - [x] gnome sort (optimizaiton version)
+
+- [x] select sort
+
+- [ ] heap sort
+
 - [ ] shell sort
 - [ ] library sort
-- select sort
 
 
-- quick sort
-- merge sort
+- [x] merge sort
+    - [ ] binary merge sort (merge sort + binary insert sort)
+- [ ] quick sort
+    - [x] quick sort with binary tree
 
 - [ ] introspect (quick sort & insert sort)
-- [ ] binary merge sort (merge sort + binary insert sort)
+
+## bad algo (wosre than O(N^2))
+
+- [x] slow sort
+- [ ] stooge sort
+- [ ] bogo sort
+    continue shuffle until sorted
 
 ## others
 
-- radix sort
+- [x] radix sort
     O(nB), B is bits of number
 
 # perf test

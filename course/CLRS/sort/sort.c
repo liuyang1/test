@@ -121,8 +121,159 @@ void cocktail_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
     free(t);
 }
 
+/** odd-even sort
+ *  It like bubble sort,
+ *  but check odd-even this time, and switch to even-odd next time
+ *  so we could spwan pairs to parallel work
+ *  To simplify code for parallel process, we remove "HEAD/TAIL" optimzation
+ */
+void oddeven_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
+    size_t i, j;
+    void *t = malloc(size);
+    for (i = 0; i != nmemb; i++) {
+        for (j = i % 2; j < nmemb - 1; j += 2) {
+            if (cmp(base + j * size, base + (j + 1) * size) > 0) {
+                swap(base + j * size, base + (j + 1) * size, size, t);
+            }
+        }
+        show_int_arr(base, nmemb);
+    }
+    free(t);
+}
+
+static const int PNUM = 4;
+#include <pthread.h>
+typedef struct {
+    void *base;
+    size_t nmemb;
+    size_t size;
+    CmpFun cmp;
+    size_t times;
+    void *t;
+} Arg;
+static void oddeven_routine_in(void *base, size_t nmemb, size_t size,
+                               CmpFun cmp, void *t) {
+    size_t i;
+    for (i = 0; i < nmemb - 1; i += 2) {
+        if (cmp(base + i * size, base + (i + 1) * size) > 0) {
+            swap(base + i * size, base + (i + 1) * size, size, t);
+        }
+    }
+    // show_int_arr(base, nmemb);
+}
+
+void *oddeven_routine(void *arg) {
+    Arg *p = arg;
+    oddeven_routine_in(p->base, p->nmemb, p->size, p->cmp, p->t);
+    return NULL;
+}
+
+void oddevenP_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
+    size_t i, j;
+    pthread_t aTh[PNUM];
+    Arg *arg = malloc(sizeof(Arg) * PNUM);
+    for (j = 0; j != PNUM; j++) {
+        arg[j].size = size;
+        arg[j].cmp = cmp;
+        arg[j].base = base + nmemb * j / PNUM * size;
+        arg[j].nmemb = nmemb / PNUM;
+        arg[j].t = malloc(size);
+    }
+    arg[PNUM - 1].nmemb = nmemb - (PNUM - 1) * nmemb / PNUM;
+    for (i = 0; i != nmemb; i++) {
+        for (j = 0; j != PNUM; j++) {
+            arg[j].times = i;
+            pthread_create(&aTh[j], NULL, oddeven_routine, arg + j);
+        }
+        for (j = 0; j != PNUM; j++) {
+            pthread_join(aTh[j], NULL);
+            arg[j].base += (i % 2 == 0 ? 1 : -1) * size;
+        }
+        arg[PNUM - 1].nmemb += i % 2 == 0 ? -1 : 1;
+        // show_int_arr(base, nmemb);
+    }
+    for (j = 0; j != PNUM; j++) {
+        free(arg[j].t);
+    }
+    free(arg);
+}
+
+/** comb sort
+ *  bubble sort's gap is always 1;
+ *  comb sort's gap is shrink from nmemb/k to 1,
+ *  This will accelerate turtule's speed.
+ */
+static size_t shrink(size_t gap) {
+    if (gap == 1) {
+        return 1;
+    } else {
+        return gap / 1.3;
+    }
+}
+
+void comb_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
+    size_t i, j;
+    void *t = malloc(size);
+    size_t gap = shrink(nmemb);
+    for (i = 0; i != nmemb; i++, gap = shrink(gap)) {
+        bool swaped = false;
+        for (j = 0; j + gap != nmemb; j++) {
+            if (cmp(base + j * size, base + (j + gap) * size) > 0) {
+                swap(base + j * size, base + (j + gap) * size, size, t);
+                swaped = true;
+            }
+        }
+        if (gap == 1 && swaped == false) {
+            break;
+        }
+        // show_int_arr(base, nmemb);
+    }
+    free(t);
+}
+
+/** gnome sort
+ *  after optimization, it's variant of insert sort
+ *  just waster ASSIGN operation in SWAP
+ */
+void gnome_sort_in(void *base, size_t nmemb, size_t size, CmpFun cmp, void *t) {
+    size_t i;
+    for (i = nmemb;
+         i > 0 && cmp(base + (i - 1) * size, base + i * size) > 0;
+         i--) {
+        swap(base + i * size, base + (i - 1) * size, size, t);
+    }
+}
+
+void gnomeO_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
+    void *t = malloc(size);
+    size_t i;
+    for (i = 1; i != nmemb; i++) {
+        gnome_sort_in(base, i, size, cmp, t);
+        show_int_arr(base, nmemb);
+    }
+    free(t);
+}
+
+/** gnome sort
+ *  single loop
+ *  But it waste too many times to move back to TELEPORT
+ */
+void gnome_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
+    void *t = malloc(size);
+    size_t i = 0;
+    while (i < nmemb) {
+        if (i == 0 || cmp(base + i * size, base + (i - 1) * size) >= 0) {
+            i++;
+        } else {
+            swap(base + i * size, base + (i - 1) * size, size, t);
+            i--;
+        }
+    }
+    free(t);
+}
+
 /** Insert Sort
- *  sotr card when play bridge card
+ *  sort card when play bridge card
  */
 void insert_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
     if (nmemb <= 1) {
@@ -199,18 +350,98 @@ void insertB_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
     free(t);
 }
 
+typedef struct ListNd {
+    void *val;
+    struct ListNd *next;
+} ListNd;
 /** insert sort with linked list
  *  Yes, it's quick when insert data;
  *  However, linked list cannot be random accessed,
  *  so we cannot binary search on it
  *  This algo is O(N^2), too.
  */
-// insertL_sort
+
+static ListNd *create_listnd(void *val) {
+    ListNd *n = malloc(sizeof(ListNd));
+    n->val = val;
+    n->next = NULL;
+    return n;
+}
+
+static void show_list(ListNd *h) {
+    for (; h != NULL; h = h->next) {
+        int *p = h->val;
+        printf("%d ", *p);
+    }
+    printf("\n");
+}
+
+static void destory_list(ListNd *h) {
+    ListNd *t;
+    while (h != NULL) {
+        t = h->next;
+        free(h);
+        h = t;
+    }
+}
+
+void insertL_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
+    if (nmemb <= 1) {
+        return;
+    }
+    void *p = malloc(size * nmemb);
+    memcpy(p, base, size * nmemb);
+    size_t i;
+    ListNd *h = create_listnd(p), *c;
+    for (i = 1; i != nmemb; i++) {
+        ListNd *n = create_listnd(p + i * size);
+        ListNd *prev = n;
+        for (c = h; c != NULL && cmp(n->val, c->val) < 0; prev = c, c = c->next) {
+        }
+        if (prev == n) {
+            n->next = h;
+            h = n;
+        } else {
+            prev->next = n;
+            n->next = c;
+        }
+        // show_list(h); // reversed order list
+    }
+    for (i = nmemb, c = h; i != 0; i--, c = c->next) {
+        assign(base + (i - 1) * size, c->val, size);
+    }
+    destory_list(h);
+    free(p);
+}
 
 /** insert sort with skip list
  *  with skip list struct, it could reach O(NlogN)
  */
 // insertS_sort
+
+/** slow sort
+ */
+void slow_sort_in(void *base, size_t i, size_t j, size_t size,
+                  CmpFun cmp, void *t) {
+    if (i >= j) {
+        return;
+    }
+    size_t m = (i + j) / 2;
+    slow_sort_in(base, i, m, size, cmp, t);
+    slow_sort_in(base, m + 1, j, size, cmp, t);
+    if (cmp(base + j * size, base + m * size) < 0) {
+        swap(base + j * size, base + m * size, size, t);
+    }
+    slow_sort_in(base, i, j - 1, size, cmp, t);
+    // show_int_arr(base + i * size, j - i + 1);
+    show_int_arr(base, 16);
+}
+
+void slow_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
+    void *t = malloc(size);
+    slow_sort_in(base, 0, nmemb - 1, size, cmp, t);
+    free(t);
+}
 /** Merge sort
  *  when merge to two sub sequences, we need extra storage.
  */
@@ -247,13 +478,13 @@ void merge_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
  * https://tekmarathon.com/2013/09/20/analogy-between-binary-search-tree-and-quicksort-algorithm/
  */
 
-typedef struct Node {
+typedef struct TreeNd {
     void *val;
-    struct Node *left;
-    struct Node *right;
-} Node;
+    struct TreeNd *left;
+    struct TreeNd *right;
+} TreeNd;
 
-static void show_int_bin_tree_in(Node *n, int level) {
+static void show_int_bin_tree_in(TreeNd *n, int level) {
     if (n == NULL) {
         return;
     }
@@ -267,11 +498,11 @@ static void show_int_bin_tree_in(Node *n, int level) {
     show_int_bin_tree_in(n->right, level + 1);
 }
 
-void show_int_bin_tree(Node *n) {
+void show_int_bin_tree(TreeNd *n) {
     show_int_bin_tree_in(n, 0);
 }
 
-void free_bin_tree(Node *n) {
+void free_bin_tree(TreeNd *n) {
     if (n == NULL) {
         return;
     }
@@ -281,13 +512,13 @@ void free_bin_tree(Node *n) {
     free(n);
 }
 
-static Node *qsort_bintree_in(void *base, size_t nmemb, size_t size,
-                              CmpFun cmp) {
+static TreeNd *qsort_bintree_in(void *base, size_t nmemb, size_t size,
+                                CmpFun cmp) {
     char *p = base;
     if (nmemb == 0) {
         return NULL;
     }
-    Node *n = malloc(sizeof(Node));
+    TreeNd *n = malloc(sizeof(TreeNd));
     n->val = malloc(size);
     assign(n->val, p, size);
     p += size;
@@ -316,7 +547,7 @@ static Node *qsort_bintree_in(void *base, size_t nmemb, size_t size,
 }
 
 // midfix to traversal binary tree
-static int bintree_to_arr(Node *n, void *base, size_t nmemb, size_t size) {
+static int bintree_to_arr(TreeNd *n, void *base, size_t nmemb, size_t size) {
     if (n == NULL) {
         return 0;
     }
@@ -330,7 +561,7 @@ static int bintree_to_arr(Node *n, void *base, size_t nmemb, size_t size) {
 }
 
 void qsort_bintree(void *base, size_t nmemb, size_t size, CmpFun cmp) {
-    Node *root = qsort_bintree_in(base, nmemb, size, cmp);
+    TreeNd *root = qsort_bintree_in(base, nmemb, size, cmp);
     // show_int_bin_tree(root); // for debug
     bintree_to_arr(root, base, nmemb, size);
     free_bin_tree(root);
@@ -399,9 +630,15 @@ int main() {
     // select_sort(a, n, sizeof(a[0]), cmp_int);
     // bubble_sort(a, n, sizeof(a[0]), cmp_int);
     // cocktail_sort(a, n, sizeof(a[0]), cmp_int);
+    // oddeven_sort(a, n, sz, cmp_int);
+    // oddevenP_sort(a, n, sz, cmp_int);
+    // comb_sort(a, n, sz, cmp_int);
+    // gnome_sort(a, n, sz, cmp_int);
     // insert_sort(a, n, sizeof(a[0]), cmp_int);
     // insertR_sort(a, n, sizeof(a[0]), cmp_int);
-    insertB_sort(a, n, sz, cmp_int);
+    // insertB_sort(a, n, sz, cmp_int);
+    // insertL_sort(a, n, sz, cmp_int);
+    slow_sort(a, n, sz, cmp_int);
     // merge_sort(a, n, sizeof(a[0]), cmp_int);
     printf("gCmpCnt=%d gAssignCnt=%d\n", gCmpCnt, gAssignCnt);
     show_int_arr(a, n);
