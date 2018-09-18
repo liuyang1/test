@@ -124,8 +124,8 @@ void cocktail_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
 /** odd-even sort
  *  It like bubble sort,
  *  but check odd-even this time, and switch to even-odd next time
- *  so we could spwan pairs to parallel work
- *  To simplify code for parallel process, we remove "HEAD/TAIL" optimzation
+ *  so we could spawn pairs to parallel work
+ *  To simplify code for parallel process, we remove "HEAD/TAIL" optimization
  */
 void oddeven_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
     size_t i, j;
@@ -201,7 +201,7 @@ void oddevenP_sort(void *base, size_t nmemb, size_t size, CmpFun cmp) {
 /** comb sort
  *  bubble sort's gap is always 1;
  *  comb sort's gap is shrink from nmemb/k to 1,
- *  This will accelerate turtule's speed.
+ *  This will accelerate turtle's speed.
  */
 static size_t shrink(size_t gap) {
     if (gap == 1) {
