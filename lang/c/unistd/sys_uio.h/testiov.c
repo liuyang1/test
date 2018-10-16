@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <unistd.h>
 #include <sys/uio.h>
 
 
@@ -24,7 +25,7 @@ int main() {
         }
 
         printf("shift with j=%lu:\n", j);
-        nwritten = writev(fileno(stdout), piov, n);
+        nwritten = writev(STDOUT_FILENO, piov, n);
         printf("\n");
     }
 
