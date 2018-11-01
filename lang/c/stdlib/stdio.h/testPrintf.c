@@ -196,8 +196,19 @@ int test_sharp() {
     return 0;
 }
 
+#include <inttypes.h>
+int test_print_format() {
+    uint32_t a = 42;
+    printf("decimal: %d\n", a);
+    printf("hex: %x\n", a);
+    printf("hex: %#0x\n", a); // auto add 0x
+    printf("hex: %#08x\n", a); // add 0 to padding length to 8
+    return 0;
+}
+
 int main()
 {
+    test_print_format();
     test_null();
     test_align();
     test_seq();
