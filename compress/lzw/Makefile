@@ -16,4 +16,4 @@ $(OBJS): %.o : %$(FILE_SUFFIX)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o *.out out*
+	rm -f *.o *.out out* tags
