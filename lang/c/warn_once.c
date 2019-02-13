@@ -1,7 +1,7 @@
 /**
  * Cheating this WARN_ONCE idea from Linux kernel code
  * https://elixir.bootlin.com/linux/v4.9.156/source/include/asm-generic/bug.h#L126
- * 
+ *
  * With this macro, we could add dynamic checking logic in formal code,
  * and it only warning ONE TIME.
  */
@@ -9,13 +9,14 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define WARN_ONCE(cond, fmt ...) ({                     \
-        static bool warned = false;                     \
-        int ret_warn_once = !!(cond);                   \
-        if (ret_warn_once == true && warned == false) { \
-            warned = true;                              \
-            printf(fmt);                                \
-        }                                               \
+#define WARN_ONCE(cond, fmt ...) ({                            \
+        static bool warned = false;                            \
+        int ret_warn_once = !!(cond);                          \
+        if (ret_warn_once == true && warned == false) {        \
+            warned = true;                                     \
+            printf("warning@%s():%d>>> ", __func__, __LINE__); \
+            printf(fmt);                                       \
+        }                                                      \
     })
 
 int func(int cond) {
