@@ -27,7 +27,7 @@ check compose.py, compose.cpp
 ```
 No.
 
-If google link to Facebook, Facebook link to Twitter, we cannot enuse hava link from google to Twitter.
+If google link to Facebook, Facebook link to Twitter, we cannot ensure there is one link from google to Twitter.
 ```
 
 ## 脸书是一个以人为对象，以朋友关系为态射的范畴吗？

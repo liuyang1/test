@@ -82,3 +82,9 @@ Void -> ()   也是存在的,一样不能调用
 
 是一个范畴
 ```
+
+| row -> col | Void   | ()     | Bool   |
+|------------|--------|--------|--------|
+| Void       | absurd | absurd | absurd |
+| ()         | -      | unit   | 2 func |
+| Bool       | -      | unit   | 4 func |

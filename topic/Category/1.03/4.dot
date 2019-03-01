@@ -1,0 +1,7 @@
+digraph {
+    rankdir="LR"
+    T -> T [label="&& T" color="red"]
+    T -> F [label="&& F"]
+    F -> F [label="&& F"]
+    F -> F [label="&& T" color="red"]
+}
