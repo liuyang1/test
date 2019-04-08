@@ -34,7 +34,8 @@ static char show_char( char c ) {
 #define FOURCC_BUFLEN      5
 static char *show_fourcc( uint32_t n, char *buf, size_t buflen ) {
 	assert( buflen >= FOURCC_BUFLEN );
-	snprintf( buf, buflen, "%c%c%c%c",
+	snprintf( buf, buflen, "0x%08x/'%c%c%c%c'",
+			  n,
 			  show_char((n & 0xff000000) >> 24 ),
 			  show_char((n & 0x00ff0000) >> 16 ),
 			  show_char((n & 0x0000ff00) >> 8 ),
@@ -65,10 +66,10 @@ int main() {
 
 	uint32_t fmt = 0x34424752;
 	char buf[FOURCC_BUFLEN] = {0};
-	printf( "fourcc: 0x%08x/'%s'\n", fmt, show_fourcc( fmt, buf, FOURCC_BUFLEN ));
+	printf( "fourcc: %s\n", show_fourcc( fmt, buf, FOURCC_BUFLEN ));
 
 	fmt = 0x0;
-	printf( "fourcc: 0x%08x/'%s'\n", fmt, show_fourcc( fmt, buf, FOURCC_BUFLEN ));
+	printf( "fourcc: %s\n", show_fourcc( fmt, buf, FOURCC_BUFLEN ));
 
 	return 0;
 }
