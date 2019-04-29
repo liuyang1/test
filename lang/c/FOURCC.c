@@ -1,5 +1,5 @@
 #include <stdio.h>
-#define uint32_t unsigned int
+#include <stdint.h>
 // warn: must twice transform
 #define BE_FOURCC(ch0, ch1, ch2, ch3)           \
      ((uint32_t)(unsigned char)(ch3)        |   \

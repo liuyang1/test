@@ -1,9 +1,11 @@
 #include <stdio.h>
+#include <endian.h>
 
 void usage(char *name) {
     printf("usage: %s val...\n", name);
     printf("show value with dec, hex, bin format\n");
 }
+
 void show_delimter(size_t j) {
     if (j % 8 == 0) {
         printf(" ");
@@ -11,11 +13,12 @@ void show_delimter(size_t j) {
         printf("-");
     }
 }
+
 #define MAX_BIT         128
 #define CHUNK           8
 void show_bin(unsigned int n) {
     // decimal
-    printf("%u\n", n);
+    printf("uint=%u/int=%d/hex=0x%08x\n", n, n, n);
 
     unsigned int buf[MAX_BIT] = {0};
     size_t i = 0, j;
@@ -60,6 +63,14 @@ void show_bin(unsigned int n) {
     printf("\n");
 }
 
+void show_endian(int v) {
+    if (v == __BIG_ENDIAN) {
+        printf("big endian\n");
+    } else {
+        printf("little endian\n");
+    }
+}
+
 int main(int argc, char **argv) {
     if (argc == 1) {
         usage(argv[0]);
@@ -67,7 +78,17 @@ int main(int argc, char **argv) {
     }
     int i;
     for (i = 1; i != argc; i++) {
-        show_bin(strtoul(argv[i], NULL, 0));
+        show_endian(__BYTE_ORDER);
+        unsigned long int n = strtoul(argv[i], NULL, 0);
+        show_bin(n);
+
+        show_endian(__BYTE_ORDER == __BIG_ENDIAN ?
+                    __LITTLE_ENDIAN : __BIG_ENDIAN);
+        unsigned long int swaped = (((n >> 24) & 0xff) |
+                                    ((n << 8) & 0xff0000) |
+                                    ((n >> 8) & 0xff00) |
+                                    ((n << 24) & 0xff000000));
+        show_bin(swaped);
     }
     return 0;
 }

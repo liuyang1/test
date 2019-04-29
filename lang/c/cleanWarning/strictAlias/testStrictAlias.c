@@ -1,8 +1,6 @@
 #include <string.h>
 #include <stdio.h>
-
-typedef unsigned int uint32_t;
-typedef unsigned short uint16_t;
+#include <stdint.h>
 
 uint32_t swap_words(uint32_t arg)
 {
