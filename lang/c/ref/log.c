@@ -31,7 +31,7 @@ static char show_char( char c ) {
 	return isprint( c ) ? c : '.';
 }
 
-#define FOURCC_BUFLEN      5
+#define FOURCC_BUFLEN      18
 static char *show_fourcc( uint32_t n, char *buf, size_t buflen ) {
 	assert( buflen >= FOURCC_BUFLEN );
 	snprintf( buf, buflen, "0x%08x/'%c%c%c%c'",
