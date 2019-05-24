@@ -20,6 +20,51 @@ int test_align(void)
     return 0;
 }
 
+/**
+ * %A.Bs
+ * A means fixed width
+ * B means length
+ * 0, assume, the string's length is L
+ * 1, Any string, it will truncate to B length first;
+ * => L1 = min(L, B), B is Inf when undefined
+ * 2, output it to fixed width A (if possible)
+ * => L2 = max(L1, A), A is 0 when undefined
+ *
+ * L2 = max(min(L, B), A)
+ */
+
+static inline int min(int a, int b) {
+    return a < b ? a : b;
+}
+static inline int max(int a, int b) {
+    return a > b ? a : b;
+}
+static inline int length(int L, int A, int B) {
+    return max(min(L, B), A);
+}
+int unit_fixed_length(char *str, int A, int B) {
+    printf("'%*.*s'\n", A, B, str);
+    int length = strlen(str);
+    int content = min(length, B);
+    int width = max(content, A);
+    printf("length=%d content=%d width=%d\n", length, content, width);
+    return 0;
+}
+
+int test_fixed_length(void) {
+    unit_fixed_length("01", 10, 3);
+    unit_fixed_length("0123", 10, 3);
+    unit_fixed_length("013456789012", 10, 3);
+
+    unit_fixed_length("01", 3, 10);
+    unit_fixed_length("0123", 3, 10);
+    unit_fixed_length("013456789012", 3, 10);
+    unit_fixed_length("01", 3, 3);
+    unit_fixed_length("0123", 3, 3);
+    unit_fixed_length("013456789012", 3, 3);
+    return 0;
+}
+
 int test_seq(void)
 {
     char weekday[] = "Mon";
@@ -219,5 +264,6 @@ int main()
     test_sprintf();
     test_LogOutFile();
     test_sharp();
+    test_fixed_length();
     return 0;
 }
