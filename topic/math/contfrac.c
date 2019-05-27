@@ -34,10 +34,25 @@ uint32_t rat2contf_loop(rational x, uint32_t *a, size_t len) {
             return i + 1;
         }
     }
+    return i;
+}
+
+rational contf2rat(uint32_t *a, size_t len) {
+    uint32_t t, i;
+    rational x = {.num = 0, .den = 1};
+    for (i = len; i != 0; i--) {
+        t = x.den;
+        x.den = x.num + x.den * a[i - 1];
+        x.num = t;
+    }
+    t = x.den;
+    x.den = x.num;
+    x.num = t;
+    return x;
 }
 
 void showRat(rational x) {
-    printf("%d/%d\n", x.num, x.den);
+    printf("%u/%u\n", x.num, x.den);
 }
 
 void showContF(uint32_t *a, size_t len) {
@@ -60,6 +75,13 @@ int unit(rational x) {
     uint32_t len = rat2contf(x, a, 20);
     // uint32_t len = rat2contf_loop(x, a, 20);
     showContF(a, len);
+
+    size_t i;
+    for (i = 1; i <= len; i++) {
+        rational y = contf2rat(a, i);
+        showRat(y);
+    }
+    printf("---------------------\n");
     return 0;
 }
 
@@ -71,8 +93,8 @@ int main() {
     x.den = 93;
     unit(x);
 
-    x.num = 31415927;
-    x.den = 10000000;
+    x.den = 1000 * 1000 * 1000;
+    x.num = M_PI * x.den;
     unit(x);
 
     x.den = 1000 * 1000 * 1000;
