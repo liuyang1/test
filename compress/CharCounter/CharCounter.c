@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
     printf("[");
     for (i = 0, sum = 0; i != TBL_SIZE; i++) {
         if (tbl[i] != 0) {
-            // printf("%02x: %d\n", i, tbl[i]);
+            // printf("%02x/%c: %d\n", i, isprint(i) ? i : '.', tbl[i]);
             printf("%d, ", tbl[i]);
             sum += tbl[i];
         }
