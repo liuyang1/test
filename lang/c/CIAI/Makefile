@@ -12,4 +12,6 @@ endif
 
 $(info $(SRCS))
 
+CFLAGS += -pg -Wno-unused-function
+
 include ../template.mk

@@ -41,11 +41,11 @@ int mod_arith_1(int a, int b) {
     }
 }
 
-#define EXPECT_INT_EQ(a_, b_) {              \
-        int a = a_, b = b_;                  \
-        if (a != b) {                        \
-            return false;                    \
-        }                                    \
+#define EXPECT_INT_EQ(a_, b_) { \
+        int a = a_, b = b_;     \
+        if (a != b) {           \
+            return false;       \
+        }                       \
 }
 
 bool test_mod(int (*MOD)(int, int)) {

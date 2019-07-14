@@ -1,9 +1,11 @@
+#include <stdio.h>
 #include <string.h>
 #include <limits.h>
 #include "assert.h"
 #include "mem.h"
 #include "atom.h"
 
+#define EXERCISE_3_4
 #define NELEMS(x) ((sizeof(x)) / sizeof(((x)[0])))
 
 static unsigned long scatter[] = {
@@ -54,9 +56,20 @@ static unsigned long scatter[] = {
 
 static struct atom {
     struct atom *link;
+    unsigned long hash;
     int len;
+#ifdef EXERCISE_3_4
+    char str[1]; // This way save one pointer (32bit/64bit), and one char
+    // And it save one time indirect access by pointer
+#else
     char *str;
-} *buckets[2048];
+#endif
+} *buckets[2039];
+/** Exer 3.1, Improve from 2048 to 2039
+ * check simple_hash_string function, when buckets length is 2048;
+ * The algo means only last 20 char have effect.(For real test, it's same when length>=11chars)
+ * When buckets is 2039, the collision always happen when length>=64chars
+ */
 
 
 const char *Atom_string(const char *str) {
@@ -99,6 +112,23 @@ static unsigned long simple_hash_string(const char *str, int len) {
     return h;
 }
 
+static unsigned long my_hash_string(const char *str, int len) {
+    int i;
+    unsigned long h;
+    for (i = h = 0; i != len; i++) {
+        h = h * 97 + str[i];
+    }
+    return h;
+}
+
+static unsigned long dumb_hash(const char *str, int len) {
+    return 0; // so we could debug on chain-list
+}
+
+// #define HASH_FUNC   dumb_hash
+// #define HASH_FUNC   simple_hash_string
+#define HASH_FUNC   my_hash_string
+
 const char *Atom_new(const char *str, int len) {
     unsigned long h;
     int i;
@@ -106,10 +136,23 @@ const char *Atom_new(const char *str, int len) {
 
     assert(str);
     assert(len >= 0);
-    h = simple_hash_string(str, len);
+    h = HASH_FUNC(str, len);
+    // h &= NELEMS(buckets) - 1; // only work at NELEMS == 2 ^ n
     h %= NELEMS(buckets);
+    /** Exer 3.3 Why don't use strncmp here? */
+    /* - strcmp, but not strncmp
+     * - we already know & compared string length, so we don't need check
+     *   strings' end now.
+     *   p->str[i] == '\0' || str[i] == '\0'
+     * - I think it's okay, if use `memcmp`
+     */
+    /** chaining-list hash */
     for (p = buckets[h]; p; p = p->link) {
-        if (len == p->len) {
+        if (p->str == str) {
+            return p->str;
+        }
+        /** Exer 3.5 add hash in entry to save comparasion */
+        if (len == p->len && h == p->hash) {
             for (i = 0; i < len && p->str[i] == str[i];) {
                 i++;
             }
@@ -120,9 +163,19 @@ const char *Atom_new(const char *str, int len) {
         }
     }
     // for atom struct and string
-    p = ALLOC(sizeof(*p) + sizeof(char) * (len + 1));
+    unsigned int size;
+#ifdef EXERCISE_3_4
+    size = sizeof(*p) + sizeof(char) * len;
+#else
+    size = sizeof(*p) + sizeof(char) * (len + 1);
+#endif
+    // printf("size=%d\n", size);
+    p = ALLOC(size);
     p->len = len;
+    p->hash = h;
+#ifndef EXERCISE_3_4
     p->str = (char *)(p + 1); // next to bucket, it's str part.
+#endif
     if (len > 0) {
         memcpy(p->str, str, len);
     }
@@ -133,17 +186,99 @@ const char *Atom_new(const char *str, int len) {
 }
 
 int Atom_length(const char *str) {
-    struct atom *p;
-    unsigned int i;
-
     assert(str);
-    for (i = 0; i < NELEMS(buckets); i++) {
-        for (p = buckets[i]; p; p = p->link) {
-            if (p->str == str) {
-                return p->len;
-            }
+    struct atom *p;
+    // Exer 3.6 get length first, to avoid loop on whole buckets
+    int len = strlen(str);
+    unsigned long h;
+    h = HASH_FUNC(str, len);
+    h %= NELEMS(buckets);
+    for (p = buckets[h]; p; p = p->link) {
+        if (p->str == str) {
+            return p->len;
         }
     }
     assert(0);
     return 0;
+}
+
+void Atom_reset() {
+    struct atom *p, *next;
+    unsigned int i;
+    for (i = 0; i != NELEMS(buckets); i++) {
+        for (p = buckets[i]; p; p = next) {
+            next = p->link;
+            FREE(p);
+        }
+        buckets[i] = NULL;
+    }
+}
+
+void Atom_debug() {
+    struct atom *p;
+    unsigned int i, j, slot;
+    unsigned int *stat = ALLOC(sizeof(unsigned int) * NELEMS(buckets));
+    for (i = j = slot = 0; i != NELEMS(buckets); i++) {
+        for (p = buckets[i], slot = 0; p; p = p->link) {
+            slot++;
+            j++;
+#if 1
+            printf("i=%d p=%p len=%u '%s'\n", i, p, p->len, p->str);
+#endif
+        }
+        stat[i] = slot;
+    }
+    double var = 0, avg = j / (NELEMS(buckets) + 0.);
+    for (i = 0; i != NELEMS(buckets); i++) {
+        var += (stat[i] - avg) * (stat[i] - avg);
+    }
+    var /= NELEMS(buckets);
+    printf("atom num=%u all=%lu avg=%f var=%f\n", j, NELEMS(buckets), avg, var);
+    FREE(stat);
+}
+
+int Atom_number() {
+    struct atom *p;
+    unsigned int i, cnt;
+    for (i = cnt = 0; i != NELEMS(buckets); i++) {
+        for (p = buckets[i]; p; p = p->link) {
+            cnt++;
+        }
+    }
+    return cnt;
+}
+
+void Atom_free(const char *str) {
+    assert(str);
+    int len = strlen(str);
+    unsigned long h;
+    h = HASH_FUNC(str, len);
+    h %= NELEMS(buckets);
+#if 1
+    struct atom *p, *last;
+    p = buckets[h];
+    if (p->str == str) {
+        buckets[h] = p->link;
+        FREE(p);
+        return;
+    }
+    for (; p; p = p->link) {
+        if (p->str == str) {
+            last->link = p->link;
+            FREE(p);
+            return;
+        }
+        last = p;
+    }
+#else
+    struct atom *p, **pp;
+    p = buckets[h];
+    for (pp = &p; p; pp = &p, p = p->link) {
+        if (p->str == str) {
+            *pp = p->link;
+            FREE(p);
+            return;
+        }
+    }
+#endif
 }

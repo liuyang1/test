@@ -31,4 +31,3 @@ void Except_raise(const T *e, const char *file, int line) {
 
     longjmp(p->env, Except_raised);
 }
-

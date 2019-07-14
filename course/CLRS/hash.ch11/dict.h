@@ -12,4 +12,9 @@ int dict_insert(void *d, Key k, Value v);
 int dict_search(void *d, Key k, Value *pv);
 int dict_delete(void *d, Key k);
 
+void dict_show(void *d);
+
+int dict_items(void *d, void *iter, Key *pk, Value *pv);
+int dict_keys(void *d, void *iter, Key *pk);
+
 #endif

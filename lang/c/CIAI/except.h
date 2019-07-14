@@ -34,12 +34,12 @@ void Except_raise(const T *e, const char *file, int line);
 
 // exported macros 48
 
-#define TRY do {                                \
-        volatile int Except_flag;               \
-        Except_frame Except_frame;              \
-        Except_frame.prev = Except_stack;       \ // push56
-        Except_stack = &Except_frame;           \
-        Except_flag = setjmp(Except_frame.env); \
+#define TRY do {                         \
+        volatile int Except_flag;        \
+        Except_Frame frame;              \
+        frame.prev = Except_stack;       \
+        Except_stack = &frame;           \
+        Except_flag = setjmp(frame.env); \
         if (Except_flag == Except_entered) {
 
 #define POPCHUNK_IF if (Except_flag == Except_entered) { \
@@ -71,9 +71,9 @@ void Except_raise(const T *e, const char *file, int line);
 
 
 #define RAISE(e) Except_raise(&(e), __FILE__, __LINE__)
-#define RERAISE(e) Except_raise(Except_frame.exception, \
-                                Except_frame.file, Except_frame.line)
-#define RETURN switch(Except_stack = Except_stask->prev, 0) defaut: return
+#define RERAISE(e) Except_raise(frame.exception, \
+                                frame.file, frame.line)
+#define RETURN switch (Except_stack = Except_stack->prev, 0) defaut: return
 
 #undef T
 
