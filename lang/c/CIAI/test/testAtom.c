@@ -13,6 +13,16 @@
 
 #include "test.h"
 
+bool testAtomLoad() {
+    Atom_reset();
+    Atom_vload("hello", "world", NULL);
+    const char *str[] = {"my", "name", NULL};
+    Atom_aload(str);
+    int n = Atom_number();
+    ASSERT(n ==  4);
+    return true;
+}
+
 bool testAtomSimple() {
     Atom_reset();
     const char *s = Atom_string("abc");
@@ -99,6 +109,7 @@ bool testAtomFree() {
 }
 
 bool testAtom() {
+    testAtomLoad();
     testAtomFree();
     testAtomHash();
     ASSERT(testAtomSimple());

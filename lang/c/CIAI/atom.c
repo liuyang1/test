@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
+#include <stdarg.h>
 #include "assert.h"
 #include "mem.h"
 #include "atom.h"
@@ -281,4 +282,19 @@ void Atom_free(const char *str) {
         }
     }
 #endif
+}
+
+void Atom_vload(const char *str, ...) {
+    va_list ap;
+    va_start(ap, str);
+    for (; str; str = va_arg(ap, const char *)) {
+        Atom_string(str);
+    }
+    va_end(ap);
+}
+
+void Atom_aload(const char *str[]) {
+    for (; *str != NULL; str++) {
+        Atom_string(*str);
+    }
 }
