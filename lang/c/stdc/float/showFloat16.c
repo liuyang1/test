@@ -45,6 +45,10 @@ void showFloat16(int16_t x) {
             exp--;
         } while (exp != 0);
     }
+    while (frac % 2 == 0 && den % 2 == 0) {
+        frac /= 2;
+        den /= 2;
+    }
     printf("f=%d/%d=%f\n", frac, den, frac / (den + 0.));
 }
 
