@@ -19,7 +19,7 @@ filterBy (False:bs) (_:xs) = filterBy bs xs
 freq xs = map (head &&& (\x-> length x % n)) $ group $ sort xs
     where n = length xs
 
-banzaf xs maj = map (\((_, b), c) -> (b, c)) $ freq $ concatMap key $ cand $ zip [1..] xs
+banzhaf xs maj = map (\((_, b), c) -> (b, c)) $ freq $ concatMap key $ cand $ zip [1..] xs
     where cand xs = filter isMaj (comba xs)
           key xs = filterBy (map (not . isMaj) (subOne xs)) xs
           isMaj xs = sum (map snd xs) > maj

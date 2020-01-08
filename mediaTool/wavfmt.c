@@ -107,7 +107,7 @@ static void trans(uint8_t *src, uint32_t size, char *fn_out) {
 static void process_chunk(void *p_in) {
     Chunk *p = (Chunk *)p_in;
     char buf[FOURCC_BUFLEN];
-    printf("id=%s size=%d\n", show_fourcc(p->id, buf), p->size);
+    printf("id=%s size=%u\n", show_fourcc(p->id, buf), p->size);
 
 #define L      "  "
     if (p->id == fourcc("RIFF")) {
