@@ -51,6 +51,10 @@ typedef struct {
     uint16_t bits_per_sample;
 } FmtChk;
 
+typedef struct {
+    uint32_t sample_num;
+} FactChk;
+
 static inline void usage(char *prog) {
     printf("%s [wav]\n"
            "trim wav's head, and get internal data\n",
@@ -74,10 +78,14 @@ static inline char *show_fourcc(uint32_t n, char *buf) {
 }
 
 static inline const char *show_audio_format(uint16_t audio_format) {
-    if (audio_format == 1) {
-        return "'PCM linear'";
-    } else {
-        return "'unknown audio format'";
+    switch (audio_format) {
+        case 1: return "'PCM linear'";
+        case 2: return "'MS ADPCM'";
+        case 3: return "'IEEEE float'";
+        case 6: return "'A-law'";
+        case 7: return "'Mu-law'";
+        case 0x11: return "'DVI ADPCM'";
+        default: return "'unknown audio format'";
     }
 }
 
@@ -156,6 +164,11 @@ static void process_chunk(void *p_in) {
         }
         printf(L "data chunk, save to %s\n", fn_out);
         trans(p->payload, p->size, fn_out);
+    } else if (p->id == fourcc("fact")) {
+        FactChk *fact = (FactChk *)p->payload;
+        printf(L "fact chunk, number of samples (per channel) = %u\n",
+               fact->sample_num);
+        process_chunk(p->payload + p->size);
     } else {
         printf(L "unknown chunk id\n");
     }
