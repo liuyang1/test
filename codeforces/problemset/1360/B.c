@@ -29,5 +29,6 @@ int main() {
         }
         printf("%d\n", m);
     }
+    free(s);
     return 0;
 }
