@@ -1,4 +1,4 @@
-no=04
+no=07
 src=$(wildcard $(no)*.c)
 src+=$(wildcard $(no)*.cpp)
 
