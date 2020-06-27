@@ -1,0 +1,9 @@
+valgrind
+
+- memcheck, check memory allocate/free issue
+- drd: data race detection, check posix thread related issue
+- helgrind: check data rate issue
+
+For this kind of accessing invalid resources issue, helgrind could detect it
+
+https://valgrind.org/docs/manual/hg-manual.html
