@@ -1,5 +1,5 @@
 CFLAGS=-Wall -g
-LDFLAGS=-lncurses
+LDFLAGS=-lncurses -lm
 sst: sst.000.c
 	gcc $(CFLAGS) $^ $(LDFLAGS) -o $@
 

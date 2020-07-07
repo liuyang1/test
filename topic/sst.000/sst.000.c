@@ -7,10 +7,102 @@
 #include <stdint.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <math.h>
 
 #include <unistd.h>
 
 #include <curses.h>
+
+#define LOG(...) fprintf(stderr, __VA_ARGS__)
+
+/** basic rand function */
+/** [0, 1) */
+static inline double urand() {
+    return rand() / (RAND_MAX + 0.);
+}
+
+/** [b, b + w) */
+static inline double randb(double b, double w) {
+    return b + urand() * w;
+}
+
+/** [m - w/2, m + w/2) */
+static inline double randm(double m, double w) {
+    return m + (urand() - 0.5) * w;
+}
+
+/** basic vector operation */
+typedef struct {
+    double x, y;
+} Vec2;
+
+static inline Vec2 vec2_cons(double x, double y) {
+    Vec2 p = {.x = x, .y = y};
+    return p;
+}
+
+static inline Vec2 vec2_add(Vec2 a, Vec2 b) {
+    Vec2 c = {
+        .x = a.x + b.x,
+        .y = a.y + b.y,
+    };
+    return c;
+}
+
+static inline Vec2 vec2_sub(Vec2 a, Vec2 b) {
+    Vec2 c = {
+        .x = a.x - b.x,
+        .y = a.y - b.y,
+    };
+    return c;
+}
+
+static inline Vec2 vec2_zero() {
+    Vec2 c = {.x = 0, .y = 0};
+    return c;
+}
+static inline Vec2 vec2_neg(Vec2 a) {
+    Vec2 c = {.x = -a.x, .y = -a.y};
+    return c;
+}
+
+static inline double vec2_abs2(Vec2 a) {
+    return a.x * a.x + a.y * a.y;
+}
+
+static inline double vec2_abs(Vec2 a) {
+    // TODO
+    return 0;
+}
+
+static inline double vec2_arg(Vec2 a) {
+    // TODO
+    return 0;
+}
+
+static inline Vec2 vec2_scale(Vec2 a, double k) {
+    Vec2 c = {.x = a.x * k, .y = a.y * k};
+    return c;
+}
+
+static inline Vec2 vec2_rescale(Vec2 a, double len) {
+    double l = vec2_abs(a);
+    return vec2_scale(a, len / l);
+}
+
+static inline Vec2 vec2_rescale2(Vec2 a, double len2) {
+    double l2 = vec2_abs2(a);
+    return vec2_scale(a, sqrt(len2 / l2));
+}
+
+static inline double vec2_slope(Vec2 a) {
+    return a.y / a.x;
+}
+
+static inline double vec2_slope2(Vec2 a, Vec2 b) {
+    Vec2 c = vec2_sub(a, b);
+    return vec2_slope(c);
+}
 
 /** basic two-dim array ******************************************************/
 typedef char T;
@@ -38,8 +130,12 @@ static inline T idx1d(Mat *p, int i) {
     return p->a[i];
 }
 
+static inline bool in1d(int x, int a, int b) {
+    return a <= x && x < b;
+}
+
 static inline bool in(Mat *p, int x, int y) {
-    return (0 <= x) && (x < p->w) && (0 <= y) && (y < p->h);
+    return in1d(x, 0, p->w) && in1d(y, 0, p->h);
 }
 
 static inline bool eq(Mat *p, T v, int x, int y) {
@@ -193,8 +289,7 @@ void *life_create(int w, int h) {
     int i, j;
     for (j = 0; j != m->h; j++) {
         for (i = 0; i != m->w; i++) {
-            uint64_t r = rand();
-            int cond = (r * 100 <= 4llu * RAND_MAX);
+            int cond = (urand() <= 0.04);
             put(m, i, j, cond ? LIFE_ONE : LIFE_NONE);
         }
     }
@@ -223,9 +318,9 @@ int life_iter(void *g) {
                 case 7:
                 case 8: put(m, i, j, LIFE_NONE); break; // die as crowd
             }
+            // generate life with low probablity
             if (!idx(m, i, j)) {
-                uint64_t r = rand();
-                int cond = (r * 1000 <= 1 * RAND_MAX);
+                int cond = (urand() <= 0.001);
                 if (cond) {
                     put(m, i, j, LIFE_ONE);
                 }
@@ -268,6 +363,7 @@ int rulex_draw(void *g) {
 }
 
 int rulex_iter(void *g) {
+    /** TODO: opt to avoid putrow */
     RuleX *p = g;
     int x, y;
     for (y = 0; y != p->h - 1; y++) {
@@ -276,11 +372,114 @@ int rulex_iter(void *g) {
     y = p->h - 2;
     for (x = 0; x != p->w; x++) {
         int a = idxEx(p->m, x - 1, y) * 4 + idxEx(p->m, x, y) * 2 + idxEx(p->m, x + 1, y);
-        put(p->m, x, p->h - 1, 1 <= a && a <= 4);
-        /** 30 = [0, 1, 1, 1,  1, 0, 0, 0], when a is [1..4], map to 1, else 0 */
+        put(p->m, x, p->h - 1, in1d(a, 1, 5));
+        /** 30 = [0, 1, 1, 1,  1, 0, 0, 0], when a is [1..5), map to 1, else 0 */
     }
     return 0;
 }
+
+/** body3 ********************************************************************/
+
+#define BODY_NUM 2
+#define TRACE_NUM 100
+typedef struct {
+    int times;
+    int head; // head in trace
+    Vec2 pt[BODY_NUM][TRACE_NUM];
+    Vec2 v[BODY_NUM];
+    int w, h;
+} Body3;
+
+void *body3_create(int w, int h) {
+    LOG("win=%d,%d\n", w, h);
+    Body3 *p = malloc(sizeof(Body3));
+    p->w = w, p->h = h;
+    p->times = p->head = 0;
+    double w_ = w, h_ = h;
+    int i, hd = p->head;
+    p->pt[0][hd] = vec2_cons(w_ / 2 * BODY_NUM, h_ * BODY_NUM / 2);
+    for (i = 1; i != BODY_NUM; i++) {
+        // keep mass central is in middle
+        p->pt[i][hd] = vec2_cons(randm(w_ / 2, w_ / 2), randm(h_ / 3, h_ / 3));
+        p->pt[0][hd] = vec2_sub(p->pt[0][hd], p->pt[i][hd]);
+    }
+    p->v[0] = vec2_cons(0, 0);
+    for (i = 1; i != BODY_NUM; i++) {
+        p->v[i] = vec2_cons(randm(0, w_ * 0.01), randm(0, h_ * 0.01));
+        p->v[0] = vec2_sub(p->v[0], p->v[i]);
+    }
+    return p;
+}
+
+void body3_destroy(void *g) {
+    free(g);
+}
+
+int body3_iter(void *g) {
+    Body3 *p = g;
+    int old = p->head;
+    int new = (p->head + 1) % (TRACE_NUM);
+    // new = old + delta
+    // force
+    Vec2 f[BODY_NUM][BODY_NUM];
+    memset(f, 0x00, sizeof(f));
+    int i, j;
+    for (i = 0; i != BODY_NUM - 1; i++) {
+        for (j = i + 1; j != BODY_NUM; j++) {
+            Vec2 fij = vec2_sub(p->pt[i][old], p->pt[j][old]); // from i to j
+            double dist2 = vec2_abs2(fij);
+            f[i][j] = vec2_rescale2(fij, 10. / dist2);
+            f[j][i] = vec2_neg(f[i][j]);
+        }
+    }
+    for (i = 0; i != BODY_NUM; i++) {
+        // velocity
+        Vec2 s;
+        for (j = 0, s = vec2_zero(); j != BODY_NUM; j++) {
+            s = vec2_add(s, f[j][i]);
+        }
+        s = vec2_scale(s, 0.5);
+        p->v[i] = vec2_add(p->v[i], s);
+        // location
+        p->pt[i][new] = vec2_add(p->pt[i][old], p->v[i]);
+        LOG("i=%d f=%f,%f v=%f,%f pt=%f,%f\n",
+            i, s.x, s.y, p->v[i].x, p->v[i].y, p->pt[i][new].x, p->pt[i][new].y);
+        p->v[i] = vec2_add(p->v[i], s);
+    }
+    p->head = new;
+    p->times++;
+    return 0;
+}
+
+/** (a, b] */
+void drawline(Vec2 a, Vec2 b) {
+    Vec2 c = vec2_sub(a, b);
+    double k = vec2_slope(c);
+    if (0 <= k && k <= 1) {
+    }
+
+
+
+}
+int body3_draw(void *g) {
+    char s[100];
+    Body3 *p = g;
+    int hd = p->head;
+    int i, j;
+    for (i = 0; i != BODY_NUM; i++) {
+        int x = round(p->pt[i][hd].x), y = round(p->pt[i][hd].y);
+        LOG("%d,%d\n", x, y);
+        sprintf(s, "%d", i);
+        for (j = 1; j != TRACE_NUM; j++) {
+            int k = (hd + j) % TRACE_NUM;
+            x = round(p->pt[i][k].x), y = round(p->pt[i][k].y);
+            mvprintw(y, x, ".");
+        }
+        mvprintw(y, x, s);
+    }
+    return 0;
+}
+
 
 /** General game framework & canvas part *************************************/
 /**
@@ -303,6 +502,7 @@ typedef struct {
 } Game;
 
 Game gamelst[] = {
+    {"body3", body3_create, body3_iter, body3_draw, body3_destroy, 30},
     {"rulex", rulex_create, rulex_iter, rulex_draw, rulex_destroy, 1},
     {"life", life_create, life_iter, life_draw, life_destroy, 1},
     {"breakout", breakout_create, breakout_iter, breakout_draw, breakout_destory, 30},
