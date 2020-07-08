@@ -15,6 +15,8 @@
 
 #define LOG(...) fprintf(stderr, __VA_ARGS__)
 
+#define PI (3.1415926)
+
 /** basic rand function */
 /** [0, 1) */
 static inline double urand() {
@@ -36,8 +38,15 @@ typedef struct {
     double x, y;
 } Vec2;
 
+/** descartes */
 static inline Vec2 vec2_cons(double x, double y) {
     Vec2 p = {.x = x, .y = y};
+    return p;
+}
+
+/** polar */
+static inline Vec2 vec2_cons_polar(double l, double a) {
+    Vec2 p = {.x = l * cos(a), .y = l * sin(a)};
     return p;
 }
 
@@ -49,6 +58,11 @@ static inline Vec2 vec2_add(Vec2 a, Vec2 b) {
     return c;
 }
 
+static inline Vec2 vec2_swp(Vec2 a) {
+    Vec2 c = {.x = a.y, .y = a.x};
+    return c;
+}
+
 static inline Vec2 vec2_sub(Vec2 a, Vec2 b) {
     Vec2 c = {
         .x = a.x - b.x,
@@ -57,10 +71,19 @@ static inline Vec2 vec2_sub(Vec2 a, Vec2 b) {
     return c;
 }
 
+static inline Vec2 vec2_mul(Vec2 a, Vec2 b) {
+    Vec2 c = {
+        .x = a.x * b.x - a.y * b.y,
+        .y = a.y * b.x + a.x * b.y,
+    };
+    return c;
+}
+
 static inline Vec2 vec2_zero() {
     Vec2 c = {.x = 0, .y = 0};
     return c;
 }
+
 static inline Vec2 vec2_neg(Vec2 a) {
     Vec2 c = {.x = -a.x, .y = -a.y};
     return c;
@@ -102,6 +125,52 @@ static inline double vec2_slope(Vec2 a) {
 static inline double vec2_slope2(Vec2 a, Vec2 b) {
     Vec2 c = vec2_sub(a, b);
     return vec2_slope(c);
+}
+
+static inline Vec2 vec2_round(Vec2 a) {
+    Vec2 c = {.x = round(a.x), .y = round(a.y)};
+    return c;
+}
+
+/** helper draw function /
+   static inline void drawpt(Vec2 p, char *s) {
+    p = vec2_round(p);
+    mvprintw(p.y, p.x, s);
+   }
+
+   /** Bresenham draw line algo */
+void drawline(Vec2 a, Vec2 b) {
+    LOG("line %f,%f to %f,%f\n", a.x, a.y, b.x, b.y);
+    bool steep = abs(b.y - a.y) > abs(b.x - a.x);
+    if (steep) {
+        a = vec2_swp(a);
+        b = vec2_swp(b);
+    }
+    if (a.x > b.x) {
+        Vec2 t = a;
+        a = b;
+        b = t;
+    }
+    // from A to B, and slope <= 1
+    double dx = b.x - a.x;
+    double dy = abs(b.y - a.y);
+    double de = dy / dx;
+    double e = 0;
+    int step = a.y < b.y ? 1 : -1;
+    int x, y;
+    Vec2 pt;
+    for (x = round(a.x), y = a.y; x <= round(b.x); x++) {
+        pt.x = x, pt.y = y;
+        if (steep) {
+            pt = vec2_swp(pt);
+        }
+        drawpt(pt, ".");
+        e += de;
+        if (e >= 0.5) {
+            y += step;
+            e -= 1.0;
+        }
+    }
 }
 
 /** basic two-dim array ******************************************************/
@@ -451,16 +520,6 @@ int body3_iter(void *g) {
     return 0;
 }
 
-/** (a, b] */
-void drawline(Vec2 a, Vec2 b) {
-    Vec2 c = vec2_sub(a, b);
-    double k = vec2_slope(c);
-    if (0 <= k && k <= 1) {
-    }
-
-
-
-}
 int body3_draw(void *g) {
     char s[100];
     Body3 *p = g;
@@ -472,14 +531,75 @@ int body3_draw(void *g) {
         sprintf(s, "%d", i);
         for (j = 1; j != TRACE_NUM; j++) {
             int k = (hd + j) % TRACE_NUM;
-            x = round(p->pt[i][k].x), y = round(p->pt[i][k].y);
-            mvprintw(y, x, ".");
+            drawpt(p->pt[i][k], ".");
         }
-        mvprintw(y, x, s);
+        drawpt(p->pt[i][hd], s);
     }
     return 0;
 }
 
+/** square */
+#define VERTEX_NUM 5
+typedef struct {
+    int w, h;
+    Vec2 vertex[VERTEX_NUM];
+    Vec2 origin;
+    Vec2 rot;
+} Sqr;
+
+void *sqr_create(int w, int h) {
+    Sqr *p = malloc(sizeof(Sqr));
+    p->w = w, p->h = h;
+    p->origin = vec2_cons(w / 2., h / 2.);
+    double len = h / 3.;
+    Vec2 rotn = vec2_cons_polar(1, (2 * PI) / VERTEX_NUM);
+    p->vertex[0] = vec2_cons(len, 0);
+    int i;
+    for (i = 1; i != VERTEX_NUM; i++) {
+        p->vertex[i] = vec2_mul(rotn, p->vertex[i - 1]);
+
+    }
+    p->rot = vec2_cons_polar(1, 0.01);
+    return p;
+}
+
+void sqr_destory(void *g) {
+    free(g);
+}
+
+int sqr_iter(void *g) {
+    Sqr *p = g;
+    int i;
+    for (i = 0; i != VERTEX_NUM; i++) {
+        p->vertex[i] = vec2_mul(p->rot, p->vertex[i]);
+    }
+    return 0;
+}
+
+int sqr_draw(void *g) {
+    Sqr *p = g;
+    int i, j;
+#if 1 // draw polygon
+    for (i = 0; i != VERTEX_NUM; i++) {
+        Vec2 pt0 = vec2_add(p->origin, p->vertex[i]);
+        Vec2 pt1 = vec2_add(p->origin, p->vertex[(i + 1) % VERTEX_NUM]);
+        drawline(pt0, pt1);
+    }
+#else // draw complete graph
+    for (i = 0; i != VERTEX_NUM; i++) {
+        for (j = i + 1; j != VERTEX_NUM; j++) {
+            Vec2 pt0 = vec2_add(p->origin, p->vertex[i]);
+            Vec2 pt1 = vec2_add(p->origin, p->vertex[j]);
+            drawline(pt0, pt1);
+        }
+    }
+#endif
+    for (i = 0; i != VERTEX_NUM; i++) {
+        Vec2 pt =  vec2_add(p->origin, p->vertex[i]);
+        drawpt(pt, "o");
+    }
+    return 0;
+}
 
 /** General game framework & canvas part *************************************/
 /**
@@ -502,6 +622,7 @@ typedef struct {
 } Game;
 
 Game gamelst[] = {
+    {"square", sqr_create, sqr_iter, sqr_draw, sqr_destory, 30},
     {"body3", body3_create, body3_iter, body3_draw, body3_destroy, 30},
     {"rulex", rulex_create, rulex_iter, rulex_draw, rulex_destroy, 1},
     {"life", life_create, life_iter, life_draw, life_destroy, 1},

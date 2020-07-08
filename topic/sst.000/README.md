@@ -4,4 +4,5 @@ ScreenSaver-Terminal
 - breakout
 - rule30
 - body3
+- rotating square
 - cubic (rotating)
