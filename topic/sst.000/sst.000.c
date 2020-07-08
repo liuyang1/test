@@ -13,9 +13,17 @@
 
 #include <curses.h>
 
+#ifdef DEBUG
 #define LOG(...) fprintf(stderr, __VA_ARGS__)
+#else
+#define LOG(...)
+#endif
 
 #define PI (3.1415926)
+
+static inline int min(int a, int b) {
+    return a < b ? a : b;
+}
 
 /** basic rand function */
 /** [0, 1) */
@@ -132,14 +140,14 @@ static inline Vec2 vec2_round(Vec2 a) {
     return c;
 }
 
-/** helper draw function /
-   static inline void drawpt(Vec2 p, char *s) {
+/** helper draw function */
+static inline void drawpt(Vec2 p, char *s) {
     p = vec2_round(p);
     mvprintw(p.y, p.x, s);
-   }
+}
 
-   /** Bresenham draw line algo */
-void drawline(Vec2 a, Vec2 b) {
+/** Bresenham draw line algo */
+void drawline(Vec2 a, Vec2 b, char *s) {
     LOG("line %f,%f to %f,%f\n", a.x, a.y, b.x, b.y);
     bool steep = abs(b.y - a.y) > abs(b.x - a.x);
     if (steep) {
@@ -164,7 +172,7 @@ void drawline(Vec2 a, Vec2 b) {
         if (steep) {
             pt = vec2_swp(pt);
         }
-        drawpt(pt, ".");
+        drawpt(pt, s);
         e += de;
         if (e >= 0.5) {
             y += step;
@@ -449,7 +457,7 @@ int rulex_iter(void *g) {
 
 /** body3 ********************************************************************/
 
-#define BODY_NUM 2
+#define BODY_NUM 3
 #define TRACE_NUM 100
 typedef struct {
     int times;
@@ -469,12 +477,12 @@ void *body3_create(int w, int h) {
     p->pt[0][hd] = vec2_cons(w_ / 2 * BODY_NUM, h_ * BODY_NUM / 2);
     for (i = 1; i != BODY_NUM; i++) {
         // keep mass central is in middle
-        p->pt[i][hd] = vec2_cons(randm(w_ / 2, w_ / 2), randm(h_ / 3, h_ / 3));
+        p->pt[i][hd] = vec2_cons(randm(w_ / 2, w_ / 2), randm(h_ / 2, h_ / 2));
         p->pt[0][hd] = vec2_sub(p->pt[0][hd], p->pt[i][hd]);
     }
     p->v[0] = vec2_cons(0, 0);
     for (i = 1; i != BODY_NUM; i++) {
-        p->v[i] = vec2_cons(randm(0, w_ * 0.01), randm(0, h_ * 0.01));
+        p->v[i] = vec2_cons(randm(0, w_ * 0.005), randm(0, h_ * 0.005));
         p->v[0] = vec2_sub(p->v[0], p->v[i]);
     }
     return p;
@@ -497,7 +505,7 @@ int body3_iter(void *g) {
         for (j = i + 1; j != BODY_NUM; j++) {
             Vec2 fij = vec2_sub(p->pt[i][old], p->pt[j][old]); // from i to j
             double dist2 = vec2_abs2(fij);
-            f[i][j] = vec2_rescale2(fij, 10. / dist2);
+            f[i][j] = vec2_rescale2(fij, 1. / dist2);
             f[j][i] = vec2_neg(f[i][j]);
         }
     }
@@ -529,9 +537,10 @@ int body3_draw(void *g) {
         int x = round(p->pt[i][hd].x), y = round(p->pt[i][hd].y);
         LOG("%d,%d\n", x, y);
         sprintf(s, "%d", i);
-        for (j = 1; j != TRACE_NUM; j++) {
-            int k = (hd + j) % TRACE_NUM;
-            drawpt(p->pt[i][k], ".");
+        for (j = 0; j != min(p->times, TRACE_NUM - 1); j++) {
+            int k = (hd + TRACE_NUM - j) % TRACE_NUM;
+            int k1 = (hd + TRACE_NUM - j - 1) % TRACE_NUM;
+            drawline(p->pt[i][k], p->pt[i][k1], ".");
         }
         drawpt(p->pt[i][hd], s);
     }
@@ -583,14 +592,14 @@ int sqr_draw(void *g) {
     for (i = 0; i != VERTEX_NUM; i++) {
         Vec2 pt0 = vec2_add(p->origin, p->vertex[i]);
         Vec2 pt1 = vec2_add(p->origin, p->vertex[(i + 1) % VERTEX_NUM]);
-        drawline(pt0, pt1);
+        drawline(pt0, pt1, ".");
     }
 #else // draw complete graph
     for (i = 0; i != VERTEX_NUM; i++) {
         for (j = i + 1; j != VERTEX_NUM; j++) {
             Vec2 pt0 = vec2_add(p->origin, p->vertex[i]);
             Vec2 pt1 = vec2_add(p->origin, p->vertex[j]);
-            drawline(pt0, pt1);
+            drawline(pt0, pt1, ".");
         }
     }
 #endif

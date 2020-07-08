@@ -71,7 +71,7 @@ int main() {
     getmaxyx(stdscr, max_y, max_x); // stdscr from initscr, get max_y, max_x
 
     Mat *m = m_create(max_x, max_y);
-    int block = 8;
+    int block = 10;
     int i, j;
     for (j = block; j != m->h - block; j++) {
         for (i = block; i != m->w - block; i++) {

@@ -11,6 +11,8 @@
 #include <stdbool.h>
 #include <inttypes.h>
 
+#include <curses.h>
+
 typedef struct {
     int32_t p, q;
 } R;
@@ -180,13 +182,13 @@ enum {
 int brd_click(Board *p, int x, int y) {
     put(p->vis, x, y, 1);
     if (idx(p->mine, x, y)) {
-        printf("BOOM! at %d,%d\n", x, y);
+        // printf("BOOM! at %d,%d\n", x, y);
         return rBOOM;
     } else {
         brd_sniff(p, x, y);
         int s = brd_invis(p);
         if (s == p->mines) {
-            printf("KO!\n");
+            // printf("KO!\n");
             return rKO;
         }
         return rUND;
@@ -296,7 +298,107 @@ int play_term() {
     return ret;
 }
 
+typedef struct {
+    int max_y, max_x;
+    int cx, cy;
+} Canvas;
+
+Canvas *canvas_init() {
+    initscr();
+    noecho();
+    raw();
+    cbreak();
+    curs_set(FALSE);
+    Canvas *p = malloc(sizeof(Canvas));
+    getmaxyx(stdscr, p->max_y, p->max_x);
+    mousemask(ALL_MOUSE_EVENTS, NULL);
+    keypad(stdscr, TRUE);
+    return p;
+}
+
+void canvas_deinit(Canvas *p) {
+    endwin();
+    free(p);
+}
+
+MEVENT canvas_mouse(Canvas *p) {
+    MEVENT ev;
+    while (true) {
+        int ch = getch();
+        switch (ch) {
+            case KEY_MOUSE:
+                if (getmouse(&ev) == OK) {
+                    return ev;
+                }
+            default:
+                break;
+        }
+    }
+    return ev;
+}
+
+void canvas_post(Canvas *p) {
+    refresh();
+    // usleep(30 * 1000);
+}
+
+void brd_draw(Board *p, Canvas *c) {
+    int cx = (c->max_x - p->w) / 2 - 1;
+    int cy = (c->max_y - p->h) / 2 - 1;
+
+    mvprintw(cy, cx, "P/mine/invis=%d/%d/%d", m_sum(p->mark), p->mines, brd_invis(p));
+    cy++;
+    int i, j;
+    for (j = 0; j != p->h; j++) {
+        for (i = 0; i != p->w; i++) {
+            char c[2] = "u";
+            if (idx(p->mark, i, j)) {
+                c[0] = 'P';
+            } else if (!idx(p->vis, i, j)) {
+                c[0] = '*';
+            } else if (idx(p->mine, i, j)) {
+                c[0] = 'X';
+            } else {
+                c[0] = '0' + idx(p->stat, i, j);
+            }
+            mvprintw(cy + j, cx + i, c);
+        }
+    }
+}
+
+
+int play_ncurses() {
+    Board *p = brd_create(30, 30, 100);
+    Canvas *c = canvas_init();
+    int cx = (c->max_x - p->w) / 2 - 1;
+    int cy = (c->max_y - p->h) / 2 - 1 + 1;
+    int ret;
+    while (true) {
+        brd_draw(p, c);
+        canvas_post(c);
+        MEVENT ev = canvas_mouse(c);
+        int x = ev.x - cx;
+        int y = ev.y - cy;
+        if (inRegion(p->stat, x, y)) {
+            if (ev.bstate & BUTTON1_CLICKED) {
+                ret = brd_click(p, x, y);
+                if (ret == rBOOM) {
+                    mvprintw(0, 0, "BOOM!");
+                } else if (ret == rKO) {
+                    mvprintw(0, 0, "KO!");
+                }
+            } else if (ev.bstate & BUTTON3_CLICKED) {
+                brd_mark(p, x, y);
+            }
+        }
+    }
+    brd_destroy(p);
+    canvas_deinit(c);
+    return 0;
+}
+
 int main() {
-    play_term();
+    // play_term();
+    play_ncurses();
     return 0;
 }

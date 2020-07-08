@@ -1,14 +1,17 @@
 #a.out:main.cpp
 #	g++ main.cpp
-a.out: mouse.c
-	gcc mouse.c -lncurses
-tmine: tmine.c
-	gcc tmine.c -lncurses -o tmine
+TARGET=mine
 
-run: a.out
-	./a.out
+all: $(TARGET)
+mouse: mouse.c
+	gcc mouse.c -lncurses -o $@
+breakout: breakout.c
+	gcc breakout.c -lncurses -o $@
+
+run: $(all)
+	./$(TARGET)
 
 mine:mine.c
-	gcc -g -Wall mine.c -o mine && ./mine
+	gcc -g -Wall mine.c -o mine -lncurses && ./mine
 clean:
 	rm -rf a.out core
