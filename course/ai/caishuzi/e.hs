@@ -35,7 +35,7 @@ map2 (f:fs) xs = map f xs: map2 fs xs
 ap2 f xs = map2 (map f xs) xs
 
 count xs = map (head &&& length) $ group $ sort xs
-countg xs = map genericLength $ group $ sort xs
+countg xs = map (head &&& genericLength) $ group $ sort xs
 
 nubWith f xs = nubBy (\a b->f a == f b) xs
 
@@ -62,6 +62,7 @@ assoc i ((k,v):dct)
                | otherwise = assoc i dct
 
 enum xs = nubWith snd $ sort$ zip xs $ map count $ (ap2 g xs)
+enumg xs = nubWith snd $ sort $ zip xs $ map countg $ (ap2 g xs)
 
 
 buildSub [] = []
@@ -69,10 +70,46 @@ buildSub ((c,t):xs)
                 | c == Chk(4,4) = [(c, Leaf (head t))]
                 | otherwise = (c, buildT t): buildSub xs
 
+--select =
 buildT [] = Nil
 buildT (x:[]) = Leaf x
 buildT xs = Node pivot $ buildSub $ sieve xs pivot
     where pivot = head xs
+
+maximumWith f xs = maximumBy (\x y-> compare (f x) (f y)) xs
+minimumWith f xs = minimumBy (\x y -> compare (f x) (f y)) xs
+
+selMinMax 0 xs = head xs
+selMinMax _ xs = fst $ minimumWith (maximum . map snd . snd) $ enum xs
+
+lsq xs = sum $ map (\i->(i-m)**2) xs
+    where m = realToFrac (sum xs / genericLength xs)
+selLSQ 0 xs = head xs
+selLSQ _ xs = fst $ minimumWith (lsq . map snd . snd) $ enumg xs
+
+entropy xs = sum $ map (\p->(-1)*p*log(p)) $ map (/ (sum xs)) xs
+selMaxE 0 xs = head xs
+selMaxE _ xs = fst $ maximumWith (entropy . map snd . snd) $ enumg xs
+
+-- map fst $ enumg xs -- get all candicates (considering symmetry)
+selMinH 0 xs = head xs
+selMinH _ xs = minimumWith (avgT . buildTh1 xs) $ map fst $ enumg xs
+
+--select = selLSQ
+--select = selMaxE
+select = selMinH
+
+buildSubh h [] = []
+buildSubh h ((c,t):xs) = (c, buildTh (h+1) t): buildSubh h xs
+
+buildTh h [] = Nil
+buildTh h (x:[]) = Leaf x
+buildTh h xs = Node pivot $ buildSubh h $ sieve xs pivot
+    where pivot = select h xs
+
+buildTh1 [] _ = Nil
+buildTh1 (x:[]) _ = Leaf x
+buildTh1 xs p = Node p $ buildSubh 1 $ sieve xs p
 
 sumT h Nil = h
 sumT h (Leaf _) = h
@@ -84,7 +121,7 @@ leafT (Node _ ts) = sum $ map (leafT.snd) ts
 midT (Leaf _) = 0
 midT (Node _ ts) = (+1) $ sum $ map (midT.snd) ts
 
-avgT t = ((sumT 1 t) -(midT t)) / (leafT t)
+avgT t = ((sumT 1 t) - (midT t)) / (leafT t)
 
 sam = [5,2,3,0]
 samlst = [[5,2,3,0],[0,1,2,3],[4,5,6,7],[1,2,3,0], [2,3,0,1], [1,2,0,3],[2,1,3,0]]
@@ -104,4 +141,6 @@ main = do
     print $ leafT $ buildT samlst
     print $ avgT $ buildT samlst
     print $ avgT $ buildT lst
+    print $ avgT $ buildTh 0 samlst
+    print $ avgT $ buildTh 0 lst
     --print $ buildT lst
