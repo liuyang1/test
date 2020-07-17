@@ -59,6 +59,9 @@ map2 (f:fs) xs = map f xs: map2 fs xs
 ap2 :: (a->a->b) -> [a] -> [[b]]
 ap2 f xs = map2 (map f xs) xs
 
+outerProduct :: (a->b->c) -> [a] -> [b] -> [[c]]
+outerProduct f xs ys = map2 (map f xs) ys
+
 count :: Ord a => [a] -> [(a,Int)]
 count xs = map (head &&& length) $ group $ sort xs
 countg :: (Ord a, Num b) => [a] -> [(a,b)]
@@ -71,6 +74,10 @@ assoc i ((k,v):dct)
                | k == i = Just v
                | otherwise = assoc i dct
 
+-- return default value when Nothing, or inner of Just
+-- fromMaybe dft (Just a) = a
+-- fromMaybe dft (Nothing) = dft
+
 stat :: [(k,[v])] -> [(k, Int)]
 stat = map (second length)
 
@@ -82,9 +89,10 @@ add (x:xs) (y:ys) = (x+y):add xs ys
 
 --- specific for this problem
 lst :: [[Integer]]
-lst = perm 4 [0..9]
+--lst = perm 4 [0..9]
 --lst = perm 3 [0..7]
---lst = perm 3 [0..4]
+lst = perm 3 [0..4]
+len = genericLength $ head $ lst
 
 newtype Chk = Chk (Integer, Integer) deriving (Show, Eq, Ord)
 chk0 (Chk (a,_)) = a
@@ -111,8 +119,12 @@ data CTree a = Nil | Leaf a | Node a [(Chk, CTree a)] | Todo [(Chk, [a])] derivi
 -- x should not in result
 sieve xs x = map (fst . head &&& map snd) $ groupWith fst $ sort $ map (toFst (g x)) $ filter (/= x) xs
 
+-- [(cand, [(Chk, count)])]
 enum xs = nubWith snd $ sort$ zip xs $ map count (ap2 g xs)
 enumg xs = nubWith snd $ sort $ zip xs $ map countg (ap2 g xs)
+
+-- use one in cs, to paritation xs, then get result
+enump xs cs = nubWith snd $ sort $ zip cs $ map countg $ outerProduct g cs xs
 
 -- build sub tree
 buildSub [] = []
@@ -139,9 +151,21 @@ entropy xs = sum $ map ((\p->(-1)*p*log p) . (/ sum xs)) xs
 selMaxE 0 xs = head xs
 selMaxE _ xs = fst $ maximumWith (entropy . map snd . snd) $ enumg xs
 
+-- entropy - 2*log*|tbbbb| as the paper suggest
+selMaxEm 0 xs = head xs
+selMaxEm h xs = fst $ maximumWith (f . snd) $ enump xs (if h == 1 then lst else xs)
+    where f xs = (entropy $ map snd xs) - (2*(log 2)*(fromMaybe 0 $ assoc (Chk (len,len)) xs))
+
+-- select max entropy with product on partition list & candicate list
+selMaxEp 0 xs = head xs
+selMaxEp h xs = fst $ maximumWith (entropy . map snd . snd) $ enump xs $ (if h == 1 then lst else xs)
+
 -- map fst $ enumg xs -- get all candicates (considering symmetry)
 selMinH 0 xs = head xs
 selMinH _ xs = minimumWith (hgtT . buildTh1 xs) $ map fst $ enumg xs
+
+selMinHp 0 xs = head xs
+selMinHp h xs = minimumWith (hgtT . buildTh1 xs) $ map fst $ enump xs (if h == 1 then lst else xs)
 
 --selectMinMax
 --select = selLSQ
@@ -207,11 +231,14 @@ root = sieve lst [0,1,2,3]
 t01 = fromJust $ assoc (Chk (0,1)) root
 t02 = fromJust $ assoc (Chk (0,2)) root
 
+t = buildThf selMaxEp 0 lst
 tstShow = do
     --print $ showSeq [0,1,2,3]
-    putStr $ showT $ buildT lst
-    print $ hgtStat $ buildT lst
-    print $ hgtT $ buildT lst
+    putStr $ showT t
+    print $ t
+    print $ hgtStat t
+    print $ hgtT t
+
 tstBasic :: IO ()
 tstBasic = do
     print $ take 4 lst
@@ -220,15 +247,22 @@ tstBasic = do
     print $ Node sam [(Chk (4,4), Leaf sam), (Chk (0,3), Node [0,1,2,3] [(Chk (1,3), Leaf sam)])]
     mapM_  print $ stat $ sieve lst [0,1,2,3]
     print $ buildT samlst
+    print $ enump samlst samlst
+    print $ enump [[0,1,2,3]] lst
     print $ hgtStat $ buildT samlst
     print $ hgtStat $ buildTh 0 samlst
-    print $ hgtStat $ buildT lst
-    print $ buildT lst
+    --print $ hgtStat $ buildT lst
+    --print $ buildT lst
+
 tstSel = do
     print $ (hgtT &&& hgtStat) $ buildThf selHead 0 lst
-    print $ (hgtT &&& hgtStat) $ buildThf selMinMax 0 lst
-    print $ (hgtT &&& hgtStat) $ buildThf selLSQ 0 lst
-    print $ (hgtT &&& hgtStat) $ buildThf selMaxE 0 lst
-    print $ (hgtT &&& hgtStat) $ buildThf selMinH 0 lst
+    --print $ (hgtT &&& hgtStat) $ buildThf selMinMax 0 lst
+    --print $ (hgtT &&& hgtStat) $ buildThf selLSQ 0 lst
+    --print $ (hgtT &&& hgtStat) $ buildThf selMaxE 0 lst
+    --print $ (hgtT &&& hgtStat) $ buildThf selMinH 0 lst
+    print $ (hgtT &&& hgtStat) $ buildThf selMaxEm 0 lst
+    
+    print $ (hgtT &&& hgtStat) $ buildThf selMaxEp 0 lst
+    print $ (hgtT &&& hgtStat) $ buildThf selMinHp 0 lst
     --print $ buildT lst
 main = tstShow
