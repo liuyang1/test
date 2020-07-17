@@ -6,6 +6,8 @@ import Data.Maybe
 --import Data.Tuple.Extra (both)
 import Control.Monad (liftM2)
 import Control.Arrow ((&&&), first, second)
+import Data.Map (Map)
+import qualified Data.Map as Map
 
 -- C(n+1,k) = C(n,k-1) + C(n,k)
 comb1 :: Int -> [a] -> [[a]]
@@ -124,9 +126,13 @@ newtype Seq = Seq [Integer] deriving (Show, Eq, Ord)
 sg :: Seq -> Seq -> Chk
 sg (Seq s0) (Seq s1) = g s0 s1
 
+-- memoize solution, enumrate all input case
+sgtbl = Map.fromList $ zip lst $ map (Map.fromList . zip lst) $ outerProduct sg lst lst
+sgm xs ys = (sgtbl Map.! xs) Map.! ys
+
 -- cand [Seq]  is partioned by Seq to group
 sieve :: [Seq] -> Seq -> [(Chk, [Seq])]
-sieve xs x = map (fst . head &&& map snd) $ groupWith fst $ sort $ map (toFst (sg x)) xs
+sieve xs x = map (fst . head &&& map snd) $ groupWith fst $ sort $ map (toFst (sgm x)) xs
 
 -- tree with chk
 -- root -> node (chk) -> node (chk)
@@ -136,7 +142,7 @@ data Treec a = Nil | Leaf Chk a | Node Chk a [Treec a] deriving (Show, Eq)
 
 -- use one in cs, to paritation xs, then get result
 -- [(part, [(Chk, count)])]
-enump xs cs = nubWith snd $ sort $ zip cs $ map countg $ outerProduct sg cs xs
+enump xs cs = nubWith snd $ sort $ zip cs $ map countg $ outerProduct sgm cs xs
 
 -- select first element, ignore height context
 selHead _ = head
@@ -173,6 +179,8 @@ selMinH 0 xs = head xs
 selMinH h xs = minimumWith (hgtT . buildTh1 selMinH (h+1) (Chk (0,0), xs)) $ map fst $ enump xs xs
 
 selMinHp h xs = minimumWith (hgtT . buildTh1 selMinHp (h+1) (Chk (0,0), xs)) $ map fst $ enump xs $ selEqk h xs
+
+selMinHpb h xs = minimumWith (hgtT . buildTh1 selMinHp (h+1) (Chk (0,0), xs)) $ map fst $ enump xs lst
 
 
 --select :: Num h => h -> [Seq] -> Seq
@@ -246,11 +254,12 @@ tstHeight = do
 
 tstSel = do
     print $ (statT) $ buildThf selHead 0 tree0
-    --print $ (statT) $ buildThf selLarm 0 tree0
+    print $ (statT) $ buildThf selLarm 0 tree0
     --print $ (statT) $ buildThf selLarmp 0 tree0
-    --print $ (statT) $ buildThf selMaxE 0 tree0
+    print $ (statT) $ buildThf selMaxE 0 tree0
     --print $ statT $ buildThf selMaxEpk 0 tree0
     --print $ (statT) $ buildThf selMinHp 0 tree0
-    print $ (statT) $ buildThf selMinH 0 tree0
+    --print $ (statT) $ buildThf selMinH 0 tree0
+    --print $ (statT) $ buildThf selMinHpb 0 tree0
     --print $ buildT lst
 main = tstSel
