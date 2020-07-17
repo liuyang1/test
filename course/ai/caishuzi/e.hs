@@ -74,11 +74,20 @@ assoc i ((k,v):dct)
 stat :: [(k,[v])] -> [(k, Int)]
 stat = map (second length)
 
+-- add two list (different length)
+add [] [] = []
+add xs [] = xs
+add [] ys = ys
+add (x:xs) (y:ys) = (x+y):add xs ys
+
 --- specific for this problem
 lst :: [[Integer]]
 lst = perm 4 [0..9]
+--lst = perm 3 [0..7]
+--lst = perm 3 [0..4]
 
 newtype Chk = Chk (Integer, Integer) deriving (Show, Eq, Ord)
+chk0 (Chk (a,_)) = a
 
 -- guess function for digits4
 g :: Eq a => [a] -> [a] -> Chk
@@ -97,16 +106,17 @@ ssieve xs x = map (fst . head &&& map snd) $ groupWith fst $ sort $ map (toFst (
 
 data CTree a = Nil | Leaf a | Node a [(Chk, CTree a)] | Todo [(Chk, [a])] deriving (Show, Eq)
 
-sieve xs x = map (fst . head &&& map snd) $ groupWith fst $ sort $ map (toFst (g x)) xs
+-- keep x in sieve self
+--sieve xs x = map (fst . head &&& map snd) $ groupWith fst $ sort $ map (toFst (g x)) $ filter (/= x) xs
+-- x should not in result
+sieve xs x = map (fst . head &&& map snd) $ groupWith fst $ sort $ map (toFst (g x)) $ filter (/= x) xs
 
 enum xs = nubWith snd $ sort$ zip xs $ map count (ap2 g xs)
 enumg xs = nubWith snd $ sort $ zip xs $ map countg (ap2 g xs)
 
 -- build sub tree
 buildSub [] = []
-buildSub ((c,t):xs)
-                | c == Chk(4,4) = [(c, Leaf (head t))]
-                | otherwise = (c, buildT t): buildSub xs
+buildSub ((c,t):xs) = (c, buildT t): buildSub xs
 
 --build tree, with fixed select function head
 buildT [] = Nil
@@ -114,8 +124,8 @@ buildT [x] = Leaf x
 buildT xs = Node pivot $ buildSub $ sieve xs pivot
     where pivot = head xs
 
-
-selHead _ xs = head xs
+-- select first element, ignore height context
+selHead _ = head
 
 selMinMax 0 xs = head xs
 selMinMax _ xs = fst $ minimumWith (maximum . map snd . snd) $ enum xs
@@ -161,38 +171,64 @@ buildThf f h [x] = Leaf x
 buildThf f h xs = Node pivot $ buildSubhf f h $ sieve xs pivot
     where pivot = f h xs
 
-sumT h Nil = h
-sumT h (Leaf _) = h
-sumT h (Node _ ts) = sum $ map (sumT (h+1).snd) ts
+-- TODO: build tree with height, function, last candidate group
+-- it need refine the ap2 function, as the op0,1 is different now.
 
-leafT (Leaf _) = 1
-leafT (Node _ ts) = sum $ map (leafT.snd) ts
+-- sum of height of leaf node
+hgtT t = sum $ zipWith (*) (hgtStat t) [1..]
 
-midT (Leaf _) = 0
-midT (Node _ ts) = (+1) $ sum $ map (midT.snd) ts
+isLeaf (Leaf _) = True
+isLeaf _ = False
 
--- height of leaf node
-hgtT t = sumT 1 t - midT t
+hgtStat (Leaf _) = [1]
+hgtStat (Node _ st) = 1: foldl add [] (map hgtStat subt)
+    where subt = map snd st
+
+node (Leaf x) = x
+node (Node a _) = a
+
+-- show tree with dot format:
+-- digraph tree {
+-- 1234 -> 4321 [label=00]
+-- ...
+-- }
+showVec a b = showSeq a ++ " -> " ++ showSeq b ++ "[label=" ++ showChk (g a b) ++ "]"
+showSeq = concatMap show
+showChk (Chk (a,b)) = show a ++ show b
+showT t = unlines $ ["digraph tree {"] ++ h t ++ ["}"]
+    where h (Leaf _) = []
+          h (Node a st) = map (showVec a . node) subt ++ concatMap h subt
+              where subt = map snd st
+
 
 sam = [5,2,3,0]
 samlst = [[5,2,3,0],[0,1,2,3],[4,5,6,7],[1,2,3,0], [2,3,0,1], [1,2,0,3],[2,1,3,0]]
 root = sieve lst [0,1,2,3]
 t01 = fromJust $ assoc (Chk (0,1)) root
 t02 = fromJust $ assoc (Chk (0,2)) root
-main :: IO ()
-main = do
+
+tstShow = do
+    --print $ showSeq [0,1,2,3]
+    putStr $ showT $ buildT lst
+    print $ hgtStat $ buildT lst
+    print $ hgtT $ buildT lst
+tstBasic :: IO ()
+tstBasic = do
     print $ take 4 lst
     print $ g [0,1,2,3] [5,2,3,0]
     print $ Node sam [(Chk (4,4), Leaf [0,1,2,3]), (Chk (0,3), Leaf sam)]
     print $ Node sam [(Chk (4,4), Leaf sam), (Chk (0,3), Node [0,1,2,3] [(Chk (1,3), Leaf sam)])]
     mapM_  print $ stat $ sieve lst [0,1,2,3]
     print $ buildT samlst
-    print $ sumT 1 $ buildT samlst
-    print $ midT $ buildT samlst
-    print $ leafT $ buildT samlst
-    print $ hgtT $ buildT samlst
-    print $ hgtT $ buildT lst
-    print $ hgtT $ buildTh 0 samlst
-    print $ hgtT $ buildThf selHead 0 lst
-    print $ hgtT $ buildThf selMinMax 0 lst
+    print $ hgtStat $ buildT samlst
+    print $ hgtStat $ buildTh 0 samlst
+    print $ hgtStat $ buildT lst
+    print $ buildT lst
+tstSel = do
+    print $ (hgtT &&& hgtStat) $ buildThf selHead 0 lst
+    print $ (hgtT &&& hgtStat) $ buildThf selMinMax 0 lst
+    print $ (hgtT &&& hgtStat) $ buildThf selLSQ 0 lst
+    print $ (hgtT &&& hgtStat) $ buildThf selMaxE 0 lst
+    print $ (hgtT &&& hgtStat) $ buildThf selMinH 0 lst
     --print $ buildT lst
+main = tstShow
