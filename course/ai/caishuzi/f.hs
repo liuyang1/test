@@ -130,19 +130,21 @@ sg (Seq s0) (Seq s1) = g s0 s1
 sgtbl = Map.fromList $ zip lst $ map (Map.fromList . zip lst) $ outerProduct sg lst lst
 sgm xs ys = (sgtbl Map.! xs) Map.! ys
 
+sg_ = sg
+
 -- cand [Seq]  is partioned by Seq to group
 sieve :: [Seq] -> Seq -> [(Chk, [Seq])]
-sieve xs x = map (fst . head &&& map snd) $ groupWith fst $ sort $ map (toFst (sgm x)) xs
+sieve xs x = map (fst . head &&& map snd) $ groupWith fst $ sort $ map (toFst (sg_ x)) xs
 
 -- tree with chk
 -- root -> node (chk) -> node (chk)
 -- As we want search pivot more scope (even not in candicates),
 -- so we must record travse with specific chk result
-data Treec a = Nil | Leaf Chk a | Node Chk a [Treec a] deriving (Show, Eq)
+data Treec a = Nil | Leaf Chk a | Node Chk a [Treec a] deriving (Show, Eq, Ord)
 
 -- use one in cs, to paritation xs, then get result
 -- [(part, [(Chk, count)])]
-enump xs cs = nubWith snd $ sort $ zip cs $ map countg $ outerProduct sgm cs xs
+enump xs cs = nubWith snd $ sort $ zip cs $ map countg $ outerProduct sg_ cs xs
 
 -- select first element, ignore height context
 selHead _ = head
@@ -151,19 +153,21 @@ enf p = (-1)*p*log p
 entropy xs = sum $ map (enf . (/ sum xs)) xs
 
 -- when h is <=1, use eq class as candidate, otherwise, use xs
-selEqk h xs = if h <= 1 then eqk !! h else (xs)
+selEqk h xs = if h <= 1 then eqk !! h else xs
 
 -- select by maximum entropy
 selMaxE h xs = fst $ maximumWith (entropy . map snd . snd) $ enump xs xs
 
 -- select by maximum entropy, with all pivots
 selMaxEpk h xs = fst $ maximumWith (entropy . map snd . snd) $ enump xs (selEqk h xs)
+-- filter the chk0 result, This don't affect the result
+--selMaxEpk h xs = fst $ maximumWith (entropy . map snd . filter (\(a,_) -> a /= chk0) . snd) $ enump xs (selEqk h xs)
 
 -- entropy - 2*log2*|tbbbb| as the paper suggest, with all pivots
 -- This is BAD, due to wrong coeff with 2
 selMaxEm 0 xs = head xs
 selMaxEm h xs = fst $ maximumWith (f . snd) $ enump xs (if h == 1 then lst else xs)
-    where f xs = (entropy $ map snd xs) - (enf $ (fromMaybe 0 $ assoc chk0 xs)*2/(sum $ map snd xs))
+    where f xs = entropy (map snd xs) - (enf $ (fromMaybe 0 $ assoc chk0 xs)*2/(sum $ map snd xs))
 
 -- Dr. Larmouth's Strategy
 selLarm h xs = fst $ minimumWith (f . snd) $ enump xs xs
@@ -173,7 +177,7 @@ selLarm h xs = fst $ minimumWith (f . snd) $ enump xs xs
 selLarmp 0 xs = head xs
 selLarmp h xs = fst $ minimumWith (f . snd) $ enump xs $ selEqk h xs
     where e n = n * log n
-          f xs = (sum $ map (e . snd) xs) - (fromMaybe 0 $ assoc chk0 xs) * e 2
+          f xs = (sum $ map (e . snd) xs) - fromMaybe 0 (assoc chk0 xs) * e 2
 
 selMinH 0 xs = head xs
 selMinH h xs = minimumWith (hgtT . buildTh1 selMinH (h+1) (Chk (0,0), xs)) $ map fst $ enump xs xs
@@ -211,7 +215,14 @@ avghgt h = sum $ zipWith (*) h [0..]
 hgtStat (Leaf _ _) = [1]
 hgtStat (Node _ _ st) = 0: foldl add [] (map hgtStat st)
 
-statT t = (r, avghgt r, sum r)
+-- probe node, It's node (not leaf), It don't have leaf with same Seq
+probeStat (Leaf _ _) = 0
+probeStat (Node _ x st) = b2n (x `notElem` map node st) + sum (map probeStat st)
+
+selStat (Leaf _ _) = 0
+selStat (Node _ _ st) = 1 + sum (map selStat st)
+
+statT t = (r, avghgt r, sum r, probeStat t, selStat t)
     where r = hgtStat t
 
 node (Leaf _ x) = x
@@ -227,7 +238,7 @@ showSeq (Seq xs) = concatMap show xs
 showChk (Chk (a,b)) = show a ++ show b
 showT t = unlines $ ["digraph tree {"] ++ h pivot0 t ++ ["}"]
     where h p (Leaf c a) = [showVec p c a]
-          h p (Node c a st) = [showVec p c a] ++ concatMap (h a) st
+          h p (Node c a st) = showVec p c a : concatMap (h a) st
 
 shNd n = "nd" ++ show n
 shChk (Chk (a,b)) = show a ++ show b
@@ -238,28 +249,28 @@ shT t = unlines $ ["digraph tree {"] ++ h 0 0 t ++ ["}"]
 h p n (Leaf c a)
   | c == Chk (len, len) = [shVec p c p]
   | otherwise = [shSeqLabel n a, shVec p c n]
-h p n (Node c a st) = [shSeqLabel (n) a, shVec p c (n)] ++ concat ( zipWith (h n) [((n+1)*lvl)..] st)
+h p n (Node c a st) = [shSeqLabel n a, shVec p c n] ++ concat ( zipWith (h n) [((n+1)*lvl)..] st)
 lvl=100
 
 
 t0 = buildThf selMaxEpk 0 tree0
 --t0 = buildT tree0
-tstShow = putStr $ shT $ t0
+tstShow = putStr $ shT t0
 
 tstHeight = do
     print "test"
-    print $ (hgtT &&& hgtStat) $ t0
+    print $ (hgtT &&& hgtStat) t0
     --print $ enump samlst samlst
     --print $ enump [Seq [0,1,2,3]] lst
 
 tstSel = do
-    print $ (statT) $ buildThf selHead 0 tree0
-    print $ (statT) $ buildThf selLarm 0 tree0
-    --print $ (statT) $ buildThf selLarmp 0 tree0
-    print $ (statT) $ buildThf selMaxE 0 tree0
-    --print $ statT $ buildThf selMaxEpk 0 tree0
-    --print $ (statT) $ buildThf selMinHp 0 tree0
-    --print $ (statT) $ buildThf selMinH 0 tree0
-    --print $ (statT) $ buildThf selMinHpb 0 tree0
+    print $ statT $ buildThf selHead 0 tree0
+--    print $ statT $ buildThf selLarm 0 tree0
+--    print $ statT $ buildThf selLarmp 0 tree0
+--    print $ statT $ buildThf selMaxE 0 tree0
+    print $ statT $ buildThf selMaxEpk 0 tree0
+    print $ statT $ buildThf selMinHp 0 tree0
+    print $ statT $ buildThf selMinH 0 tree0
+    print $ statT $ buildThf selMinHpb 0 tree0
     --print $ buildT lst
-main = tstSel
+main = tstShow
