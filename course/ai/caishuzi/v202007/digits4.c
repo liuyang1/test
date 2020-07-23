@@ -10,8 +10,11 @@
 #include <assert.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <math.h>
 
 #define seq_t int
+#define CONS_ST(a, b, c, d) (a + (b << 8) + (c << 16) + (d << 24))
+
 
 /** vector container, */
 #define VP_T       void *
@@ -22,7 +25,7 @@ typedef struct {
 } vec_vp;
 
 static inline vec_vp *vec_vp_init() {
-    vec_vp *p = malloc(sizeof(vec_vp *));
+    vec_vp *p = malloc(sizeof(vec_vp));
     p->i = 0;
     p->size = 16;
     p->pa = malloc(sizeof(VP_T) * p->size);
@@ -55,10 +58,15 @@ typedef struct {
 } vec_seq;
 
 static inline vec_seq *vec_seq_init() {
-    vec_seq *p = malloc(sizeof(vec_seq *));
+    vec_seq *p = malloc(sizeof(vec_seq));
     p->i = 0, p->size = 16;
     p->pa = malloc(sizeof(seq_t) * p->size);
     return p;
+}
+
+static inline void vec_seq_deinit(vec_seq *p) {
+    free(p->pa);
+    free(p);
 }
 
 static inline int vec_seq_add(vec_seq *p, seq_t n) {
@@ -68,6 +76,17 @@ static inline int vec_seq_add(vec_seq *p, seq_t n) {
         assert(p->pa != NULL);
     }
     p->pa[p->i++] = n;
+    return 0;
+}
+
+static inline int vec_seq_append(vec_seq *p, vec_seq *q) {
+    if (p->i + q->i >= p->size) {
+        p->size = p->i + q->i; // up to 2
+        p->pa = realloc(p->pa, sizeof(seq_t) * p->size);
+        assert(p->pa != NULL);
+    }
+    memcpy(&p->pa[p->i], q->pa, sizeof(seq_t) * q->i);
+    p->i += q->i;
     return 0;
 }
 
@@ -172,6 +191,7 @@ vec_seq **sieve(vec_seq *ss, seq_t pivot) {
     size_t i;
     for (i = 0; i != CHK_KIND_NUM; i++) {
         va[i] = vec_seq_init();
+        // printf("xxx create va[%zu]=%p\n", i, va[i]);
     }
     for (i = 0; i != vec_size(ss); i++) {
         seq_t si = vec_seq_idx(ss, i);
@@ -179,6 +199,14 @@ vec_seq **sieve(vec_seq *ss, seq_t pivot) {
         vec_seq_add(va[r], si);
     }
     return va;
+}
+
+void free_sieve(vec_seq **va) {
+    size_t i;
+    for (i = 0; i != CHK_KIND_NUM; i++) {
+        vec_seq_deinit(va[i]);
+    }
+    free(va);
 }
 
 /** input: [seq], pivot
@@ -196,6 +224,25 @@ size_t *sieveg(vec_seq *ss, seq_t pivot) {
         r[chk(vec_seq_idx(ss, i), pivot)]++;
     }
     return r;
+}
+
+void free_sieveg(size_t *r) {
+    free(r);
+}
+
+double entropy(size_t *cnt) {
+    size_t i, s;
+    for (i = s = 0; i != CHK_KIND_NUM; i++) {
+        s += cnt[i];
+    }
+    double e = 0;
+    for (i = 0; i != CHK_KIND_NUM; i++) {
+        if (cnt[i] != 0) {
+            double p = cnt[i] / (s + 0.0);
+            e += -1 * p * log(p);
+        }
+    }
+    return e;
 }
 
 /** compare check result */
@@ -224,7 +271,17 @@ bool any_eq(vec_vp *p, size_t *g) {
  * output [eqk]
  */
 //seq_t *eqk(seq_t *ss, size_t n, seq_t *pivot_lst, size_t pivot_num, int *eqk_num) {
-vec_seq *eqk(vec_seq *ss, vec_seq *pivots) {
+static inline void free_eqkg_g(vec_vp *va1) {
+    size_t i;
+    for (i = 0; i != vec_size(va1); i++) {
+        free_sieveg(vec_vp_idx(va1, i));
+    }
+    free(va1);
+}
+static inline void free_eqkg(vec_seq *va0) {
+    vec_seq_deinit(va0);
+}
+vec_seq *eqkg(vec_seq *ss, vec_seq *pivots, vec_vp **ovg) {
     /** v0 for eqk, v1 for check result */
     vec_seq *va0 = vec_seq_init();
     vec_vp *va1 = vec_vp_init();
@@ -233,12 +290,22 @@ vec_seq *eqk(vec_seq *ss, vec_seq *pivots) {
         seq_t pivot = vec_seq_idx(pivots, i);
         size_t *g = sieveg(ss, pivot);
         if (any_eq(va1, g)) {
+            free_sieveg(g);
             continue;
         }
         vec_vp_add(va1, g);
         vec_seq_add(va0, pivot);
     }
+    if (ovg != NULL) {
+        *ovg = va1;
+    } else {
+        free_eqkg_g(va1);
+    }
     return va0;
+}
+
+vec_seq *eqk(vec_seq *ss, vec_seq *pivots) {
+    return eqkg(ss, pivots, NULL);
 }
 
 /**
@@ -247,6 +314,174 @@ vec_seq *eqk(vec_seq *ss, vec_seq *pivots) {
  * 1, select: [seq] -> [eqk] -> select -> pivot
  * 2, sieve: [seq] -> pivot -> [[seq]]
  */
+typedef enum {
+    LEAF = 0,
+    NODE = 1,
+} nd_t;
+
+typedef struct tree_t {
+    nd_t nd;
+    seq_t x;
+    struct tree_t *child[CHK_KIND_NUM];
+} tree_t;
+
+typedef seq_t (selectFn)(size_t h, vec_seq *ss);
+
+typedef seq_t (selectCandFn)(size_t h, vec_seq *ss, vec_seq *cand);
+
+seq_t first(size_t h, vec_seq *ss) {
+    assert(vec_size(ss) >= 1);
+    return vec_seq_idx(ss, 0);
+}
+
+seq_t selMaxE(size_t h, vec_seq *ss) {
+    if (h == 0) {
+        return CONS_ST(0, 1, 2, 3);
+    }
+    if (vec_size(ss) == 1) {
+        return vec_seq_idx(ss, 0);
+    }
+    assert(vec_size(ss) != 0);
+    vec_vp *eqg = NULL;
+    vec_seq *eq = eqkg(ss, ss, &eqg);
+    double maxm = -1;
+    size_t i, mi = -1;
+    for (i = 0; i != vec_size(eq); i++) {
+        double m = entropy(vec_vp_idx(eqg, i));
+        // printf("i=%zu m=%f\t", i, m);
+        // show_chk(vec_vp_idx(eqg, i));
+        if (maxm < m) {
+            maxm = m, mi = i;
+        }
+    }
+    assert(mi != -1);
+    seq_t r = vec_seq_idx(eq, mi);
+    free_eqkg_g(eqg);
+    free_eqkg(eq);
+    return r;
+}
+
+size_t height(tree_t *t, size_t h);
+tree_t *buildTh1(selectFn f, size_t h, vec_seq *ss, seq_t pivot);
+void free_tree(tree_t *t);
+seq_t selMinH(size_t h, vec_seq *ss) {
+    if (h == 0) {
+        return CONS_ST(0, 1, 2, 3);
+    }
+    if (vec_size(ss) == 1) {
+        return vec_seq_idx(ss, 0);
+    }
+    vec_seq *eq = eqk(ss, ss);
+    size_t mh = -1;
+    size_t i, mi = -1;
+    for (i = 0; i != vec_size(eq); i++) {
+        tree_t *t = buildTh1(selMinH, h, ss, vec_seq_idx(eq, i));
+        size_t h = height(t, 0);
+        if (h < mh) {
+            mh = h, mi = i;
+        }
+        free_tree(t);
+    }
+    assert(mi != -1);
+    seq_t r = vec_seq_idx(eq, mi);
+    free_eqkg(eq);
+    return r;
+}
+
+tree_t *buildThf(selectFn f, size_t h, vec_seq *ss);
+
+tree_t *buildTh1(selectFn f, size_t h, vec_seq *ss, seq_t pivot) {
+    tree_t *t = malloc(sizeof(tree_t));
+    if (vec_size(ss) == 1) {
+        // TODO: put chk0 position or not, if not, we need guess one more time, even only one
+        // candicate
+        memset(t, 0x00, sizeof(tree_t));
+        t->nd = LEAF;
+        t->x = vec_seq_idx(ss, 0);
+        return t;
+    }
+    t->nd = NODE;
+    t->x = pivot;
+    vec_seq **va = sieve(ss, pivot);
+    size_t i;
+    for (i = 0; i != CHK_KIND_NUM; i++) {
+        t->child[i] = buildThf(f, h + 1, va[i]);
+    }
+    free_sieve(va);
+    return t;
+}
+
+tree_t *buildThf(selectFn f, size_t h, vec_seq *ss) {
+    if (vec_size(ss) == 0) {
+        return NULL;
+    }
+    seq_t pivot = f(h, ss);
+    tree_t *t = buildTh1(f, h, ss, pivot);
+    return t;
+}
+
+void free_tree(tree_t *t) {
+    if (t == NULL) {
+        return;
+    }
+    if (t->nd == LEAF) {
+        free(t);
+    } else {
+        size_t i;
+        for (i = 0; i != CHK_KIND_NUM; i++) {
+            free_tree(t->child[i]);
+        }
+        free(t);
+    }
+}
+
+tree_t *buildT(vec_seq *ss) {
+    // return buildThf(first, 0, ss); // 28024, 0.01s
+    // return buildThf(selMaxE, 0, ss); // 26780, 0.55s
+    return buildThf(selMinH, 0, ss); // 26688, 92.13s
+}
+
+size_t cnt(tree_t *t) {
+    if (t == NULL) {
+        return 0;
+    }
+    size_t sub = 0;
+    if (t->nd == NODE) {
+        size_t i;
+        for (i = 0; i != CHK_KIND_NUM - 1; i++) {
+            sub += cnt(t->child[i]);
+        }
+    }
+    return sub + 1;
+}
+
+size_t height(tree_t *t, size_t h) {
+    if (t == NULL) {
+        return 0;
+    }
+    size_t sub = 0;
+    if (t->nd == NODE) {
+        size_t i;
+        for (i = 0; i != CHK_KIND_NUM - 1; i++) {
+            sub += height(t->child[i], h + 1);
+        }
+    }
+    return sub + h;
+}
+
+void showT(tree_t *t, size_t h) {
+    if (t == NULL) {
+        return;
+    }
+    printf("%*s", (int)h, ""); show_seq(t->x);
+    if (t->nd == NODE) {
+        size_t i;
+        // skip to duplicate show guess(4,4) result
+        for (i = 0; i != CHK_KIND_NUM - 1; i++) {
+            showT(t->child[i], h + 1);
+        }
+    }
+}
 
 static inline uint32_t cons_st(uint32_t *st) {
     return st[0] + (st[1] << 8) + (st[2] << 16) + (st[3] << 24);
@@ -321,8 +556,6 @@ void show_lst(seq_t *s, size_t n) {
 }
 
 #endif
-#define CONS_ST(a, b, c, d) (a + (b << 8) + (c << 16) + (d << 24))
-
 int test_sieveg() {
     vec_seq *lst = init_lst();
     size_t *r = sieveg(lst, CONS_ST(0, 1, 2, 3));
@@ -343,16 +576,43 @@ int test_sieve() {
 int test_eqk() {
     vec_seq *lst = init_lst();
     vec_seq **va = sieve(lst, CONS_ST(0, 1, 2, 3));
-    size_t i, j;
+    vec_seq *e = vec_seq_init();
+    size_t i, j, k;
     for (i = 0; i  != CHK_KIND_NUM; i++) {
         // printf("i=%zu :", i); show_seq_vec(va[i]);
-        vec_seq *e = eqk(va[i], va[i]);
-        printf("eqk: "); show_seq_vec(e);
+        vec_seq *e0 = eqk(va[i], va[i]);
+        vec_seq_append(e, e0);
+    }
+    printf("eqk: "); show_seq_vec(e);
+    for (i = 0; i != CHK_KIND_NUM - 1; i++) {
+        show_seq_vec(va[i]);
+        for (j = 0; j != vec_size(e); j++) {
+            // vec_seq **nva = sieve(va[i], vec_seq_idx(e, j));
+            // for (k = 0; k != CHK_KIND_NUM; k++) {
+            //     printf("k=%zu ", k); show_seq_vec(nva[k]);
+            // }
+            show_seq(vec_seq_idx(e, j));
+            size_t *r = sieveg(va[i], vec_seq_idx(e, j));
+            show_chk(r);
+            printf("%f\n", entropy(r));
+        }
     }
     return 0;
 }
 
+int test_build() {
+    vec_seq *lst = init_lst();
+    tree_t *t = buildT(lst);
+    // showT(t, 0);
+    size_t h = height(t, 1);
+    printf("height=%zu\n", h);
+    vec_seq_deinit(lst);
+    free_tree(t);
+    return 0;
+}
+
 int main() {
-    test_eqk();
+    // test_eqk();
+    test_build();
     return 0;
 }
