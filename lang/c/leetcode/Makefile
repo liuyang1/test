@@ -1,7 +1,7 @@
-SRC=RangeSumQuery2D.304.c
+SRC=backStrCmp.clean.844.c
 # DST=$(patsubst %.c,%.out,$(SRC))
 DST=a.out
-CFLAGS=-Wall -g -Og
+CFLAGS=-Wall -g -Og -fsanitize=address -lasan
 $(info src: $(SRC) -> dst: $(DST))
 
 $(DST):$(SRC)
@@ -18,3 +18,10 @@ bt:
 
 grind: $(DST)
 	valgrind ./$(DST)
+
+EXT=$(HOME)
+drop:
+	cp $(SRC) $(EXT)
+
+recall:
+	rm $(EXT)/$(SRC)
