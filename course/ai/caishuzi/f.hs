@@ -130,7 +130,7 @@ sg (Seq s0) (Seq s1) = g s0 s1
 sgtbl = Map.fromList $ zip lst $ map (Map.fromList . zip lst) $ outerProduct sg lst lst
 sgm xs ys = (sgtbl Map.! xs) Map.! ys
 
-sg_ = sg
+sg_ = sgm
 
 -- cand [Seq]  is partioned by Seq to group
 sieve :: [Seq] -> Seq -> [(Chk, [Seq])]
@@ -145,6 +145,7 @@ data Treec a = Nil | Leaf Chk a | Node Chk a [Treec a] deriving (Show, Eq, Ord)
 -- use one in cs, to paritation xs, then get result
 -- [(part, [(Chk, count)])]
 enump xs cs = nubWith snd $ sort $ zip cs $ map countg $ outerProduct sg_ cs xs
+enum xs cs = nubWith snd $ sort $ zip cs $ map count $ outerProduct sg_ cs xs
 
 -- select first element, ignore height context
 selHead _ = head
@@ -190,6 +191,50 @@ selMinHpb h xs = minimumWith (hgtT . buildTh1 selMinHp (h+1) (Chk (0,0), xs)) $ 
 --select :: Num h => h -> [Seq] -> Seq
 select = selHead
 
+-- h -> [Seq] -> [Seq] -> Seq
+sel2 h cs xs = minimumWith (hgtT . buildThc1 sel2 (h+1) (Chk (0,0), xs)) $ map fst $ enump xs cc
+    where cc = if h <= 1 then eqk !! h else cs
+
+-- generate equal class
+-- [[Seq]] -> [Seq]
+genEqk2 :: [[Seq]] -> [Seq]
+genEqk2 xxs = map fst $ concatMap ((\x->enump x x)) xxs
+
+-- generate all equal class
+gEqk :: [Seq] -> [Seq]
+gEqk xs = map fst $ enum xs xs
+
+gSieve :: [Seq] -> Seq -> [[Seq]]
+gSieve xs x = map snd $ filter (\(a,_) -> a /= chk0) $ sieve xs x
+
+{-
+fn c = Just (eqk, concat $ liftM2 gSieve c eqk)
+        where eqk = concatMap gEqk c
+
+-- unfoldr :: (b->Maybe (a,b)) -> b -> [a]
+--iterEqk = unfoldr fn [lst]
+-}
+fn (e, c) = (ne, concat $ liftM2 gSieve c ne)
+    where ne = concatMap gEqk c
+iterEqk = map fst $ iterate fn ([], [lst])
+
+
+tstEqk = do
+    print $ enump lst lst
+    print $ genEqk2 [lst]
+    mapM_ (mapM_ print) $ map (sieve lst) (genEqk2 [lst])
+    print $ genEqk2 (map snd $ filter (\(a,_)->a/=chk0) sv)
+        where sv = sieve lst (head lst)
+
+buildThc1 _ h (c,[x]) pivot
+ | c == chk0 = Leaf c x
+ | otherwise = Node c x [Leaf chk0 x]
+buildThc1 sel h (c,xs) pivot = let sv = sieve xs pivot
+  in Node c pivot $ map (buildThc sel (h+1) (genEqk2 (map snd $ filter (\(a,_) -> a/=chk0) sv))) sv
+
+buildThc :: Num h => (h->[Seq]->[Seq]->Seq) -> h -> [Seq] -> (Chk, [Seq]) -> Treec Seq
+buildThc sel h cs (ck,xs) = buildThc1 sel h (ck,xs) (sel h cs xs)
+
 -- build tree, with indicated pivot
 buildTh1 f h (c,[x]) pivot
   | c == chk0 = Leaf c x
@@ -197,8 +242,9 @@ buildTh1 f h (c,[x]) pivot
 buildTh1 f h (c,xs) pivot = Node c pivot $ map (buildThf f (h+1)) $ sieve xs pivot
 
 -- build tree, with contexted height, and select function
+-- f is select function
 buildThf :: Num h => (h->[Seq]->Seq)->h -> (Chk,[Seq]) -> Treec Seq
-buildThf f h (c,xs) = buildTh1 f h (c,xs) pivot 
+buildThf f h (c,xs) = buildTh1 f h (c,xs) pivot
     where pivot = f h xs
 --buildThf f h (c,[x])
 --  | c == Chk (len,len) = Leaf c x
@@ -268,9 +314,12 @@ tstSel = do
 --    print $ statT $ buildThf selLarm 0 tree0
 --    print $ statT $ buildThf selLarmp 0 tree0
 --    print $ statT $ buildThf selMaxE 0 tree0
+    print $ statT $ buildThc sel2 0 [] tree0
+    print $ buildThc sel2 0 [] tree0
     print $ statT $ buildThf selMaxEpk 0 tree0
     print $ statT $ buildThf selMinHp 0 tree0
     print $ statT $ buildThf selMinH 0 tree0
     print $ statT $ buildThf selMinHpb 0 tree0
     --print $ buildT lst
-main = tstShow
+--main = tstShow
+--main = mapM_ print $ take 3 iterEqk
