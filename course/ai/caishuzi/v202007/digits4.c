@@ -24,6 +24,12 @@ typedef struct {
     VP_T *pa;
 } vec_vp;
 
+static inline void vec_deinit(void *p) {
+    vec_vp *t = p;
+    free(t->pa);
+    free(t);
+}
+
 static inline vec_vp *vec_vp_init() {
     vec_vp *p = malloc(sizeof(vec_vp));
     p->i = 0;
@@ -64,11 +70,6 @@ static inline vec_seq *vec_seq_init() {
     return p;
 }
 
-static inline void vec_seq_deinit(vec_seq *p) {
-    free(p->pa);
-    free(p);
-}
-
 static inline int vec_seq_add(vec_seq *p, seq_t n) {
     if (p->i + 1 == p->size) {
         p->size *= 2;
@@ -90,9 +91,29 @@ static inline int vec_seq_append(vec_seq *p, vec_seq *q) {
     return 0;
 }
 
+static inline vec_seq *vec_seq_dup(vec_seq *p) {
+    vec_seq *n = vec_seq_init();
+    vec_seq_append(n, p);
+    return n;
+}
+
 static inline seq_t vec_seq_idx(vec_seq *p, size_t i) {
     assert(i < p->i);
     return p->pa[i];
+}
+
+static inline bool vec_seq_elem(vec_seq *p, seq_t x) {
+    size_t i;
+    for (i = 0; i != vec_size(p); i++) {
+        if (x == vec_seq_idx(p, i)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static inline char *show_bool(bool x) {
+    return x ? "true" : "false";
 }
 
 /** check function ***********************************************************/
@@ -115,6 +136,8 @@ int tbl[][(K + 1)] = {{0, 1, 2, 3, 4},
                       {-1, -1, -1, 12, -1},
                       {-1, -1, -1, -1, 13}};
 static inline int chk2idx(int a, int b) {
+    assert(a <= K);
+    assert(b <= K);
     int r = tbl[a][b];
     assert(r != -1);
     return r;
@@ -161,13 +184,15 @@ static inline void show_seq_vec(vec_seq *v) {
     printf("\n");
 }
 
+/** this opt is useless, keep original style */
+#define OPT 0 // 0, original; 1, loop expand; 2, cached
+#if (OPT == 0)
 /** input is seq a, b, passing via int to save calling cost */
 static inline int chk(seq_t a, seq_t b) {
     char *x = (char *)&a;
     char *y = (char *)&b;
     int i, j;
     int r0, r1;
-// TODO: expand loop manually
     for (i = r0 = r1 = 0; i != K; i++) {
         r0 += x[i] == y[i];
         for (j = 0; j != K; j++) {
@@ -180,6 +205,82 @@ static inline int chk(seq_t a, seq_t b) {
     int r = chk2idx(r0, r1);
     return r;
 }
+#endif
+#if (OPT==2)
+static inline int raw_chk(seq_t a, seq_t b) {
+    char *x = (char *)&a;
+    char *y = (char *)&b;
+    int i, j;
+    int r0, r1;
+    for (i = r0 = r1 = 0; i != K; i++) {
+        r0 += x[i] == y[i];
+        for (j = 0; j != K; j++) {
+            r1 += x[i] == y[j];
+        }
+    }
+    // show_seq(a);
+    // show_seq(b);
+    // printf("r0=%d r1=%d\n", r0, r1);
+    int r = chk2idx(r0, r1);
+    return r;
+}
+static inline int seq2int(seq_t a) {
+    char *x = (char *)&a;
+    return x[0] *1000+ x[1] *100+ x[2] *10 + x[3];
+}
+// cached style
+#define UPBOUND (9876+1)
+#define BASE 123
+#define SEQ_RANGE (UPBOUND-BASE)
+int8_t chk_tbl[SEQ_RANGE][SEQ_RANGE];
+
+static inline void chk_init(vec_seq *lst) {
+    memset(chk_tbl, 0x0, sizeof(chk_tbl));
+    size_t i, j;
+    for (i = 0; i != vec_size(lst); i++) {
+        for (j = 0; j != vec_size(lst); j++) {
+            seq_t x = vec_seq_idx(lst, i);
+            seq_t y = vec_seq_idx(lst, j);
+            int a = seq2int(x);
+            int b = seq2int(y);
+            chk_tbl[a - BASE][b-BASE] = raw_chk(x, y);
+        }
+    }
+}
+static inline int chk(seq_t a, seq_t b) {
+    int a_ = seq2int(a);
+    int b_ = seq2int(b);
+    return chk_tbl[a_-BASE][b_-BASE];
+}
+#endif
+
+#if (OPT == 1) // this is useless, compiler will do it
+static inline int chk(seq_t a, seq_t b) {
+    char *x = (char *)&a;
+    char *y = (char *)&b;
+    int r0 = 0, r1 = 0;
+    r0 += x[0] == y[0];
+    r0 += x[1] == y[1];
+    r0 += x[2] == y[2];
+    r0 += x[3] == y[3];
+
+    r1 += x[0] == y[1];
+    r1 += x[0] == y[2];
+    r1 += x[0] == y[3];
+    r1 += x[1] == y[0];
+    r1 += x[1] == y[2];
+    r1 += x[1] == y[3];
+    r1 += x[2] == y[0];
+    r1 += x[2] == y[1];
+    r1 += x[2] == y[3];
+    r1 += x[3] == y[0];
+    r1 += x[3] == y[1];
+    r1 += x[3] == y[2];
+    r1 += r0;
+    int r = chk2idx(r0, r1);
+    return r;
+}
+#endif
 
 /** sieve, sieveg, eqk (equal class) ******************************************/
 
@@ -204,7 +305,7 @@ vec_seq **sieve(vec_seq *ss, seq_t pivot) {
 void free_sieve(vec_seq **va) {
     size_t i;
     for (i = 0; i != CHK_KIND_NUM; i++) {
-        vec_seq_deinit(va[i]);
+        vec_deinit(va[i]);
     }
     free(va);
 }
@@ -276,11 +377,13 @@ static inline void free_eqkg_g(vec_vp *va1) {
     for (i = 0; i != vec_size(va1); i++) {
         free_sieveg(vec_vp_idx(va1, i));
     }
-    free(va1);
+    vec_deinit(va1);
 }
+
 static inline void free_eqkg(vec_seq *va0) {
-    vec_seq_deinit(va0);
+    vec_deinit(va0);
 }
+
 vec_seq *eqkg(vec_seq *ss, vec_seq *pivots, vec_vp **ovg) {
     /** v0 for eqk, v1 for check result */
     vec_seq *va0 = vec_seq_init();
@@ -308,13 +411,14 @@ vec_seq *eqk(vec_seq *ss, vec_seq *pivots) {
     return eqkg(ss, pivots, NULL);
 }
 
+/** return concated list of equal class */
 vec_seq *eqk2(vec_seq **ss) {
     vec_seq *s = vec_seq_init();
     size_t i;
     for (i = 0; i != CHK_KIND_NUM; i++) {
         vec_seq *e = eqk(ss[i], ss[i]);
         vec_seq_append(s, e);
-        vec_seq_deinit(e);
+        vec_deinit(e);
     }
     return s;
 }
@@ -377,7 +481,7 @@ seq_t selMinH(size_t h, vec_seq *ss) {
     if (h == 0) {
         return CONS_ST(0, 1, 2, 3);
     }
-    if (vec_size(ss) == 1) {
+    if (vec_size(ss) <= 2) { // from 57s to 42s
         return vec_seq_idx(ss, 0);
     }
     vec_seq *eq = eqk(ss, ss);
@@ -386,10 +490,13 @@ seq_t selMinH(size_t h, vec_seq *ss) {
     for (i = 0; i != vec_size(eq); i++) {
         tree_t *t = buildTh1(selMinH, h, ss, vec_seq_idx(eq, i));
         size_t h0 = height(t, 0);
+        free_tree(t);
         if (h0 < mh) {
             mh = h0, mi = i;
+            if (mh == vec_size(ss) - 1) { // from 71s to 57s
+                break;
+            }
         }
-        free_tree(t);
     }
     assert(mi != -1);
     seq_t r = vec_seq_idx(eq, mi);
@@ -401,24 +508,151 @@ typedef seq_t (selectCandFn)(size_t h, vec_seq *ss, vec_seq *cand);
 tree_t *buildThc(selectCandFn f, size_t h, vec_seq *ss, vec_seq *cand);
 tree_t *buildThc1(selectCandFn f, size_t h, vec_seq *ss, seq_t pivot);
 
+#define INVALID_SEQ CONS_ST(0,0,0,0)
+#define INVALID_CODE (-1)
+
+// #define CACHE_LEN 1021
+// #define CACHE_LEN 10223
+#define CACHE_LEN 65521 // best one
+// #define CACHE_LEN 130171
+
+typedef struct {
+    size_t code;
+    vec_seq *key;
+    seq_t val;
+} slot_t;
+
+slot_t cache_array[CACHE_LEN];
+size_t active = 0, hit = 0, miss = 0;
+
+void cache_init() {
+    memset(cache_array, 0x00, sizeof(cache_array));
+}
+
+void cache_deinit() {
+    size_t i;
+    for (i = 0; i != CACHE_LEN; i++) {
+        slot_t *p = cache_array + i;
+        if (p->key != NULL) {
+            vec_deinit(p->key);
+        }
+    }
+}
+
+/** map ss to its best pivot
+ * hash vec_seq with length & its elements
+ * only store the big seq? or little seq?
+ * Limited cache, update???
+ */
+size_t hash(vec_seq *ss) {
+    size_t i, s = 0;
+    for (i = 0; i != vec_size(ss); i++) {
+        s += vec_seq_idx(ss, i);
+    }
+    return s;
+}
+
+bool vec_seq_eq(vec_seq *a, vec_seq *b) {
+    if (a == NULL || b == NULL) {
+        return false;
+    }
+    if (vec_size(a) != vec_size(b)) {
+        return false;
+    }
+    size_t i;
+    for (i = 0; i != vec_size(a); i++) {
+        if (vec_seq_idx(a, i) != vec_seq_idx(b, i)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+seq_t cache_fetch(vec_seq *ss) {
+    size_t code = hash(ss);
+    slot_t *p = cache_array + (code % CACHE_LEN);
+    if (p->code == code) {
+        if(vec_seq_eq(ss, p->key)) {
+            hit++;
+            return p->val;
+        }
+    }
+    miss++;
+    return INVALID_SEQ;
+}
+
+void cache_put(vec_seq *ss, seq_t pivot) {
+    size_t code = hash(ss);
+    slot_t *p = cache_array + (code % CACHE_LEN);
+    if (p->key != NULL) {
+        vec_deinit(p->key);
+    } else {
+        active++;
+    }
+    p->code = code, p->key = vec_seq_dup(ss), p->val = pivot;
+}
+
+#define CACHE 1
+/** TODO:
+ * it may duplicate same SS and CAND, so we could memoize result
+ * Why it duplicate?
+ * different pivot, may give same partition result
+ */
 seq_t selMinHC(size_t h, vec_seq *ss, vec_seq *cand) {
     if (h == 0) {
         return CONS_ST(0, 1, 2, 3);
     }
-    if (vec_size(ss) == 1) {
+    if (vec_size(ss) <= 2) {
         return vec_seq_idx(ss, 0);
     }
+    if (vec_size(cand) == 1) {
+        return vec_seq_idx(cand, 0);
+    }
+#if CACHE
+    seq_t c = cache_fetch(ss);
+    if (c != INVALID_SEQ) {
+        // printf("ss: "); show_seq_vec(ss);
+        // printf("cached pivot: "); show_seq(c);
+        return c;
+    }
+#endif
+    vec_seq *e = NULL;
+    if (h >= 3) {
+        e = eqk(ss, ss);
+    } else {
+        e = eqk(ss, cand);
+    }
     size_t mh = -1, i, mi = -1;
-    for (i = 0; i != vec_size(cand); i++) {
-        tree_t *t = buildThc1(selMinHC, h, ss, vec_seq_idx(cand, i));
+    for (i = 0; i != vec_size(e); i++) {
+        tree_t *t = buildThc1(selMinHC, h, ss, vec_seq_idx(e, i));
         size_t h0 = height(t, 0);
+        free_tree(t);
         if (h0 < mh) {
             mh = h0, mi = i;
+            if (mh == vec_size(ss) - 1) {
+                break; // least height, do not need more try
+            }
         }
-        free_tree(t);
     }
     assert(mi != -1);
-    seq_t r = vec_seq_idx(cand, mi);
+    seq_t r = vec_seq_idx(e, mi);
+#if CACHE
+    cache_put(ss, r);
+#endif
+    if (vec_size(ss) > 100) {
+    // if (1) {
+        // printf("ss: "); show_seq_vec(ss);
+        // printf("cand: "); show_seq_vec(cand);
+        // printf("eq: "); show_seq_vec(e);
+        // printf("pivot: "); show_seq(r);
+        printf("h=%zu n=%zu cand=%zu eq=%zu mh=%zu self=%s\n",
+               h, vec_size(ss), vec_size(cand), vec_size(e), mh, show_bool(vec_seq_elem(ss, r)));
+    }
+    free_eqkg(e);
+    // if (vec_size(ss) == 360) {
+    //     printf("active=%zu hit=%zu miss=%zu\n", active, hit, miss);
+    //     exit(-1);
+    // }
     return r;
 }
 
@@ -469,9 +703,10 @@ tree_t *buildThc1(selectCandFn f, size_t h, vec_seq *ss, seq_t pivot) {
         t->child[i] = buildThc(f, h + 1, va[i], e);
     }
     free_sieve(va);
-    vec_seq_deinit(e);
+    vec_deinit(e);
     return t;
 }
+
 tree_t *buildThc(selectCandFn f, size_t h, vec_seq *ss, vec_seq *cand) {
     if (vec_size(ss) == 0) {
         return NULL;
@@ -497,12 +732,16 @@ void free_tree(tree_t *t) {
 }
 
 tree_t *buildT(vec_seq *ss) {
+    cache_init();
     // return buildThf(first, 0, ss); // 28024, 0.01s
     // return buildThf(selMaxE, 0, ss); // 26780, 0.55s
-    return buildThf(selMinH, 0, ss); // 26688, 92.13s
-    // vec_seq *c0 = vec_seq_init();
-    // vec_seq_add(c0, CONS_ST(0,1,2,3));
-    // return buildThc(selMinHC, 0, ss, c0);
+    // return buildThf(selMinH, 0, ss); // 26688, 92.13s -> 42s
+    vec_seq *c0 = vec_seq_init();
+    vec_seq_add(c0, CONS_ST(0, 1, 2, 3));
+    return buildThc(selMinHC, 0, ss, c0);
+    // h >= 1, 26688, 22s
+    // h >= 2, 26478, 218.29s
+    // h >= 3, TODO
 }
 
 size_t cnt(tree_t *t) {
@@ -646,7 +885,7 @@ int test_eqk() {
         // printf("i=%zu :", i); show_seq_vec(va[i]);
         vec_seq *e0 = eqk(va[i], va[i]);
         vec_seq_append(e, e0);
-        vec_seq_deinit(e0);
+        vec_deinit(e0);
     }
     printf("eqk: "); show_seq_vec(e);
     for (i = 0; i != CHK_KIND_NUM - 1; i++) {
@@ -667,11 +906,15 @@ int test_eqk() {
 
 int test_build() {
     vec_seq *lst = init_lst();
+#if OPT == 2
+    chk_init(lst);
+#endif
     tree_t *t = buildT(lst);
     // showT(t, 0);
     size_t h = height(t, 1);
     printf("height=%zu\n", h);
-    vec_seq_deinit(lst);
+    printf("active=%zu hit=%zu miss=%zu\n", active, hit, miss);
+    vec_deinit(lst);
     free_tree(t);
     return 0;
 }
