@@ -308,6 +308,17 @@ vec_seq *eqk(vec_seq *ss, vec_seq *pivots) {
     return eqkg(ss, pivots, NULL);
 }
 
+vec_seq *eqk2(vec_seq **ss) {
+    vec_seq *s = vec_seq_init();
+    size_t i;
+    for (i = 0; i != CHK_KIND_NUM; i++) {
+        vec_seq *e = eqk(ss[i], ss[i]);
+        vec_seq_append(s, e);
+        vec_seq_deinit(e);
+    }
+    return s;
+}
+
 /**
  * build tree
  * 0, eqk: [seq] -> [eqk]
@@ -326,8 +337,6 @@ typedef struct tree_t {
 } tree_t;
 
 typedef seq_t (selectFn)(size_t h, vec_seq *ss);
-
-typedef seq_t (selectCandFn)(size_t h, vec_seq *ss, vec_seq *cand);
 
 seq_t first(size_t h, vec_seq *ss) {
     assert(vec_size(ss) >= 1);
@@ -376,15 +385,40 @@ seq_t selMinH(size_t h, vec_seq *ss) {
     size_t i, mi = -1;
     for (i = 0; i != vec_size(eq); i++) {
         tree_t *t = buildTh1(selMinH, h, ss, vec_seq_idx(eq, i));
-        size_t h = height(t, 0);
-        if (h < mh) {
-            mh = h, mi = i;
+        size_t h0 = height(t, 0);
+        if (h0 < mh) {
+            mh = h0, mi = i;
         }
         free_tree(t);
     }
     assert(mi != -1);
     seq_t r = vec_seq_idx(eq, mi);
     free_eqkg(eq);
+    return r;
+}
+
+typedef seq_t (selectCandFn)(size_t h, vec_seq *ss, vec_seq *cand);
+tree_t *buildThc(selectCandFn f, size_t h, vec_seq *ss, vec_seq *cand);
+tree_t *buildThc1(selectCandFn f, size_t h, vec_seq *ss, seq_t pivot);
+
+seq_t selMinHC(size_t h, vec_seq *ss, vec_seq *cand) {
+    if (h == 0) {
+        return CONS_ST(0, 1, 2, 3);
+    }
+    if (vec_size(ss) == 1) {
+        return vec_seq_idx(ss, 0);
+    }
+    size_t mh = -1, i, mi = -1;
+    for (i = 0; i != vec_size(cand); i++) {
+        tree_t *t = buildThc1(selMinHC, h, ss, vec_seq_idx(cand, i));
+        size_t h0 = height(t, 0);
+        if (h0 < mh) {
+            mh = h0, mi = i;
+        }
+        free_tree(t);
+    }
+    assert(mi != -1);
+    seq_t r = vec_seq_idx(cand, mi);
     return r;
 }
 
@@ -420,6 +454,33 @@ tree_t *buildThf(selectFn f, size_t h, vec_seq *ss) {
     return t;
 }
 
+tree_t *buildThc1(selectCandFn f, size_t h, vec_seq *ss, seq_t pivot) {
+    tree_t *t = malloc(sizeof(tree_t));
+    if (vec_size(ss) == 1) {
+        memset(t, 0x00, sizeof(tree_t));
+        t->nd = LEAF, t->x = vec_seq_idx(ss, 0);
+        return t;
+    }
+    t->nd = NODE, t->x = pivot;
+    vec_seq **va = sieve(ss, pivot);
+    vec_seq *e = eqk2(va);
+    size_t i;
+    for (i = 0; i != CHK_KIND_NUM; i++) {
+        t->child[i] = buildThc(f, h + 1, va[i], e);
+    }
+    free_sieve(va);
+    vec_seq_deinit(e);
+    return t;
+}
+tree_t *buildThc(selectCandFn f, size_t h, vec_seq *ss, vec_seq *cand) {
+    if (vec_size(ss) == 0) {
+        return NULL;
+    }
+    seq_t pivot = f(h, ss, cand);
+    tree_t *t = buildThc1(f, h, ss, pivot);
+    return t;
+}
+
 void free_tree(tree_t *t) {
     if (t == NULL) {
         return;
@@ -439,6 +500,9 @@ tree_t *buildT(vec_seq *ss) {
     // return buildThf(first, 0, ss); // 28024, 0.01s
     // return buildThf(selMaxE, 0, ss); // 26780, 0.55s
     return buildThf(selMinH, 0, ss); // 26688, 92.13s
+    // vec_seq *c0 = vec_seq_init();
+    // vec_seq_add(c0, CONS_ST(0,1,2,3));
+    // return buildThc(selMinHC, 0, ss, c0);
 }
 
 size_t cnt(tree_t *t) {
@@ -582,6 +646,7 @@ int test_eqk() {
         // printf("i=%zu :", i); show_seq_vec(va[i]);
         vec_seq *e0 = eqk(va[i], va[i]);
         vec_seq_append(e, e0);
+        vec_seq_deinit(e0);
     }
     printf("eqk: "); show_seq_vec(e);
     for (i = 0; i != CHK_KIND_NUM - 1; i++) {
