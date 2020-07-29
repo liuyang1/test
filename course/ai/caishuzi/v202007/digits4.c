@@ -12,6 +12,10 @@
 #include <stdbool.h>
 #include <math.h>
 
+#ifdef OMP
+#include <omp.h>
+#endif
+
 #define seq_t int
 #define CONS_ST(a, b, c, d) (a + (b << 8) + (c << 16) + (d << 24))
 
@@ -346,6 +350,26 @@ double entropy(size_t *cnt) {
     return e;
 }
 
+double larmount(size_t *cnt) {
+    size_t i, s;
+    for (i = s = 0; i != CHK_KIND_NUM; i++) {
+        s += cnt[i];
+    }
+    double e = 0;
+    for (i = 0; i != CHK_KIND_NUM; i++) {
+        if (cnt[i] != 0) {
+            double p = cnt[i] / (s + 0.0);
+            e += -1 * p * log(p);
+        }
+    }
+    i = CHK_KIND_NUM - 1;
+    if (cnt[i] != 0) {
+        double p = cnt[i] / (s + 0.0);
+        e += -1 * p * log(p);
+    }
+    return e;
+}
+
 /** compare check result */
 int cmpg(size_t *chk_ret0, size_t *chk_ret1) {
     int i;
@@ -358,7 +382,7 @@ int cmpg(size_t *chk_ret0, size_t *chk_ret1) {
 }
 
 bool any_eq(vec_vp *p, size_t *g) {
-    int j;
+    size_t j;
     for (j = 0; j != vec_size(p); j++) {
         if (0 == cmpg(g, vec_vp_idx(p, j))) {
             return true;
@@ -436,13 +460,15 @@ typedef enum {
 
 typedef struct tree_t {
     nd_t nd;
-    seq_t x;
     struct tree_t *child[CHK_KIND_NUM];
+    seq_t x;
+    bool probe; // default false, 0x00
 } tree_t;
 
 typedef seq_t (selectFn)(size_t h, vec_seq *ss);
 
 seq_t first(size_t h, vec_seq *ss) {
+    (void)(h);
     assert(vec_size(ss) >= 1);
     return vec_seq_idx(ss, 0);
 }
@@ -513,8 +539,11 @@ tree_t *buildThc1(selectCandFn f, size_t h, vec_seq *ss, seq_t pivot);
 
 // #define CACHE_LEN 1021
 // #define CACHE_LEN 10223
-#define CACHE_LEN 65521 // best one
+// #define CACHE_LEN 65521 // best one
 // #define CACHE_LEN 130171
+// #define CACHE_LEN 1048573
+// 128M
+#define CACHE_LEN 134217649
 
 typedef struct {
     size_t code;
@@ -523,7 +552,7 @@ typedef struct {
 } slot_t;
 
 slot_t cache_array[CACHE_LEN];
-size_t active = 0, hit = 0, miss = 0;
+size_t active = 0, hit = 0, miss = 0, conflict = 0;
 
 void cache_init() {
     memset(cache_array, 0x00, sizeof(cache_array));
@@ -586,6 +615,7 @@ void cache_put(vec_seq *ss, seq_t pivot) {
     slot_t *p = cache_array + (code % CACHE_LEN);
     if (p->key != NULL) {
         vec_deinit(p->key);
+        conflict++;
     } else {
         active++;
     }
@@ -617,7 +647,7 @@ seq_t selMinHC(size_t h, vec_seq *ss, vec_seq *cand) {
     }
 #endif
     vec_seq *e = NULL;
-    if (h >= 3) {
+    if (0 /**h >= 6 */) {
         e = eqk(ss, ss);
     } else {
         e = eqk(ss, cand);
@@ -656,6 +686,39 @@ seq_t selMinHC(size_t h, vec_seq *ss, vec_seq *cand) {
     return r;
 }
 
+/** select pivot from cand, which make entropy is maximum of partition of ss */
+seq_t selMaxEC(size_t h, vec_seq *ss, vec_seq *cand) {
+    if (h == 0) {
+        return CONS_ST(0,1,2,3);
+    }
+    if (vec_size(ss) <= 2) {
+        return vec_seq_idx(ss, 0);
+    }
+    if (vec_size(cand) == 1) {
+        return vec_seq_idx(cand, 0);
+    }
+    seq_t c = cache_fetch(ss);
+    if (c != INVALID_SEQ) {
+        return c;
+    }
+    vec_vp *eqg = NULL;
+    vec_seq *eq = eqkg(ss, cand, &eqg);
+    double maxm = -1;
+    size_t i, mi = -1;
+    for (i = 0; i != vec_size(eq); i++) {
+        double m = larmount(vec_vp_idx(eqg, i));
+        if (maxm < m) {
+            maxm = m, mi = i;
+        }
+    }
+    assert(mi != -1);
+    seq_t r = vec_seq_idx(eq, mi);
+    cache_put(ss, r);
+    free_eqkg_g(eqg);
+    free_eqkg(eq);
+    return r;
+}
+
 tree_t *buildThf(selectFn f, size_t h, vec_seq *ss);
 
 tree_t *buildTh1(selectFn f, size_t h, vec_seq *ss, seq_t pivot) {
@@ -666,10 +729,12 @@ tree_t *buildTh1(selectFn f, size_t h, vec_seq *ss, seq_t pivot) {
         memset(t, 0x00, sizeof(tree_t));
         t->nd = LEAF;
         t->x = vec_seq_idx(ss, 0);
+        t->probe = false;
         return t;
     }
     t->nd = NODE;
     t->x = pivot;
+    t->probe = false;
     vec_seq **va = sieve(ss, pivot);
     size_t i;
     for (i = 0; i != CHK_KIND_NUM; i++) {
@@ -692,14 +757,16 @@ tree_t *buildThc1(selectCandFn f, size_t h, vec_seq *ss, seq_t pivot) {
     tree_t *t = malloc(sizeof(tree_t));
     if (vec_size(ss) == 1) {
         memset(t, 0x00, sizeof(tree_t));
-        t->nd = LEAF, t->x = vec_seq_idx(ss, 0);
+        t->nd = LEAF, t->x = vec_seq_idx(ss, 0), t->probe = false;
         return t;
     }
     t->nd = NODE, t->x = pivot;
+    t->probe = !vec_seq_elem(ss, pivot);
     vec_seq **va = sieve(ss, pivot);
     vec_seq *e = eqk2(va);
     size_t i;
-    for (i = 0; i != CHK_KIND_NUM; i++) {
+// #pragma omp parallel for // WRONG, it's double free issue
+    for (i = 0; i < CHK_KIND_NUM; i++) {
         t->child[i] = buildThc(f, h + 1, va[i], e);
     }
     free_sieve(va);
@@ -740,8 +807,12 @@ tree_t *buildT(vec_seq *ss) {
     vec_seq_add(c0, CONS_ST(0, 1, 2, 3));
     return buildThc(selMinHC, 0, ss, c0);
     // h >= 1, 26688, 22s
-    // h >= 2, 26478, 218.29s
-    // h >= 3, TODO
+    // h >= 2, 26466, 218.29s
+    // h >= 3, 26448, 969.91s
+    // h >= 4, 26386, 5546.71s, probe=52
+    // h >= 5, 26375, 22327s, probe=75
+    // h >= 6, 
+    // return buildThc(selMaxEC, 0, ss, c0); // 26525, 0.11s
 }
 
 size_t cnt(tree_t *t) {
@@ -769,7 +840,21 @@ size_t height(tree_t *t, size_t h) {
             sub += height(t->child[i], h + 1);
         }
     }
-    return sub + h;
+    return sub + h * (t->probe == false);
+}
+
+size_t probe_cnt(tree_t *t) {
+    if (t == NULL) {
+        return 0;
+    }
+    size_t s = 0;
+    if (t->nd == NODE) {
+        size_t i;
+        for (i = 0; i != CHK_KIND_NUM - 1; i++) {
+            s += probe_cnt(t->child[i]);
+        }
+    }
+    return s  + (t->probe == true);
 }
 
 void showT(tree_t *t, size_t h) {
@@ -794,7 +879,7 @@ static inline seq_t inc_seq(seq_t n) {
     char *x = (char *)&n;
     char carriage = 0;
     size_t i;
-    for (i = K - 1, x[i] += 1; i >= 0; i--) {
+    for (i = K - 1, x[i] += 1; ; i--) {
         x[i] += carriage;
         carriage = x[i] / 10;
         if (carriage == 0) {
@@ -913,7 +998,10 @@ int test_build() {
     // showT(t, 0);
     size_t h = height(t, 1);
     printf("height=%zu\n", h);
-    printf("active=%zu hit=%zu miss=%zu\n", active, hit, miss);
+    size_t pcnt = probe_cnt(t);
+    printf("probe=%zu\n", pcnt);
+    printf("active=%zu hit=%zu miss=%zu conflict=%zu hitrate=%f conflict=%f\n",
+           active, hit, miss, conflict, hit / (hit + miss + 0.), conflict / (miss + 0.));
     vec_deinit(lst);
     free_tree(t);
     return 0;
