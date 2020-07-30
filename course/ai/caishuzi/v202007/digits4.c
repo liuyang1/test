@@ -19,6 +19,7 @@
 #define seq_t int
 #define CONS_ST(a, b, c, d) (a + (b << 8) + (c << 16) + (d << 24))
 
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 /** vector container, */
 #define VP_T       void *
@@ -74,17 +75,16 @@ static inline vec_seq *vec_seq_init() {
     return p;
 }
 
-static inline int vec_seq_add(vec_seq *p, seq_t n) {
+static inline void vec_seq_add(vec_seq *p, seq_t n) {
     if (p->i + 1 == p->size) {
         p->size *= 2;
         p->pa = realloc(p->pa, sizeof(seq_t) * p->size);
         assert(p->pa != NULL);
     }
     p->pa[p->i++] = n;
-    return 0;
 }
 
-static inline int vec_seq_append(vec_seq *p, vec_seq *q) {
+static inline void vec_seq_append(vec_seq *p, vec_seq *q) {
     if (p->i + q->i >= p->size) {
         p->size = p->i + q->i; // up to 2
         p->pa = realloc(p->pa, sizeof(seq_t) * p->size);
@@ -92,7 +92,6 @@ static inline int vec_seq_append(vec_seq *p, vec_seq *q) {
     }
     memcpy(&p->pa[p->i], q->pa, sizeof(seq_t) * q->i);
     p->i += q->i;
-    return 0;
 }
 
 static inline vec_seq *vec_seq_dup(vec_seq *p) {
@@ -114,6 +113,49 @@ static inline bool vec_seq_elem(vec_seq *p, seq_t x) {
         }
     }
     return false;
+}
+
+// This sturct for store [(eqk,entropy)]
+typedef struct {
+    seq_t key;
+    double val;
+} pair;
+
+typedef struct {
+    size_t i, size;
+    pair *pa;
+} vec_pair;
+
+static inline vec_pair *vec_pair_init() {
+    vec_pair *p = malloc(sizeof(vec_pair));
+    p->i = 0, p->size = 16;
+    p->pa = malloc(sizeof(pair) * p->size);
+    return p;
+}
+
+static inline void vec_pair_add(vec_pair *p, pair x) {
+    if (p->i + 1 == p->size) {
+        p->size *= 2;
+        p->pa = realloc(p->pa, sizeof(pair) * p->size);
+        assert(p->pa != NULL);
+    }
+    p->pa[p->i++] = x;
+}
+
+static inline pair vec_pair_idx(vec_pair *p, size_t i) {
+    assert(i < p->i);
+    return p->pa[i];
+}
+
+int cmppair(const void *a, const void *b) {
+    const pair *x = a;
+    const pair *y = b;
+    // descending order with VAL
+    return (-1) * ((x->val > y->val) - (x->val < y->val));
+}
+
+static inline void vec_pair_sort(vec_pair *p) {
+    qsort(p->pa, p->i, sizeof(pair), cmppair);
 }
 
 static inline char *show_bool(bool x) {
@@ -306,7 +348,7 @@ vec_seq **sieve(vec_seq *ss, seq_t pivot) {
     return va;
 }
 
-void free_sieve(vec_seq **va) {
+static inline void free_sieve(vec_seq **va) {
     size_t i;
     for (i = 0; i != CHK_KIND_NUM; i++) {
         vec_deinit(va[i]);
@@ -331,11 +373,11 @@ size_t *sieveg(vec_seq *ss, seq_t pivot) {
     return r;
 }
 
-void free_sieveg(size_t *r) {
+static inline void free_sieveg(size_t *r) {
     free(r);
 }
 
-double entropy(size_t *cnt) {
+static inline double entropy(size_t *cnt) {
     size_t i, s;
     for (i = s = 0; i != CHK_KIND_NUM; i++) {
         s += cnt[i];
@@ -350,7 +392,7 @@ double entropy(size_t *cnt) {
     return e;
 }
 
-double larmount(size_t *cnt) {
+static inline double larmount(size_t *cnt) {
     size_t i, s;
     for (i = s = 0; i != CHK_KIND_NUM; i++) {
         s += cnt[i];
@@ -371,7 +413,7 @@ double larmount(size_t *cnt) {
 }
 
 /** compare check result */
-int cmpg(size_t *chk_ret0, size_t *chk_ret1) {
+static inline int cmpg(size_t *chk_ret0, size_t *chk_ret1) {
     int i;
     for (i = 0; i != CHK_KIND_NUM; i++) {
         if (chk_ret0[i] != chk_ret1[i]) {
@@ -381,7 +423,7 @@ int cmpg(size_t *chk_ret0, size_t *chk_ret1) {
     return 0;
 }
 
-bool any_eq(vec_vp *p, size_t *g) {
+static inline bool any_eq(vec_vp *p, size_t *g) {
     size_t j;
     for (j = 0; j != vec_size(p); j++) {
         if (0 == cmpg(g, vec_vp_idx(p, j))) {
@@ -389,6 +431,14 @@ bool any_eq(vec_vp *p, size_t *g) {
         }
     }
     return false;
+}
+
+static inline bool onegroup(size_t *g) {
+    size_t i, c;
+    for (i = c = 0; i != CHK_KIND_NUM; i++) {
+        c += g[i] != 0;
+    }
+    return c <= 1;
 }
 
 /** generate equal class
@@ -416,13 +466,15 @@ vec_seq *eqkg(vec_seq *ss, vec_seq *pivots, vec_vp **ovg) {
     for (i = 0; i != vec_size(pivots); i++) {
         seq_t pivot = vec_seq_idx(pivots, i);
         size_t *g = sieveg(ss, pivot);
-        if (any_eq(va1, g)) {
+        if (onegroup(g) || any_eq(va1, g)) { // 201s, It's slow???
+        // if (any_eq(va1, g)) { // 196s
             free_sieveg(g);
             continue;
         }
         vec_vp_add(va1, g);
         vec_seq_add(va0, pivot);
     }
+    assert(vec_size(va0) == vec_size(va1));
     if (ovg != NULL) {
         *ovg = va1;
     } else {
@@ -431,12 +483,32 @@ vec_seq *eqkg(vec_seq *ss, vec_seq *pivots, vec_vp **ovg) {
     return va0;
 }
 
-vec_seq *eqk(vec_seq *ss, vec_seq *pivots) {
+static inline vec_seq *eqk(vec_seq *ss, vec_seq *pivots) {
     return eqkg(ss, pivots, NULL);
 }
 
+// eqk class with entropy function
+static inline vec_pair *eqke(vec_seq *ss, vec_seq *pivots) {
+    vec_vp *va1 = NULL;
+    vec_seq *va0 = eqkg(ss, pivots, &va1);
+    vec_pair *vp = vec_pair_init();
+    size_t i;
+    for (i = 0; i != vec_size(va0); i++) {
+        pair x = {.key = vec_seq_idx(va0, i), .val = larmount(vec_vp_idx(va1, i))};
+        vec_pair_add(vp, x);
+    }
+    free_eqkg_g(va1);
+    free_eqkg(va0);
+    vec_pair_sort(vp);
+    return vp;
+}
+
+static inline void free_eqke(vec_pair *p) {
+    vec_deinit(p);
+}
+
 /** return concated list of equal class */
-vec_seq *eqk2(vec_seq **ss) {
+static inline vec_seq *eqk2(vec_seq **ss) {
     vec_seq *s = vec_seq_init();
     size_t i;
     for (i = 0; i != CHK_KIND_NUM; i++) {
@@ -686,6 +758,51 @@ seq_t selMinHC(size_t h, vec_seq *ss, vec_seq *cand) {
     return r;
 }
 
+seq_t selMinHCE(size_t h, vec_seq *ss, vec_seq *cand) {
+    if (h == 0) {
+        return CONS_ST(0,1,2,3);
+    }
+    if (vec_size(ss) <= 2) {
+        return vec_seq_idx(ss, 0);
+    }
+    if (vec_size(cand) == 1) {
+        return vec_seq_idx(cand, 0);
+    }
+    seq_t c = cache_fetch(ss);
+    if (c != INVALID_SEQ) {
+        return c;
+    }
+    vec_pair *vp = eqke(ss, cand);
+    pair pr, pr0 = vec_pair_idx(vp, 0);
+    size_t mh = -1, i , mi = -1;
+    size_t upper = MIN(vec_size(vp), 40);
+    for (i = 0; i != upper; i++) {
+        pr = vec_pair_idx(vp, i);
+        tree_t *t = buildThc1(selMinHCE, h, ss, pr.key);
+        size_t h0 = height(t, 0);
+        free_tree(t);
+        if (h0 < mh) {
+            mh = h0, mi = i;
+            if (mh == vec_size(ss) - 1) {
+                break;
+            }
+        }
+        if (pr.val < pr0.val - 1) {
+            break;
+        }
+    }
+    assert(mi != -1);
+    pr = vec_pair_idx(vp, mi);
+    seq_t r = pr.key;
+    cache_put(ss, r);
+    if (vec_size(ss) > 100) {
+        printf("h=%zu n=%zu cand=%zu eq=%zu mh=%zu self=%s\n",
+               h, vec_size(ss), vec_size(cand), vec_size(vp), mh, show_bool(vec_seq_elem(ss, r)));
+    }
+    free_eqke(vp);
+    return r;
+}
+
 /** select pivot from cand, which make entropy is maximum of partition of ss */
 seq_t selMaxEC(size_t h, vec_seq *ss, vec_seq *cand) {
     if (h == 0) {
@@ -805,14 +922,18 @@ tree_t *buildT(vec_seq *ss) {
     // return buildThf(selMinH, 0, ss); // 26688, 92.13s -> 42s
     vec_seq *c0 = vec_seq_init();
     vec_seq_add(c0, CONS_ST(0, 1, 2, 3));
-    return buildThc(selMinHC, 0, ss, c0);
+    // return buildThc(selMinHC, 0, ss, c0);
     // h >= 1, 26688, 22s
     // h >= 2, 26466, 218.29s
     // h >= 3, 26448, 969.91s
     // h >= 4, 26386, 5546.71s, probe=52
     // h >= 5, 26375, 22327s, probe=75
-    // h >= 6, 
+    // ALL, 
     // return buildThc(selMaxEC, 0, ss, c0); // 26525, 0.11s
+    return buildThc(selMinHCE, 0, ss, c0);
+    // first10, 26393, 30s
+    // first20, 26384, 426s
+    // first30, 26383, 1999s, probe=58
 }
 
 size_t cnt(tree_t *t) {
