@@ -68,6 +68,8 @@ typedef struct {
     seq_t *pa;
 } vec_seq;
 
+vec_seq *lst = NULL;
+
 static inline vec_seq *vec_seq_init() {
     vec_seq *p = malloc(sizeof(vec_seq));
     p->i = 0, p->size = 16;
@@ -596,6 +598,30 @@ seq_t selMaxE(size_t h, vec_seq *ss) {
     free_eqkg(eq);
     return r;
 }
+seq_t selMaxL(size_t h, vec_seq *ss) {
+    if (h == 0) {
+        return CONS_ST(0, 1, 2, 3);
+    }
+    if (vec_size(ss) == 1) {
+        return vec_seq_idx(ss, 0);
+    }
+    assert(vec_size(ss) != 0);
+    vec_vp *eqg = NULL;
+    vec_seq *eq = eqkg(ss, lst, &eqg);
+    double maxm = -1;
+    size_t i, mi = -1;
+    for (i = 0; i != vec_size(eq); i++) {
+        double m = larmount(vec_vp_idx(eqg, i));
+        if (maxm < m) {
+            maxm = m, mi = i;
+        }
+    }
+    assert(mi != -1);
+    seq_t r = vec_seq_idx(eq, mi);
+    free_eqkg_g(eqg);
+    free_eqkg(eq);
+    return r;
+}
 
 static inline size_t height(tree_t *t);
 tree_t *buildTh1(selectFn f, size_t h, vec_seq *ss, seq_t pivot);
@@ -801,7 +827,7 @@ seq_t selMinHCE(size_t h, vec_seq *ss, vec_seq *cand) {
     pair pr, pr0 = vec_pair_idx(vp, 0);
     size_t mh = -1, i, mi = -1;
     // size_t upper = vec_size(vp);
-    size_t upper = MIN(vec_size(vp), 10);
+    size_t upper = MIN(vec_size(vp), 20);
     for (i = 0; i != upper; i++) {
         pr = vec_pair_idx(vp, i);
         tree_t *t = buildThc1(selMinHCE, h, ss, pr.key);
@@ -813,7 +839,7 @@ seq_t selMinHCE(size_t h, vec_seq *ss, vec_seq *cand) {
                 break;
             }
         }
-        if (pr.val < pr0.val - 1) {
+        if (pr.val < pr0.val - 0.40) {
             break;
         }
     }
@@ -877,7 +903,8 @@ tree_t *buildTh1(selectFn f, size_t h, vec_seq *ss, seq_t pivot) {
     }
     t->nd = NODE;
     t->x = pivot;
-    t->probe = false;
+    // t->probe = false;
+    t->probe = !vec_seq_elem(ss, pivot);
     vec_seq **va = sieve(ss, pivot);
     size_t i;
     for (i = 0; i != CHK_KIND_NUM; i++) {
@@ -906,14 +933,16 @@ tree_t *buildThc1(selectCandFn f, size_t h, vec_seq *ss, seq_t pivot) {
     t->nd = NODE, t->x = pivot;
     t->probe = !vec_seq_elem(ss, pivot);
     vec_seq **va = sieve(ss, pivot);
-    vec_seq *e = eqk2(va);
+    // vec_seq *e = eqk2(va);
     size_t i;
 // #pragma omp parallel for // WRONG, it's double free issue
     for (i = 0; i < CHK_KIND_NUM; i++) {
-        t->child[i] = buildThc(f, h + 1, va[i], e);
+        // t->child[i] = buildThc(f, h + 1, va[i], e);
+        // t->child[i] = buildThc(f, h + 1, va[i], ss);
+        t->child[i] = buildThc(f, h + 1, va[i], lst);
     }
     free_sieve(va);
-    vec_deinit(e);
+    // vec_deinit(e);
     return t;
 }
 
@@ -944,9 +973,10 @@ void free_tree(tree_t *t) {
 tree_t *buildT(vec_seq *ss) {
     cache_init();
     // return buildThf(first, 0, ss); // 28024, 0.01s
-    // return buildThf(selMaxE, 0, ss); // 26780, 0.55s
+    return buildThf(selMaxE, 0, ss); // 26780, 0.55s
     /** BEST solution with only possible solution (no probe node) */
     // return buildThf(selMinH, 0, ss); // 26688, 92.13s -> 36s,
+    // return buildThf(selMaxL, 0, ss); // 26466
     vec_seq *c0 = vec_seq_init();
     vec_seq_add(c0, CONS_ST(0, 1, 2, 3));
     // return buildThc(selMinHC, 0, ss, c0);
@@ -1181,7 +1211,8 @@ int test_eqk() {
 }
 
 int test_build() {
-    vec_seq *lst = init_lst();
+    // vec_seq *lst = init_lst();
+    lst = init_lst();
 #if OPT == 2
     chk_init(lst);
 #endif

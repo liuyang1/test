@@ -1,4 +1,5 @@
-CFLAGS=-g -Wall -Wextra -O3 -fopenmp
+# CFLAGS=-g -Wall -Wextra -O3 -fopenmp -pg
+CFLAGS=-Wall -Wextra -O3 -DNDEBUG
 LDFLAGS=-lm
 a.out: digits4.c
 	gcc $(CFLAGS) $^ $(LDFLAGS)
