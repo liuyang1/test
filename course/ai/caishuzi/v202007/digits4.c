@@ -75,6 +75,7 @@ static inline vec_seq *vec_seq_init() {
     return p;
 }
 
+/** cons(lst, x) */
 static inline void vec_seq_add(vec_seq *p, seq_t n) {
     if (p->i + 1 == p->size) {
         p->size *= 2;
@@ -84,6 +85,7 @@ static inline void vec_seq_add(vec_seq *p, seq_t n) {
     p->pa[p->i++] = n;
 }
 
+/** p ++ q */
 static inline void vec_seq_append(vec_seq *p, vec_seq *q) {
     if (p->i + q->i >= p->size) {
         p->size = p->i + q->i; // up to 2
@@ -113,6 +115,23 @@ static inline bool vec_seq_elem(vec_seq *p, seq_t x) {
         }
     }
     return false;
+}
+
+/** x[i] = p[i] + q[i] */
+/** Why design this kind of behavior, we don't want change element in vector */
+static inline vec_seq *vec_seq_vadd(vec_seq *p, vec_seq *q) {
+    vec_seq *x = vec_seq_init();
+    size_t i, up = MIN(vec_size(p), vec_size(q));
+    for (i = 0; i < up; i++) {
+        vec_seq_add(x, vec_seq_idx(p, i) + vec_seq_idx(q, i));
+    }
+    for (; i < vec_size(p); i++) {
+        vec_seq_add(x, vec_seq_idx(p, i));
+    }
+    for (; i < vec_size(q); i++) {
+        vec_seq_add(x, vec_seq_idx(q, i));
+    }
+    return x;
 }
 
 // This sturct for store [(eqk,entropy)]
@@ -251,8 +270,9 @@ static inline int chk(seq_t a, seq_t b) {
     int r = chk2idx(r0, r1);
     return r;
 }
+
 #endif
-#if (OPT==2)
+#if (OPT == 2)
 static inline int raw_chk(seq_t a, seq_t b) {
     char *x = (char *)&a;
     char *y = (char *)&b;
@@ -270,14 +290,16 @@ static inline int raw_chk(seq_t a, seq_t b) {
     int r = chk2idx(r0, r1);
     return r;
 }
+
 static inline int seq2int(seq_t a) {
     char *x = (char *)&a;
-    return x[0] *1000+ x[1] *100+ x[2] *10 + x[3];
+    return x[0] * 1000 + x[1] * 100 + x[2] * 10 + x[3];
 }
+
 // cached style
-#define UPBOUND (9876+1)
+#define UPBOUND (9876 + 1)
 #define BASE 123
-#define SEQ_RANGE (UPBOUND-BASE)
+#define SEQ_RANGE (UPBOUND - BASE)
 int8_t chk_tbl[SEQ_RANGE][SEQ_RANGE];
 
 static inline void chk_init(vec_seq *lst) {
@@ -289,15 +311,17 @@ static inline void chk_init(vec_seq *lst) {
             seq_t y = vec_seq_idx(lst, j);
             int a = seq2int(x);
             int b = seq2int(y);
-            chk_tbl[a - BASE][b-BASE] = raw_chk(x, y);
+            chk_tbl[a - BASE][b - BASE] = raw_chk(x, y);
         }
     }
 }
+
 static inline int chk(seq_t a, seq_t b) {
     int a_ = seq2int(a);
     int b_ = seq2int(b);
-    return chk_tbl[a_-BASE][b_-BASE];
+    return chk_tbl[a_ - BASE][b_ - BASE];
 }
+
 #endif
 
 #if (OPT == 1) // this is useless, compiler will do it
@@ -326,6 +350,7 @@ static inline int chk(seq_t a, seq_t b) {
     int r = chk2idx(r0, r1);
     return r;
 }
+
 #endif
 
 /** sieve, sieveg, eqk (equal class) ******************************************/
@@ -467,7 +492,7 @@ vec_seq *eqkg(vec_seq *ss, vec_seq *pivots, vec_vp **ovg) {
         seq_t pivot = vec_seq_idx(pivots, i);
         size_t *g = sieveg(ss, pivot);
         if (onegroup(g) || any_eq(va1, g)) { // 201s, It's slow???
-        // if (any_eq(va1, g)) { // 196s
+            // if (any_eq(va1, g)) { // 196s
             free_sieveg(g);
             continue;
         }
@@ -572,7 +597,7 @@ seq_t selMaxE(size_t h, vec_seq *ss) {
     return r;
 }
 
-size_t height(tree_t *t, size_t h);
+static inline size_t height(tree_t *t);
 tree_t *buildTh1(selectFn f, size_t h, vec_seq *ss, seq_t pivot);
 void free_tree(tree_t *t);
 seq_t selMinH(size_t h, vec_seq *ss) {
@@ -587,7 +612,7 @@ seq_t selMinH(size_t h, vec_seq *ss) {
     size_t i, mi = -1;
     for (i = 0; i != vec_size(eq); i++) {
         tree_t *t = buildTh1(selMinH, h, ss, vec_seq_idx(eq, i));
-        size_t h0 = height(t, 0);
+        size_t h0 = height(t);
         free_tree(t);
         if (h0 < mh) {
             mh = h0, mi = i;
@@ -606,7 +631,7 @@ typedef seq_t (selectCandFn)(size_t h, vec_seq *ss, vec_seq *cand);
 tree_t *buildThc(selectCandFn f, size_t h, vec_seq *ss, vec_seq *cand);
 tree_t *buildThc1(selectCandFn f, size_t h, vec_seq *ss, seq_t pivot);
 
-#define INVALID_SEQ CONS_ST(0,0,0,0)
+#define INVALID_SEQ CONS_ST(0, 0, 0, 0)
 #define INVALID_CODE (-1)
 
 // #define CACHE_LEN 1021
@@ -673,7 +698,7 @@ seq_t cache_fetch(vec_seq *ss) {
     size_t code = hash(ss);
     slot_t *p = cache_array + (code % CACHE_LEN);
     if (p->code == code) {
-        if(vec_seq_eq(ss, p->key)) {
+        if (vec_seq_eq(ss, p->key)) {
             hit++;
             return p->val;
         }
@@ -727,7 +752,7 @@ seq_t selMinHC(size_t h, vec_seq *ss, vec_seq *cand) {
     size_t mh = -1, i, mi = -1;
     for (i = 0; i != vec_size(e); i++) {
         tree_t *t = buildThc1(selMinHC, h, ss, vec_seq_idx(e, i));
-        size_t h0 = height(t, 0);
+        size_t h0 = height(t);
         free_tree(t);
         if (h0 < mh) {
             mh = h0, mi = i;
@@ -742,7 +767,7 @@ seq_t selMinHC(size_t h, vec_seq *ss, vec_seq *cand) {
     cache_put(ss, r);
 #endif
     if (vec_size(ss) > 100) {
-    // if (1) {
+        // if (1) {
         // printf("ss: "); show_seq_vec(ss);
         // printf("cand: "); show_seq_vec(cand);
         // printf("eq: "); show_seq_vec(e);
@@ -760,7 +785,7 @@ seq_t selMinHC(size_t h, vec_seq *ss, vec_seq *cand) {
 
 seq_t selMinHCE(size_t h, vec_seq *ss, vec_seq *cand) {
     if (h == 0) {
-        return CONS_ST(0,1,2,3);
+        return CONS_ST(0, 1, 2, 3);
     }
     if (vec_size(ss) <= 2) {
         return vec_seq_idx(ss, 0);
@@ -774,12 +799,13 @@ seq_t selMinHCE(size_t h, vec_seq *ss, vec_seq *cand) {
     }
     vec_pair *vp = eqke(ss, cand);
     pair pr, pr0 = vec_pair_idx(vp, 0);
-    size_t mh = -1, i , mi = -1;
-    size_t upper = MIN(vec_size(vp), 40);
+    size_t mh = -1, i, mi = -1;
+    // size_t upper = vec_size(vp);
+    size_t upper = MIN(vec_size(vp), 10);
     for (i = 0; i != upper; i++) {
         pr = vec_pair_idx(vp, i);
         tree_t *t = buildThc1(selMinHCE, h, ss, pr.key);
-        size_t h0 = height(t, 0);
+        size_t h0 = height(t);
         free_tree(t);
         if (h0 < mh) {
             mh = h0, mi = i;
@@ -806,7 +832,7 @@ seq_t selMinHCE(size_t h, vec_seq *ss, vec_seq *cand) {
 /** select pivot from cand, which make entropy is maximum of partition of ss */
 seq_t selMaxEC(size_t h, vec_seq *ss, vec_seq *cand) {
     if (h == 0) {
-        return CONS_ST(0,1,2,3);
+        return CONS_ST(0, 1, 2, 3);
     }
     if (vec_size(ss) <= 2) {
         return vec_seq_idx(ss, 0);
@@ -919,7 +945,8 @@ tree_t *buildT(vec_seq *ss) {
     cache_init();
     // return buildThf(first, 0, ss); // 28024, 0.01s
     // return buildThf(selMaxE, 0, ss); // 26780, 0.55s
-    // return buildThf(selMinH, 0, ss); // 26688, 92.13s -> 42s
+    /** BEST solution with only possible solution (no probe node) */
+    // return buildThf(selMinH, 0, ss); // 26688, 92.13s -> 36s,
     vec_seq *c0 = vec_seq_init();
     vec_seq_add(c0, CONS_ST(0, 1, 2, 3));
     // return buildThc(selMinHC, 0, ss, c0);
@@ -928,12 +955,14 @@ tree_t *buildT(vec_seq *ss) {
     // h >= 3, 26448, 969.91s
     // h >= 4, 26386, 5546.71s, probe=52
     // h >= 5, 26375, 22327s, probe=75
-    // ALL, 
+    // ALL, 26374, 101561s, probe=83
     // return buildThc(selMaxEC, 0, ss, c0); // 26525, 0.11s
     return buildThc(selMinHCE, 0, ss, c0);
-    // first10, 26393, 30s
+    // first10, 26393, 30s, probe=58
     // first20, 26384, 426s
     // first30, 26383, 1999s, probe=58
+    // first40, 26383, 2711s, probe=58
+    // ALL, with -1 range, 26372, 41092s, probe=60
 }
 
 size_t cnt(tree_t *t) {
@@ -950,7 +979,7 @@ size_t cnt(tree_t *t) {
     return sub + 1;
 }
 
-size_t height(tree_t *t, size_t h) {
+static inline size_t height_rec(tree_t *t, size_t h) {
     if (t == NULL) {
         return 0;
     }
@@ -958,13 +987,54 @@ size_t height(tree_t *t, size_t h) {
     if (t->nd == NODE) {
         size_t i;
         for (i = 0; i != CHK_KIND_NUM - 1; i++) {
-            sub += height(t->child[i], h + 1);
+            sub += height_rec(t->child[i], h + 1);
         }
     }
     return sub + h * (t->probe == false);
 }
 
-size_t probe_cnt(tree_t *t) {
+static inline size_t height(tree_t *t) {
+    return height_rec(t, 1);
+}
+
+static inline void show_level(vec_seq *v) {
+    size_t i;
+    int sum = 0, hsum = 0;
+    for (i = 0; i != vec_size(v); i++) {
+        int x = vec_seq_idx(v, i);
+        printf("%d,", x);
+        sum += x;
+        hsum += (i + 1) * x;
+    }
+    printf("sum=%d,hsum=%d\n", sum, hsum);
+}
+
+static inline vec_seq *level(tree_t *t) {
+    if (t->nd == LEAF) {
+        vec_seq *lvl = vec_seq_init();
+        vec_seq_add(lvl, 1);
+        return lvl;
+    }
+    // s = foldl add [] (map level_rec subtree)
+    vec_seq *s = vec_seq_init(), *s1;
+    size_t i;
+    for (i = 0; i != CHK_KIND_NUM - 1; i++) {
+        if (t->child[i] == NULL) {
+            continue;
+        }
+        vec_seq *r = level(t->child[i]);
+        s1 = vec_seq_vadd(s, r);
+        vec_deinit(r), vec_deinit(s);
+        s = s1;
+    }
+    s1 = vec_seq_init();
+    vec_seq_add(s1, t->probe == false);
+    vec_seq_append(s1, s); // 0: s
+    vec_deinit(s);
+    return s1;
+}
+
+static inline size_t probe_cnt(tree_t *t) {
     if (t == NULL) {
         return 0;
     }
@@ -1000,7 +1070,7 @@ static inline seq_t inc_seq(seq_t n) {
     char *x = (char *)&n;
     char carriage = 0;
     size_t i;
-    for (i = K - 1, x[i] += 1; ; i--) {
+    for (i = K - 1, x[i] += 1;; i--) {
         x[i] += carriage;
         carriage = x[i] / 10;
         if (carriage == 0) {
@@ -1117,12 +1187,15 @@ int test_build() {
 #endif
     tree_t *t = buildT(lst);
     // showT(t, 0);
-    size_t h = height(t, 1);
+    size_t h = height(t);
     printf("height=%zu\n", h);
+    vec_seq *l = level(t);
+    show_level(l);
     size_t pcnt = probe_cnt(t);
     printf("probe=%zu\n", pcnt);
     printf("active=%zu hit=%zu miss=%zu conflict=%zu hitrate=%f conflict=%f\n",
            active, hit, miss, conflict, hit / (hit + miss + 0.), conflict / (miss + 0.));
+    vec_deinit(l);
     vec_deinit(lst);
     free_tree(t);
     return 0;
