@@ -11,5 +11,8 @@ entropy: entropy.c
 word: word.c
 	gcc $(FLAGS) word.c -o word
 
+csum: csum.c
+	gcc $(FLAGS) csum.c -o csum
+
 clean:
 	rm -rf fv entropy word
