@@ -6,34 +6,70 @@
 /** simple big data with char string
  * support add, multiply, minus, divide, modulo
  */
+
+/** API design
+ *
+ * like register of computer, we could have different style
+ * - zero operand, PUSH A, PUSH B, ADD, POP
+ * - one operand, LOAD A, ADD B, STORE A
+ * - two operands, ADD A B (A+=B)
+ * - three operands, ADD C A B
+ * We pick two operands style, it save temp var handling issue;
+ *
+ * For memory, we use heap to save all data
+ * We don't support INT use stack (or static memory), and we support API to
+ * build INT from that memory
+ * - ctor(int)
+ * - ctor(char *s)
+ *
+ * For memory efficiency and implementation, we use uint32_t/uint8_t for internal
+ * element
+ *
+ * Coding Style
+ * - Leading with zint module name
+ * - Prefer to passing value
+ * - return value, so caller could chaing calling
+ */
+
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define BASE    10
+
+typedef uint8_t elem_t;
+#define BASE    256
 
 typedef struct {
-    size_t n; // length of sequence
-    char *s; // sequence, should not leading with zero
     int sign;
-    int heap; // s is from stack or heap
-} INT;
+    size_t n; // length of sequence
+    elem_t *s; // sequence, should not leading with zero
+} zint_t;
+/** For 0, sign=0, n = 0, s = NULL
+ * For positive number, sign=1, n=N, s=
+ * For negative number, sign=-1, n=N, s=
+ */
 
-const INT zero = {.n = 0, .s = NULL, .sign = 1, .heap = false};
-
-static inline void free_int(INT x) {
-    if (x.heap) {
-        free(x.s);
-    }
-}
-
-static inline char idx(INT x, size_t i) {
-    assert(i < x.n);
-    assert(i >= 0);
+/** internal function */
+static inline elemt_t idx(zint_t x, size_t i) {
+    assert(0 <= i && i < x.n);
     return x.s[i];
 }
 
-static inline void show(INT x) {
-    int c = (x.sign >= 0) ? '+' : '-';
-    printf("%c", c);
+/** public function */
+static inline zint_t zint_copy(zint_t x, size_t n) {
+    n = MAX(n, x.n);
+    elem_t *s = malloc(sizeof(elem_t) * n);
+    memcpy(s, x.s, x.n * sizeof(elem_t));
+    zint_t r = {.sign = x.sign, .s = s, .n = x.n};
+    return r;
+}
+
+static inline void zint_free(zint_t x) {
+    free(x.s);
+}
+
+static inline void zint_show(INT x) {
+    if (x.sign < 0) {
+        putchar('-');
+    }
     size_t i;
     for (i = x.n - 1; i < x.n; i--) {
         printf("%d", idx(x, i));
@@ -41,22 +77,21 @@ static inline void show(INT x) {
     if (x.n == 0) {
         printf("0");
     }
-    putchar(x.heap ? 'h' : 'c');
 }
 
-static inline int sgn(INT a) {
+/** print x to string s
+ * When s is NULL, return length??? */
+static inline size_t zint_print(char *s, size_t n, zint_t x);
+
+/** public operator function */
+static inline int zint_sgn(INT a) {
     return a.sign;
 }
 
-static inline INT copy_c(INT a, size_t n) {
-    n = MAX(n, a.n);
-    char *s = malloc(sizeof(char) * n);
-    memcpy(s, a.s, a.n);
-    INT r = {.sign = a.sign, .s = s, .n = a.n, .heap = true};
-    return r;
-}
+static inline zint_t zint_neg(zint_t x) {
+    if (x.n == 0)
+    x.
 
-static inline INT neg_c(INT a) {
     INT r = copy_c(a, 0);
     r.sign = -1 * sgn(a);
     return r;
