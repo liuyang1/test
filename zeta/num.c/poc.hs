@@ -54,32 +54,35 @@ minus b (x:xs) (y:ys)
     | x >= y = (x-y):minus b xs ys
     | otherwise = b+x-y: dec b (minus b xs ys)
 
-mul_simple b [] ys = []
-mul_simple b xs [] = []
-mul_simple b xs [y] = muls b xs y
-mul_simple b [x] ys = muls b ys x
-mul_simple b xs ys = add b (add b (mul_simple b xl yl)
-                                  (shift n (add b (mul_simple b xl yh) (mul_simple b xh yl))))
-                           (shift (n*2) (mul_simple b xh yh))
-    where n = min (length xs) (length ys) `div` 2
-          (xl, xh) = splitAt n xs
-          (yl, yh) = splitAt n ys
+-- prefer to foldr
+-- a bit of slow with [] and foldr, so switch back to add3
+addSeq b = foldr (add b) []
+add3 b xs ys zs = add b (add b xs ys) zs
 
-mul_kara b [] ys = []
-mul_kara b xs [] = []
-mul_kara b xs [y] = muls b xs y
-mul_kara b [x] ys = muls b ys x
-mul_kara b xs ys = add b (add b ll
-                                (shift n lh))
-                         (shift (n*2) hh)
+mulSimple b [] ys = []
+mulSimple b xs [] = []
+mulSimple b xs [y] = muls b xs y
+mulSimple b [x] ys = muls b ys x
+mulSimple b xs ys = add3 b ll (shift n lh) (shift (n*2) hh)
     where n = min (length xs) (length ys) `div` 2
           (xl, xh) = splitAt n xs
           (yl, yh) = splitAt n ys
-          ll = mul_kara b xl yl
-          hh = mul_kara b xh yh
-          lh = minus b (minus b (mul_kara b (add b xl xh) (add b yl yh))
-                                ll)
-                       hh
+          ll = mulSimple b xl yl
+          hh = mulSimple b xh yh
+          lh = add b (mulSimple b xl yh) (mulSimple b xh yl)
+
+mulKara b [] ys = []
+mulKara b xs [] = []
+mulKara b xs [y] = muls b xs y
+mulKara b [x] ys = muls b ys x
+mulKara b xs ys = add3 b ll (shift n lh) (shift (n*2) hh)
+    where n = min (length xs) (length ys) `div` 2
+          (xl, xh) = splitAt n xs
+          (yl, yh) = splitAt n ys
+          ll = mulKara b xl yl
+          hh = mulKara b xh yh
+          lh = minus b (minus b (mulKara b (add b xl xh) (add b yl yh))
+                                ll) hh
 
 main = do
     print $ convBase 10 256 [1]
