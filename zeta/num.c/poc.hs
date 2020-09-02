@@ -34,7 +34,7 @@ muls b [] scl = []
 muls b (x:xs) scl = rem: add b [quot] (muls b xs scl)
     where (quot, rem) = (x * scl) `divMod` b
 
--- O(nm)
+-- O(nm), naive way
 mul :: Integral a => a -> [a] -> [a] -> [a]
 mul b [] ys = []
 mul b (x:xs) ys = add b (muls b ys x) (shift 1 (mul b xs ys))
@@ -57,8 +57,17 @@ minus b (x:xs) (y:ys)
 -- prefer to foldr
 -- a bit of slow with [] and foldr, so switch back to add3
 addSeq b = foldr (add b) []
-add3 b xs ys zs = add b (add b xs ys) zs
+--add3 b xs ys zs = add b (add b xs ys) zs
 
+base=256
+(<+>) xs ys = add base xs ys
+(<->) xs ys = minus base xs ys
+(<*.>) xs scl = muls base xs scl
+
+
+add3 b xs ys zs = xs <+> ys <+> ys
+
+-- similar with Kara, but no optimization
 mulSimple b [] ys = []
 mulSimple b xs [] = []
 mulSimple b xs [y] = muls b xs y
@@ -71,6 +80,7 @@ mulSimple b xs ys = add3 b ll (shift n lh) (shift (n*2) hh)
           hh = mulSimple b xh yh
           lh = add b (mulSimple b xl yh) (mulSimple b xh yl)
 
+-- O(n^1.5), Karastra
 mulKara b [] ys = []
 mulKara b xs [] = []
 mulKara b xs [y] = muls b xs y
@@ -83,6 +93,41 @@ mulKara b xs ys = add3 b ll (shift n lh) (shift (n*2) hh)
           hh = mulKara b xh yh
           lh = minus b (minus b (mulKara b (add b xl xh) (add b yl yh))
                                 ll) hh
+
+{- cheat with haskell native implementation -}
+mulCheat b xs ys = toBase b ((fromBase b xs) * (fromBase b ys))
+
+split3 n xs = (l, m, h)
+    where (l, r) = splitAt n xs
+          (m, h) = splitAt n r
+
+-- TODO: support addSg, minusSg
+evalToom n xs = [m0, p1, p_1, p_2, m2]
+    where (m0, m1, m2) = split3 n xs
+          p0 = m0 <+> m2
+          p1 = p0 <+> m1
+          p_1 = p0 <-> m1
+          p_2 = ((p_1 <+> m2) <*.> 2) <-> m0
+
+interpToom [r0, r1, r_1, r_2, ri] = [r0, t1, t2, t3, ri]
+    where s3 = (r_2 <-> r1) <*.> (1/3)
+          s1 = (r1 <-> r_1) <*.> (1/2)
+          s2 = (r_1 - r0)
+          t3 = ((s2 <-> s3) <*.> (1/2)) <+> (ri <*.> 2)
+          t2 = s2 <+> s1 <-> ri
+          t1 = s1 <-> t3
+
+vecMul xs ys = zipWith mulToom xs ys
+
+mulToom [] ys = []
+mulToom xs [] = []
+mulToom xs [y] = xs <*.> y
+mulToom [x] ys = ys <*.> x
+mulToom xs ys = []
+    where n = min (length xs) (length ys) `div` 3
+          p = evalToom n xs
+          q = evalToom n xs
+          r = zipWith mulToom p q
 
 main = do
     print $ convBase 10 256 [1]

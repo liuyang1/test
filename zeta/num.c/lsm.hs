@@ -1,13 +1,15 @@
 import Data.List (genericLength)
 mean xs = sum xs / genericLength xs
 
-ratio xs ys = xy / xx
+
+lsm xs ys = ((ym - k * xm), k)
     where xm = mean xs
           ym = mean ys
           x_ = [x - xm | x <- xs]
           y_ = [y - ym | y <- ys]
           xy = sum $ zipWith (*) x_ y_
           xx = sum $ zipWith (*) x_ x_
+          k = xy / xx
 
 ns = [500, 700, 1000, 1400, 2000, 2800, 4000]
 x0 = [4.92, 9.16, 20.53, 37.90, 83.86, 152.56, 331.10]
@@ -19,6 +21,6 @@ mlog = map log
 ns_ = mlog ns
 
 -- 2.02, 2.01, 1.61
-k0 = ratio ns_ (mlog x0)
-k1 = ratio ns_ (mlog x1)
-k2 = ratio ns_ (mlog x2)
+k0 = lsm ns_ (mlog x0)
+k1 = lsm ns_ (mlog x1)
+k2 = lsm ns_ (mlog x2)
