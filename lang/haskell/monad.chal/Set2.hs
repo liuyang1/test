@@ -94,12 +94,9 @@ salaries :: [(String,Integer)]
 salaries = [("alice", 105000), ("bob", 90000), ("carol", 85000)]
 
 addSalaries :: [(String, Integer)] -> String -> String -> Maybe Integer
-addSalaries t x y = f2 (+) sx sy
-    where sx = lookupMay x t
-          sy = lookupMay y t
-          f2 f Nil _ = Nil
-          f2 f _ Nil = Nil
-          f2 f (Yes a) (Yes b) = Yes (f a b)
+addSalaries t x y = link (lookupMay x t) (\sx->
+                    link (lookupMay y t) (\sy->
+                        mkMaybe (sx + sy)))
 
 mkMaybe :: a -> Maybe a
 mkMaybe a = Yes a
@@ -111,5 +108,30 @@ mkMaybe a = Yes a
 yLink0 :: (a->b) -> Maybe a -> Maybe b
 yLink0 f ma = link ma (mkMaybe . f)
 
+yLink f ma mb = link ma (\a->
+                link mb (\b->
+                    mkMaybe $ f a b))
 
-yLink f ma mb = link (link ma (mkMaybe . f)) mb
+addSalaries1 t x y = yLink (+) (lookupMay x t) (lookupMay y t)
+
+-- exer26
+
+tailProd :: Num a => [a] -> Maybe a
+tailProd xs = yLink0 product (tailMay xs)
+
+tailSum :: Num a => [a] -> Maybe a
+tailSum xs = yLink0 sum (tailMay xs)
+
+transMaybe :: (a->b) -> Maybe a -> Maybe b
+transMaybe = yLink0
+
+tailMax :: Ord a => [a] -> Maybe (Maybe a)
+tailMax xs = maximumMay `transMaybe` (tailMay xs)
+
+tailMin :: Ord a => [a] -> Maybe a
+tailMin xs = combine $ minimumMay `transMaybe` (tailMay xs)
+
+combine :: Maybe (Maybe a) -> Maybe a
+combine Nil = Nil
+combine (Yes a) = a
+
