@@ -1,8 +1,12 @@
+CXXFLAGS=-Wall -g -Og #-fsanitize=address -lasan
 test: a.out
 	./a.out
 
-a.out: findShortestSubArray.697.cpp
-	g++ -Wall -Werror findShortestSubArray.697.cpp -std=c++11
+grind: a.out
+	valgrind ./a.out
+
+a.out: buddyString.859.cpp
+	g++ $(CXXFLAGS) $^ -std=c++11
 
 clean:
-	rm -rf *.o a.out
+	rm -rf *.o a.out core vgcore*
