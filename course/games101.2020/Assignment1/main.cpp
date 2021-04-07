@@ -23,28 +23,42 @@ Eigen::Matrix4f get_model_matrix(float rotation_angle)
 {
     Eigen::Matrix4f model = Eigen::Matrix4f::Identity();
 
-    // TODO: Implement this function
     // Create the model matrix for rotating the triangle around the Z axis.
     // Then return it.
+    rotation_angle *= MY_PI / 180.;
+    float s = sin(rotation_angle), c = cos(rotation_angle);
+    model << c, -s, 0, 0,
+        s, c, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1;
 
     return model;
 }
 
+// fov: field of view
 Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio,
                                       float zNear, float zFar)
 {
-    // Students will implement this function
-
     Eigen::Matrix4f projection = Eigen::Matrix4f::Identity();
 
-    // TODO: Implement this function
     // Create the projection matrix for the given parameters.
     // Then return it.
+    Eigen::Matrix4f persp_ortho, ortho;
+    persp_ortho << zNear, 0, 0, 0,
+        0, zNear, 0, 0,
+        0, 0, zNear + zFar, -zNear * zFar,
+        0, 0, 1, 0;
+    float t = tan(eye_fov / 2.) * zNear, r = aspect_ratio * t;
+    ortho << 1.0 / r, 0, 0, 0,
+        0, 1.0 / t, 0, 0,
+        0, 0, 2 / (zNear - zFar), 0,
+        0, 0, 0, 1;
+    projection = ortho * persp_ortho;
 
     return projection;
 }
 
-int main(int argc, const char** argv)
+int main(int argc, const char **argv)
 {
     float angle = 0;
     bool command_line = false;
@@ -55,18 +69,18 @@ int main(int argc, const char** argv)
         angle = std::stof(argv[2]); // -r by default
         if (argc == 4) {
             filename = std::string(argv[3]);
-        }
-        else
+        } else {
             return 0;
+        }
     }
 
     rst::rasterizer r(700, 700);
 
     Eigen::Vector3f eye_pos = {0, 0, 5};
 
-    std::vector<Eigen::Vector3f> pos{{2, 0, -2}, {0, 2, -2}, {-2, 0, -2}};
+    std::vector < Eigen::Vector3f > pos {{2, 0, -2}, {0, 2, -2}, {-2, 0, -2}};
 
-    std::vector<Eigen::Vector3i> ind{{0, 1, 2}};
+    std::vector < Eigen::Vector3i > ind {{0, 1, 2}};
 
     auto pos_id = r.load_positions(pos);
     auto ind_id = r.load_indices(ind);
@@ -90,7 +104,7 @@ int main(int argc, const char** argv)
         return 0;
     }
 
-    while (key != 27) {
+    while (! (key == 27 || key == 'q')) { /** Esc key to exit */
         r.clear(rst::Buffers::Color | rst::Buffers::Depth);
 
         r.set_model(get_model_matrix(angle));
@@ -108,8 +122,7 @@ int main(int argc, const char** argv)
 
         if (key == 'a') {
             angle += 10;
-        }
-        else if (key == 'd') {
+        } else if (key == 'd') {
             angle -= 10;
         }
     }

@@ -93,5 +93,11 @@ int main() {
     std::cout << "rotate + move\n";
     std::cout << rot * p + move << std::endl;
 
+    Eigen::Matrix3f mov;
+    mov << 1, 0, 1,
+        0, 1, 2,
+        0, 0, 1;
+    std::cout << "rotate <*> move\n";
+    std::cout << mov * rot * p << std::endl;
     return 0;
 }
