@@ -11,8 +11,10 @@ Eigen::Matrix4f get_view_matrix(Eigen::Vector3f eye_pos)
     Eigen::Matrix4f view = Eigen::Matrix4f::Identity();
 
     Eigen::Matrix4f translate;
-    translate << 1, 0, 0, -eye_pos[0], 0, 1, 0, -eye_pos[1], 0, 0, 1,
-        -eye_pos[2], 0, 0, 0, 1;
+    translate << 1, 0, 0, -eye_pos[0],
+        0, 1, 0, -eye_pos[1],
+        0, 0, 1, -eye_pos[2],
+        0, 0, 0, 1;
 
     view = translate * view;
 
@@ -56,6 +58,21 @@ Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio,
     projection = ortho * persp_ortho;
 
     return projection;
+}
+
+Eigen::Matrix4f get_rotation(Vector3f axis, float angle) {
+    axis /= axis.norm(); // unit
+    float x = axis[0], y = axis[1], z = axis[2];
+    float x2 = x * x, y2 = y * y, z2 = z * z;
+    float xy = x * y, yz = y * z, zx = z * x;
+    float theta = angle / 180. * MY_PI;
+    float c = cos(theta), c1 = 1 - c, s = sin(theta);
+    Eigen::Matrix4f m;
+    m << c + c1 * x2, c1 *xy - s * z, c1 *zx + s * y, 0,
+        c1 *xy + s * z, c + c1 * y2, c1 *yz - s * x, 0,
+        c1 *zx - s * y, c1 *yz + s * x, c + c1 * z2, 0,
+        0, 0, 0, 1;
+    return m;
 }
 
 int main(int argc, const char **argv)
@@ -104,11 +121,16 @@ int main(int argc, const char **argv)
         return 0;
     }
 
-    while (! (key == 27 || key == 'q')) { /** Esc key to exit */
-        r.clear(rst::Buffers::Color | rst::Buffers::Depth);
+    while (!(key == 27 || key == 'q')) {  /** Esc key to exit */
+        // r.clear(rst::Buffers::Color | rst::Buffers::Depth);
 
-        r.set_model(get_model_matrix(angle));
+        // r.set_model(get_model_matrix(angle));
+        Eigen::Vector3f axis;
+        axis << 0.5, 0.5, 1;
+        r.set_model(get_rotation(axis, angle));
+
         r.set_view(get_view_matrix(eye_pos));
+
         r.set_projection(get_projection_matrix(45, 1, 0.1, 50));
 
         r.draw(pos_id, ind_id, rst::Primitive::Triangle);
@@ -118,13 +140,14 @@ int main(int argc, const char **argv)
         cv::imshow("image", image);
         key = cv::waitKey(10);
 
-        std::cout << "frame count: " << frame_count++ << '\n';
+        // std::cout << "frame count: " << frame_count++ << '\n';
 
         if (key == 'a') {
-            angle += 10;
+            angle += 5;
         } else if (key == 'd') {
-            angle -= 10;
+            angle -= 5;
         }
+        angle += 1;
     }
 
     return 0;

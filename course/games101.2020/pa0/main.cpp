@@ -4,9 +4,6 @@
 #include <iostream>
 
 
-float length(Eigen::Vector3f p) {
-    return sqrt(p[0] * p[0] + p[1] * p[1]);
-}
 int main() {
 
     // Basic Example of cpp
@@ -77,7 +74,7 @@ int main() {
      */
     Eigen::Vector3f p(2.0, 1.0, 1.0);
     float pi = acos(-1);
-    float theta = 45./180*pi;
+    float theta = 45. / 180 * pi;
     float cos_theta = cos(theta), sin_theta = sin(theta);
     Eigen::Matrix3f rot;
     rot << cos_theta, -sin_theta, 0,
@@ -89,7 +86,7 @@ int main() {
     std::cout << move << std::endl;
     std::cout << "rotate\n";
     std::cout << rot * p << std::endl;
-    std::cout << "length" << length(p) << " " << length(rot * p) << std::endl;
+    std::cout << "norm " << p.norm() << " " << (rot * p).norm() << std::endl;
     std::cout << "rotate + move\n";
     std::cout << rot * p + move << std::endl;
 
