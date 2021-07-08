@@ -50,21 +50,31 @@ fn from_str_2(s: &str) -> (u32, u32, char, &str) {
     (bot, top, c, s3)
 }
 
+fn from_bool(b: bool) -> u32 {
+    if b {1} else {0}
+}
+
 fn char_count(s: &str, c: char) -> u32 {
-    s.chars().map(|i| if i == c {1} else {0}).sum()
+    s.chars().map(|i| from_bool(i == c)).sum()
 }
 
 fn main() {
     // let ts = Trans::from_str("12-24 a: adefbc").unwrap();
     // println!("{} {} {} {}", ts.bot, ts.top, ts.c, ts.pwd);
 
-    let contents = fs::read_to_string("input.0").unwrap();
+    let contents = fs::read_to_string("input.txt").unwrap();
     let xs = contents.lines().collect::<Vec<&str>>();
     // println!("{:?}", xs);
+    let mut sum = 0;
+    let mut num = 0;
     for i in xs {
+        num = num + 1;
         let (bot, top, c, pwd) = from_str_2(i);
         let cnt = char_count(pwd, c);
-        let res = if bot <= cnt && cnt <= top { "valid  " } else{ "invalid"};
+        let pred = bot <= cnt && cnt <= top;
+        sum = sum + from_bool(pred);
+        let res = if pred { "valid  " } else{ "invalid"};
         println!("{} {} {} {} {}", res, bot, top, c, pwd);
     }
+    println!("valid password: {}/{}", sum, num);
 }
