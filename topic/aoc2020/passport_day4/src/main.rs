@@ -18,11 +18,12 @@ fn in_range(s: &str, bot: usize, top: usize) -> bool {
 }
 
 fn is_hexdigit(c: char) -> bool {
-    ('a' <= c && c <= 'f') || ('0' <= c && c <= '9')
+    ('0' <= c && c <= '9') || ('a' <= c && c <= 'f')
 }
 
 fn is_color(s: &str) -> bool {
-    s.len() == 7 && s.chars().nth(0).unwrap() == '#' && s.chars().skip(1).all(is_hexdigit)
+    let (h, t) = s.split_at(1);
+    h == "#" && t.chars().all(is_hexdigit)
 }
 
 fn is_hair(s: &str) -> bool {
@@ -31,50 +32,37 @@ fn is_hair(s: &str) -> bool {
 }
 
 fn is_height(s: &str) -> bool {
-    let idx = s.len() - 2;
-    let (hgt, unit) = s.split_at(idx);
-    if hgt.len() == 0 {
-        return false;
-    }
-    let hgt = hgt.parse::<usize>().unwrap();
+    let (hgt, unit) = s.split_at(s.len() - 2);
     match unit {
-        "cm" => 150 <= hgt && hgt <= 193,
-        "in" => 59 <= hgt && hgt <= 76,
+        "cm" => in_range(hgt, 150, 193),
+        "in" => in_range(hgt, 59, 76),
         _ => return false,
     }
 }
 
+fn valid_item(s: &str) -> bool{
+    let (k, v) = s.split_at(4);
+    match k {
+        "byr:" => in_range(v, 1920, 2002),
+        "iyr:" => in_range(v, 2010, 2020),
+        "eyr:" => in_range(v, 2020, 2030),
+        "hgt:" => is_height(v),
+        "hcl:" => is_color(v),
+        "ecl:" => is_hair(v),
+        "pid:" => v.len() == 9 && is_digits(v),
+        "cid:" => true,
+        _ => {println!("unknown {}: {}", k, v); false},
+    }
+}
+
 fn valid_passport(s: &str) -> bool {
-    if !valid_passport_0(s) {
-        return false;
-    }
-    for sub in s.split_whitespace() {
-        let k = &sub[0..4];
-        let v = &sub[4..];
-        match k {
-            "byr:" => if !in_range(v, 1920, 2002) { return false },
-            "iyr:" => if !in_range(v, 2010, 2020) {  return false },
-            "eyr:" => if !in_range(v, 2020, 2030) {  return false },
-            "hgt:" => if !is_height(v) { return false},
-            "hcl:" => if !is_color(v) {  return false },
-            "ecl:" => if !is_hair(v) { return false},
-            "pid:" => if !(v.len() == 9 && is_digits(v)) { return false},
-            "cid:" => (),
-            _ => {println!("unknown {}: {}", k, v); return false },
-        }
-    }
-    true
+    valid_passport_0(s) && s.split_whitespace().all(|item| valid_item(item))
 }
 
 fn main() {
     let contents = fs::read_to_string("input.txt").unwrap();
     let xs = contents.split("\n\n").collect::<Vec<&str>>();
     // println!("{:?}", xs);
-    let mut sum = 0;
-    for x in xs.iter() {
-        if valid_passport(x) {
-            sum = sum + 1;
-        }
-    }
-    println!("{}/{}", sum, xs.len());
+    let cnt:usize = xs.iter().map(|x| valid_passport(x) as usize).sum();
+    println!("{}/{}", cnt, xs.len());
 }
