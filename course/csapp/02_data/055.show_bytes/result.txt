@@ -1,0 +1,14 @@
+Linux droid11 4.4.0-31-generic #50~14.04.1-Ubuntu SMP Wed Jul 13 01:07:32 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
+          show_short 2a 00
+            show_int 2a 00 00 00
+           show_long 2a 00 00 00 00 00 00 00
+          show_float 00 00 28 42
+         show_double 00 00 00 00 00 00 45 40
+        show_pointer 5c 6c 8e 0c fd 7f 00 00
+          show_short 0a 1a
+            show_int 0a 1a 00 00
+           show_long 0a 1a 00 00 00 00 00 00
+          show_float 00 50 d0 45
+         show_double 00 00 00 00 00 0a ba 40
+        show_pointer 5c 6c 8e 0c fd 7f 00 00
+----
