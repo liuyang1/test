@@ -1,5 +1,5 @@
 #include <stdio.h>
-int hello(char *s) {
+int hello(const char *s) {
     printf("hello, %s\n", s);
     return 0;
 }
