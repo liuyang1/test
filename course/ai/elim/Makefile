@@ -1,6 +1,7 @@
 .PHONY: bench sample clean zip
 bench: a.out
-	valgrind --leak-check=full ./a.out bench
+	# valgrind --leak-check=full ./a.out bench
+	./a.out bench
 
 sample: a.out
 	rm -rf *.txt

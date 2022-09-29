@@ -22,6 +22,9 @@ typedef struct {
     bool *b;
 } shape_t;
 
+size_t g_shp_n;
+shape_t **g_shp_lst;
+
 board_t *brd_open() {
     board_t *b = malloc(sizeof(board_t));
     size_t i, j;
@@ -37,6 +40,12 @@ board_t *brd_open() {
 
 void brd_close(board_t *b) {
     free(b);
+}
+
+board_t *brd_dup(board_t *b) {
+    board_t *p = malloc(sizeof(board_t));
+    *p = *b;
+    return p;
 }
 
 void brd_show(board_t *b, FILE *fp) {
@@ -235,6 +244,11 @@ size_t brd_try_elim(board_t *b) {
 }
 
 /************** BOARD FILL function *******************************************/
+bool brd_fill(board_t *b, shape_t *shp);
+bool nothing(board_t *b, shape_t *shp) {
+    return false;
+}
+
 bool first_fit(board_t *b, shape_t *shp) {
     size_t i, j;
     for (i = 0; i != ROWS_BRD; i++) {
@@ -246,6 +260,16 @@ bool first_fit(board_t *b, shape_t *shp) {
         }
     }
     return false;
+}
+
+size_t fit_cnt(board_t *b, shape_t *shp) {
+    size_t i, j, cnt = 0;
+    for (i = 0; i != ROWS_BRD; i++) {
+        for (j = 0; j != COLS_BRD; j++) {
+            cnt += brd_fit(b, shp, i, j);
+        }
+    }
+    return cnt;
 }
 
 bool corner(board_t *b, shape_t *shp) {
@@ -350,12 +374,49 @@ bool fill_greedy(board_t *b, shape_t *shp) {
     return true;
 }
 
+bool max_capbility(board_t *b, shape_t *shp) {
+    size_t i, j, mscore = 0, mcap = 0, mi, mj;
+    for (i = 0; i != ROWS_BRD; i++) {
+        for (j = 0; j != COLS_BRD; j++) {
+            if (brd_fit(b, shp, i, j)) {
+                board_t *t = brd_dup(b);
+                brd_put(t, shp, i, j);
+
+                size_t score, cap = 0;
+                score = brd_try_elim(t);
+                brd_elim(t);
+                size_t k;
+                for (k = 0; k != g_shp_n; k++) {
+                    board_t *t1 = brd_dup(t);
+                    shape_t *t_shp = g_shp_lst[k];
+                    // cap += first_fit(t1, t_shp);
+                    cap += fit_cnt(t1, t_shp);
+                    brd_close(t1);
+                }
+
+                brd_close(t);
+                if (cap > mcap) {
+                    mcap = cap, mscore = score, mi = i, mj = j;
+                } else if (cap == mcap && score > mscore) {
+                    mscore = score, mi = i, mj = j;
+                }
+            }
+        }
+    }
+    if (mscore == 0) {
+        return false;
+    }
+    brd_put(b, shp, mi, mj);
+    return true;
+}
+
 bool brd_fill(board_t *b, shape_t *shp) {
     // return first_fit(b, shp);
     // return corner(b, shp);
     // return center(b, shp);
     // return fill_random(b, shp);
-    return fill_greedy(b, shp);
+    // return fill_greedy(b, shp);
+    return max_capbility(b, shp);
 }
 
 /************** SHAPE *********************************************************/
@@ -540,16 +601,16 @@ FILE *fp_update(size_t frame, FILE *fp) {
 }
 
 int test_fill_fn_seed(unsigned int seed, bool show) {
-    size_t shp_n;
-    shape_t **shp_lst = shp_open(&shp_n);
+    g_shp_lst = shp_open(&g_shp_n);
+
     board_t *b = brd_open();
     unsigned int shp_seed = seed;
 
     FILE *fp = NULL;
     size_t round, frame;
     for (round = frame = 0; ;round++) {
-        size_t shp_rnd = rand_r(&shp_seed) % shp_n;
-        shape_t *shp = shp_lst[shp_rnd];
+        size_t shp_rnd = rand_r(&shp_seed) % g_shp_n;
+        shape_t *shp = g_shp_lst[shp_rnd];
         if (show) {
             fp = fp_update(frame++, fp);
             brd_show(b, fp);
@@ -578,7 +639,7 @@ int test_fill_fn_seed(unsigned int seed, bool show) {
         fclose(fp);
     }
     brd_close(b);
-    shp_close(shp_lst, shp_n);
+    shp_close(g_shp_lst, g_shp_n);
     return score;
 }
 
@@ -586,7 +647,9 @@ int test_bench() {
     unsigned int seed;
     size_t score = 0, round = 1000;
     for (seed = 0; seed != round; seed++) {
-        score += test_fill_fn_seed(seed, 0);
+        size_t this;
+        score += this = test_fill_fn_seed(seed, 0);
+        printf("seed=%u score=%zu avg=%f\n", seed, this, score / (seed + 1.));
     }
     printf("avg score=%f\n", score / (round + 0.));
     return 0;
@@ -594,7 +657,7 @@ int test_bench() {
 
 int main(int argc, char **argv) {
     if (argc == 1 || strcmp(argv[1], "sample") == 0) {
-        test_fill_fn_seed(42, 1);
+        test_fill_fn_seed(68, 1);
     } else if (strcmp(argv[1], "bench") == 0) {
         test_bench();
     } else {

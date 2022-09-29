@@ -29,4 +29,10 @@ random with seed [0, 1000)
 - random: 68 <<< WORST
 
 - score_first: 355.9
-- score(greedy score, length): 384
+- score(greedy score, length): 384 (2022-09-28 best)
+
+- max score+depth capability search
+order 0: 384 (same with greedy score+length)
+order 1: 456.8/463.0
+- max score+fit counter search
+order 1: 780.3 (2022-09-29 best)
