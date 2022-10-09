@@ -36,3 +36,10 @@ order 0: 384 (same with greedy score+length)
 order 1: 456.8/463.0
 - max score+fit counter search
 order 1: 780.3 (2022-09-29 best)
+
+max fit case:                               332.667
+max fit case + max score:                   425.954
+max fit case + max score with try-elim:     456.796
+max capability:                             777.783
+max capability + max score:                 777.783
+max capability + max score with try-elim:   780.291

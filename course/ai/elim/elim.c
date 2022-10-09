@@ -11,8 +11,7 @@
 #define VVV(...)
 
 typedef struct {
-    // bool b[ROWS_BRD][COLS_BRD];
-    bool b[ROWS_BRD*COLS_BRD];
+    bool b[ROWS_BRD * COLS_BRD];
     size_t combo;
     size_t score;
 } board_t;
@@ -26,20 +25,8 @@ typedef struct {
 size_t g_shp_n;
 shape_t **g_shp_lst;
 
-#if 0
-static inline void brd_elm_set(board_t *b, size_t i, size_t j, bool x) {
-    b->b[i][j] = x;
-}
-
-static inline bool brd_elm_get(board_t *b, size_t i, size_t j) {
-    return b->b[i][j];
-}
-#else
-// #define brd_elm_set(b, i, j, x) b->b[(i)][(j)] = (x)
-// #define brd_elm_get(b, i, j) b->b[(i)][(j)]
-#define brd_elm_set(b, i, j, x) b->b[(i)*COLS_BRD+(j)] = (x)
-#define brd_elm_get(b, i, j) b->b[(i)*COLS_BRD+(j)]
-#endif
+#define brd_elm_set(b, i, j, x)     b->b[(i) * COLS_BRD + (j)] = (x)
+#define brd_elm_get(b, i, j)        b->b[(i) * COLS_BRD + (j)]
 
 board_t *brd_open() {
     board_t *b = malloc(sizeof(board_t));
@@ -149,6 +136,7 @@ bool brd_fit(board_t *b, shape_t *s, size_t x, size_t y) {
 }
 
 void brd_chk_line(board_t *b, bool *rows, bool *cols) {
+    // simple loop, faster loop
     size_t i, j;
     for (i = 0; i != ROWS_BRD; i++) {
         rows[i] = true;
@@ -463,8 +451,8 @@ bool brd_fill(board_t *b, shape_t *shp) {
     // return center(b, shp);
     // return fill_random(b, shp);
     // return fill_greedy(b, shp);
-    // return max_capbility(b, shp);
-    return max_cap_score(b, shp);
+    return max_capbility(b, shp); // 780.291
+    // return max_cap_score(b, shp);
 }
 
 /************** SHAPE *********************************************************/
