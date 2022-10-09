@@ -94,10 +94,10 @@ int brd_score(board_t *b) {
 /** do that put shape to board with (x, y) position
  * it must be check with brd_fit function */
 void brd_put(board_t *b, shape_t *s, size_t x, size_t y) {
-    size_t i, j;
-    for (i = 0; i != s->rows; i++) {
-        for (j = 0; j != s->cols; j++) {
-            if (s->b[i * s->cols + j] == false) {
+    size_t i, j, k;
+    for (i = k = 0; i != s->rows; i++) {
+        for (j = 0; j != s->cols; j++, k++) {
+            if (s->b[k] == false) {
                 continue;
             }
             // else: s->b[k] == true
@@ -111,10 +111,10 @@ void brd_put(board_t *b, shape_t *s, size_t x, size_t y) {
 }
 
 void brd_unput(board_t *b, shape_t *s, size_t x, size_t y) {
-    size_t i, j;
-    for (i = 0; i != s->rows; i++) {
-        for (j = 0; j != s->cols; j++) {
-            if (s->b[i * s->cols + j] == false) {
+    size_t i, j, k;
+    for (i = k = 0; i != s->rows; i++) {
+        for (j = 0; j != s->cols; j++, k++) {
+            if (s->b[k] == false) {
                 continue;
             }
             assert(brd_elm_get(b, x + i, y + j));
@@ -126,15 +126,15 @@ void brd_unput(board_t *b, shape_t *s, size_t x, size_t y) {
 
 /** check shape to board with (x, y) postion, fit or not */
 bool brd_fit(board_t *b, shape_t *s, size_t x, size_t y) {
-    size_t i, j;
+    size_t i, j, k;
     if (x + s->rows > ROWS_BRD || y + s->cols > COLS_BRD) {
         VVV("out of range x=%zu y=%zu shape=%zu*%zu board=%zu*%zu\n",
             x, y, s->rows, s->cols, ROWS_BRD, COLS_BRD);
         return false;
     }
-    for (i = 0; i != s->rows; i++) {
-        for (j = 0; j != s->cols; j++) {
-            if (s->b[i * s->cols + j] == false) {
+    for (i = k = 0; i != s->rows; i++) {
+        for (j = 0; j != s->cols; j++, k++) {
+            if (s->b[k] == false) {
                 continue;
             }
             // else: s->b[k] == true
