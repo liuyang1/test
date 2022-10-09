@@ -30,7 +30,7 @@ board_t *brd_open() {
     size_t i, j;
     for (i = 0; i != ROWS_BRD; i++) {
         for (j = 0; j != COLS_BRD; j++) {
-            b->b[i][j] = false;
+            brd_elm_set(b, i, j, false);
         }
     }
     b->combo = 0;
@@ -59,7 +59,7 @@ void brd_show(board_t *b, FILE *fp) {
     for (i = 0; i != ROWS_BRD; i++) {
         fprintf(fp, "|");
         for (j = 0; j != COLS_BRD; j++) {
-            fprintf(fp, "%c ", b->b[i][j] ? 'O' : ' ');
+            fprintf(fp, "%c ", brd_elm_get(b, i, j) ? 'O' : ' ');
         }
         fprintf(fp, "|");
         fprintf(fp, "\n");
@@ -84,11 +84,11 @@ void brd_put(board_t *b, shape_t *s, size_t x, size_t y) {
             if (s->b[i * s->cols + j] == false) {
                 continue;
             }
-            // else: s->b[i * s->cols + j] == true
-            if (b->b[x + i][y + j]) {
+            // else: s->b[k] == true
+            if (brd_elm_get(b, x + i, y + j)) {
                 assert(0); // must brd_fit
             }
-            b->b[x + i][y + j] = true;
+            brd_elm_set(b, x + i, y + j, true);
         }
     }
     b->score += s->nblk;
@@ -101,8 +101,8 @@ void brd_unput(board_t *b, shape_t *s, size_t x, size_t y) {
             if (s->b[i * s->cols + j] == false) {
                 continue;
             }
-            assert(b->b[x + i][y + j]);
-            b->b[x + i][y + j] = false;
+            assert(brd_elm_get(b, x + i, y + j));
+            brd_elm_set(b, x + i, y + j, false);
         }
     }
     b->score -= s->nblk;
@@ -121,8 +121,8 @@ bool brd_fit(board_t *b, shape_t *s, size_t x, size_t y) {
             if (s->b[i * s->cols + j] == false) {
                 continue;
             }
-            // else: s->b[i * s->cols + j] == true
-            if (b->b[x + i][y + j] == true) {
+            // else: s->b[k] == true
+            if (brd_elm_get(b, x + i, y + j) == true) {
                 VVV("conflict x=%zu y=%zu shape=%zu*%zu board=%zu*%zu at %zu*%zu\n",
                     x, y, s->rows, s->cols, ROWS_BRD, COLS_BRD, i, j);
                 return false;
@@ -137,13 +137,13 @@ void brd_chk_line(board_t *b, bool *rows, bool *cols) {
     for (i = 0; i != ROWS_BRD; i++) {
         rows[i] = true;
         for (j = 0; j != COLS_BRD; j++) {
-            rows[i] = rows[i] && b->b[i][j];
+            rows[i] = rows[i] && brd_elm_get(b, i, j);
         }
     }
     for (j = 0; j != COLS_BRD; j++) {
         cols[j] = true;
         for (i = 0; i != ROWS_BRD; i++) {
-            cols[j] = cols[j] && b->b[i][j];
+            cols[j] = cols[j] && brd_elm_get(b, i, j);
         }
     }
 }
@@ -153,14 +153,14 @@ void brd_do_elim(board_t *b, bool *rows, bool *cols) {
     for (i = 0; i != ROWS_BRD; i++) {
         if (rows[i]) {
             for (j = 0; j != COLS_BRD; j++) {
-                b->b[i][j] = false;
+                brd_elm_set(b, i, j, false);
             }
         }
     }
     for (j = 0; j != COLS_BRD; j++) {
         if (cols[j]) {
             for (i = 0; i != ROWS_BRD; i++) {
-                b->b[i][j] = false;
+                brd_elm_set(b, i, j, false);
             }
         }
     }
@@ -223,7 +223,7 @@ size_t brd_try_elim(board_t *b) {
         for (i = 0; i != ROWS_BRD; i++) {
             l = 0;
             for (j = 0; j != COLS_BRD; j++) {
-                l += b->b[i][j];
+                l += brd_elm_get(b, i, j);
             }
             if (l > ml) {
                 ml = l;
@@ -232,7 +232,7 @@ size_t brd_try_elim(board_t *b) {
         for (j = 0; j != COLS_BRD; j++) {
             l = 0;
             for (i = 0; i != ROWS_BRD; i++) {
-                l += b->b[i][j];
+                l += brd_elm_get(b, i, j);
             }
             if (l > ml) {
                 ml = l;
