@@ -279,7 +279,7 @@ bool corner(board_t *b, shape_t *shp) {
         for (j = 0; j != COLS_BRD; j++) {
             if (brd_fit(b, shp, i, j)) {
                 size_t pos_val = abs(i - (shp->rows + ROWS_BRD - 1) / 2) +
-                    abs(j - (shp->cols + COLS_BRD - 1) / 2);
+                                 abs(j - (shp->cols + COLS_BRD - 1) / 2);
                 if (pos_val >= max_val) {
                     max_val = pos_val;
                     mi = i, mj = j;
@@ -403,7 +403,38 @@ bool max_capbility(board_t *b, shape_t *shp) {
             }
         }
     }
-    if (mscore == 0) {
+    if (mscore == 0 && mcap == 0) {
+        return false;
+    }
+    brd_put(b, shp, mi, mj);
+    return true;
+}
+
+bool max_cap_score(board_t *b, shape_t *shp) {
+    size_t i, j, mcap = 0, mi = -1, mj = -1;
+    for (i = 0; i != ROWS_BRD; i++) {
+        for (j = 0; j != COLS_BRD; j++) {
+            if (brd_fit(b, shp, i, j)) {
+                board_t *t = brd_dup(b);
+                brd_put(t, shp, i, j);
+
+                size_t cap;
+                size_t k;
+                for (k = cap = 0; k != g_shp_n; k++) {
+                    board_t *t1 = brd_dup(t);
+                    shape_t *t_shp = g_shp_lst[k];
+                    cap += max_capbility(t1, t_shp);
+                    brd_close(t1);
+                }
+
+                brd_close(t);
+                if (cap > mcap) {
+                    mcap = cap, mi = i, mj = j;
+                }
+            }
+        }
+    }
+    if (mi == -1 && mi == -1) {
         return false;
     }
     brd_put(b, shp, mi, mj);
@@ -416,7 +447,8 @@ bool brd_fill(board_t *b, shape_t *shp) {
     // return center(b, shp);
     // return fill_random(b, shp);
     // return fill_greedy(b, shp);
-    return max_capbility(b, shp);
+    // return max_capbility(b, shp);
+    return max_cap_score(b, shp);
 }
 
 /************** SHAPE *********************************************************/
@@ -442,10 +474,10 @@ shape_t *shp_create(size_t rows, size_t cols, const char *s) {
 shape_t **shp_open(size_t *shp_n) {
     size_t i = 0;
     size_t n = 1 + // 1x1
-        2 * 4 + // 1x2,2x1, 1x3, 3x1, 1x4, 4x1, 1x5, 5x1
-        4 + 2 + // 2x2
-        12 + // 2x3, 3x2
-        2; // square 2x2, 3x3
+               2 * 4 + // 1x2,2x1, 1x3, 3x1, 1x4, 4x1, 1x5, 5x1
+               4 + 2 + // 2x2
+               12 + // 2x3, 3x2
+               2; // square 2x2, 3x3
     shape_t **shp_lst = malloc(sizeof(shape_t *) * n);
     shp_lst[i++] = shp_create(1, 1, "O"); // O
     // OO O
@@ -550,7 +582,7 @@ int test() {
     brd_show(b);
 
     size_t shp_n, i;
-    shape_t** shp_lst = shp_open(&shp_n);
+    shape_t **shp_lst = shp_open(&shp_n);
     for (i = 0; i != shp_n; i++) {
         shp_show(shp_lst[i]);
     }
@@ -587,6 +619,7 @@ int test() {
     brd_close(b);
     return 0;
 }
+
 #endif
 
 FILE *fp_update(size_t frame, FILE *fp) {
@@ -608,7 +641,7 @@ int test_fill_fn_seed(unsigned int seed, bool show) {
 
     FILE *fp = NULL;
     size_t round, frame;
-    for (round = frame = 0; ;round++) {
+    for (round = frame = 0;; round++) {
         size_t shp_rnd = rand_r(&shp_seed) % g_shp_n;
         shape_t *shp = g_shp_lst[shp_rnd];
         if (show) {
