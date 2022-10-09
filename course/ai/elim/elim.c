@@ -11,7 +11,7 @@
 #define VVV(...)
 
 typedef struct {
-    bool b[ROWS_BRD][COLS_BRD];
+    bool b[ROWS_BRD * COLS_BRD];
     size_t combo;
     size_t score;
 } board_t;
@@ -25,12 +25,15 @@ typedef struct {
 size_t g_shp_n;
 shape_t **g_shp_lst;
 
+#define brd_elm_set(b, i, j, x)     b->b[(i) * COLS_BRD + (j)] = (x)
+#define brd_elm_get(b, i, j)        b->b[(i) * COLS_BRD + (j)]
+
 board_t *brd_open() {
     board_t *b = malloc(sizeof(board_t));
     size_t i, j;
     for (i = 0; i != ROWS_BRD; i++) {
         for (j = 0; j != COLS_BRD; j++) {
-            b->b[i][j] = false;
+            brd_elm_set(b, i, j, false);
         }
     }
     b->combo = 0;
@@ -59,7 +62,7 @@ void brd_show(board_t *b, FILE *fp) {
     for (i = 0; i != ROWS_BRD; i++) {
         fprintf(fp, "|");
         for (j = 0; j != COLS_BRD; j++) {
-            fprintf(fp, "%c ", b->b[i][j] ? 'O' : ' ');
+            fprintf(fp, "%c ", brd_elm_get(b, i, j) ? 'O' : ' ');
         }
         fprintf(fp, "|");
         fprintf(fp, "\n");
@@ -78,31 +81,31 @@ int brd_score(board_t *b) {
 /** do that put shape to board with (x, y) position
  * it must be check with brd_fit function */
 void brd_put(board_t *b, shape_t *s, size_t x, size_t y) {
-    size_t i, j;
-    for (i = 0; i != s->rows; i++) {
-        for (j = 0; j != s->cols; j++) {
-            if (s->b[i * s->cols + j] == false) {
+    size_t i, j, k;
+    for (i = k = 0; i != s->rows; i++) {
+        for (j = 0; j != s->cols; j++, k++) {
+            if (s->b[k] == false) {
                 continue;
             }
-            // else: s->b[i * s->cols + j] == true
-            if (b->b[x + i][y + j]) {
+            // else: s->b[k] == true
+            if (brd_elm_get(b, x + i, y + j)) {
                 assert(0); // must brd_fit
             }
-            b->b[x + i][y + j] = true;
+            brd_elm_set(b, x + i, y + j, true);
         }
     }
     b->score += s->nblk;
 }
 
 void brd_unput(board_t *b, shape_t *s, size_t x, size_t y) {
-    size_t i, j;
-    for (i = 0; i != s->rows; i++) {
-        for (j = 0; j != s->cols; j++) {
-            if (s->b[i * s->cols + j] == false) {
+    size_t i, j, k;
+    for (i = k = 0; i != s->rows; i++) {
+        for (j = 0; j != s->cols; j++, k++) {
+            if (s->b[k] == false) {
                 continue;
             }
-            assert(b->b[x + i][y + j]);
-            b->b[x + i][y + j] = false;
+            assert(brd_elm_get(b, x + i, y + j));
+            brd_elm_set(b, x + i, y + j, false);
         }
     }
     b->score -= s->nblk;
@@ -110,19 +113,19 @@ void brd_unput(board_t *b, shape_t *s, size_t x, size_t y) {
 
 /** check shape to board with (x, y) postion, fit or not */
 bool brd_fit(board_t *b, shape_t *s, size_t x, size_t y) {
-    size_t i, j;
+    size_t i, j, k;
     if (x + s->rows > ROWS_BRD || y + s->cols > COLS_BRD) {
         VVV("out of range x=%zu y=%zu shape=%zu*%zu board=%zu*%zu\n",
             x, y, s->rows, s->cols, ROWS_BRD, COLS_BRD);
         return false;
     }
-    for (i = 0; i != s->rows; i++) {
-        for (j = 0; j != s->cols; j++) {
-            if (s->b[i * s->cols + j] == false) {
+    for (i = k = 0; i != s->rows; i++) {
+        for (j = 0; j != s->cols; j++, k++) {
+            if (s->b[k] == false) {
                 continue;
             }
-            // else: s->b[i * s->cols + j] == true
-            if (b->b[x + i][y + j] == true) {
+            // else: s->b[k] == true
+            if (brd_elm_get(b, x + i, y + j) == true) {
                 VVV("conflict x=%zu y=%zu shape=%zu*%zu board=%zu*%zu at %zu*%zu\n",
                     x, y, s->rows, s->cols, ROWS_BRD, COLS_BRD, i, j);
                 return false;
@@ -133,17 +136,18 @@ bool brd_fit(board_t *b, shape_t *s, size_t x, size_t y) {
 }
 
 void brd_chk_line(board_t *b, bool *rows, bool *cols) {
+    // simple loop, faster loop
     size_t i, j;
     for (i = 0; i != ROWS_BRD; i++) {
         rows[i] = true;
         for (j = 0; j != COLS_BRD; j++) {
-            rows[i] = rows[i] && b->b[i][j];
+            rows[i] = rows[i] && brd_elm_get(b, i, j);
         }
     }
     for (j = 0; j != COLS_BRD; j++) {
         cols[j] = true;
         for (i = 0; i != ROWS_BRD; i++) {
-            cols[j] = cols[j] && b->b[i][j];
+            cols[j] = cols[j] && brd_elm_get(b, i, j);
         }
     }
 }
@@ -153,14 +157,14 @@ void brd_do_elim(board_t *b, bool *rows, bool *cols) {
     for (i = 0; i != ROWS_BRD; i++) {
         if (rows[i]) {
             for (j = 0; j != COLS_BRD; j++) {
-                b->b[i][j] = false;
+                brd_elm_set(b, i, j, false);
             }
         }
     }
     for (j = 0; j != COLS_BRD; j++) {
         if (cols[j]) {
             for (i = 0; i != ROWS_BRD; i++) {
-                b->b[i][j] = false;
+                brd_elm_set(b, i, j, false);
             }
         }
     }
@@ -223,7 +227,7 @@ size_t brd_try_elim(board_t *b) {
         for (i = 0; i != ROWS_BRD; i++) {
             l = 0;
             for (j = 0; j != COLS_BRD; j++) {
-                l += b->b[i][j];
+                l += brd_elm_get(b, i, j);
             }
             if (l > ml) {
                 ml = l;
@@ -232,7 +236,7 @@ size_t brd_try_elim(board_t *b) {
         for (j = 0; j != COLS_BRD; j++) {
             l = 0;
             for (i = 0; i != ROWS_BRD; i++) {
-                l += b->b[i][j];
+                l += brd_elm_get(b, i, j);
             }
             if (l > ml) {
                 ml = l;
@@ -279,7 +283,7 @@ bool corner(board_t *b, shape_t *shp) {
         for (j = 0; j != COLS_BRD; j++) {
             if (brd_fit(b, shp, i, j)) {
                 size_t pos_val = abs(i - (shp->rows + ROWS_BRD - 1) / 2) +
-                    abs(j - (shp->cols + COLS_BRD - 1) / 2);
+                                 abs(j - (shp->cols + COLS_BRD - 1) / 2);
                 if (pos_val >= max_val) {
                     max_val = pos_val;
                     mi = i, mj = j;
@@ -403,7 +407,38 @@ bool max_capbility(board_t *b, shape_t *shp) {
             }
         }
     }
-    if (mscore == 0) {
+    if (mscore == 0 && mcap == 0) {
+        return false;
+    }
+    brd_put(b, shp, mi, mj);
+    return true;
+}
+
+bool max_cap_score(board_t *b, shape_t *shp) {
+    size_t i, j, mcap = 0, mi = -1, mj = -1;
+    for (i = 0; i != ROWS_BRD; i++) {
+        for (j = 0; j != COLS_BRD; j++) {
+            if (brd_fit(b, shp, i, j)) {
+                board_t *t = brd_dup(b);
+                brd_put(t, shp, i, j);
+
+                size_t cap;
+                size_t k;
+                for (k = cap = 0; k != g_shp_n; k++) {
+                    board_t *t1 = brd_dup(t);
+                    shape_t *t_shp = g_shp_lst[k];
+                    cap += max_capbility(t1, t_shp);
+                    brd_close(t1);
+                }
+
+                brd_close(t);
+                if (cap > mcap) {
+                    mcap = cap, mi = i, mj = j;
+                }
+            }
+        }
+    }
+    if (mi == -1 && mi == -1) {
         return false;
     }
     brd_put(b, shp, mi, mj);
@@ -416,7 +451,8 @@ bool brd_fill(board_t *b, shape_t *shp) {
     // return center(b, shp);
     // return fill_random(b, shp);
     // return fill_greedy(b, shp);
-    return max_capbility(b, shp);
+    return max_capbility(b, shp); // 780.291
+    // return max_cap_score(b, shp);
 }
 
 /************** SHAPE *********************************************************/
@@ -442,10 +478,10 @@ shape_t *shp_create(size_t rows, size_t cols, const char *s) {
 shape_t **shp_open(size_t *shp_n) {
     size_t i = 0;
     size_t n = 1 + // 1x1
-        2 * 4 + // 1x2,2x1, 1x3, 3x1, 1x4, 4x1, 1x5, 5x1
-        4 + 2 + // 2x2
-        12 + // 2x3, 3x2
-        2; // square 2x2, 3x3
+               2 * 4 + // 1x2,2x1, 1x3, 3x1, 1x4, 4x1, 1x5, 5x1
+               4 + 2 + // 2x2
+               12 + // 2x3, 3x2
+               2; // square 2x2, 3x3
     shape_t **shp_lst = malloc(sizeof(shape_t *) * n);
     shp_lst[i++] = shp_create(1, 1, "O"); // O
     // OO O
@@ -550,7 +586,7 @@ int test() {
     brd_show(b);
 
     size_t shp_n, i;
-    shape_t** shp_lst = shp_open(&shp_n);
+    shape_t **shp_lst = shp_open(&shp_n);
     for (i = 0; i != shp_n; i++) {
         shp_show(shp_lst[i]);
     }
@@ -587,6 +623,7 @@ int test() {
     brd_close(b);
     return 0;
 }
+
 #endif
 
 FILE *fp_update(size_t frame, FILE *fp) {
@@ -608,7 +645,7 @@ int test_fill_fn_seed(unsigned int seed, bool show) {
 
     FILE *fp = NULL;
     size_t round, frame;
-    for (round = frame = 0; ;round++) {
+    for (round = frame = 0;; round++) {
         size_t shp_rnd = rand_r(&shp_seed) % g_shp_n;
         shape_t *shp = g_shp_lst[shp_rnd];
         if (show) {
