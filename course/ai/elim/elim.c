@@ -11,7 +11,8 @@
 #define VVV(...)
 
 typedef struct {
-    bool b[ROWS_BRD][COLS_BRD];
+    // bool b[ROWS_BRD][COLS_BRD];
+    bool b[ROWS_BRD*COLS_BRD];
     size_t combo;
     size_t score;
 } board_t;
@@ -24,6 +25,21 @@ typedef struct {
 
 size_t g_shp_n;
 shape_t **g_shp_lst;
+
+#if 0
+static inline void brd_elm_set(board_t *b, size_t i, size_t j, bool x) {
+    b->b[i][j] = x;
+}
+
+static inline bool brd_elm_get(board_t *b, size_t i, size_t j) {
+    return b->b[i][j];
+}
+#else
+// #define brd_elm_set(b, i, j, x) b->b[(i)][(j)] = (x)
+// #define brd_elm_get(b, i, j) b->b[(i)][(j)]
+#define brd_elm_set(b, i, j, x) b->b[(i)*COLS_BRD+(j)] = (x)
+#define brd_elm_get(b, i, j) b->b[(i)*COLS_BRD+(j)]
+#endif
 
 board_t *brd_open() {
     board_t *b = malloc(sizeof(board_t));
