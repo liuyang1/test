@@ -43,3 +43,5 @@ max fit case + max score with try-elim:     456.796
 max capability:                             777.783
 max capability + max score:                 777.783
 max capability + max score with try-elim:   780.291
+max capability + max score with try-elim + new seq:                     782.651
+max capability + max score with try-elim + new seq + no 1x1 shp:        785.156
