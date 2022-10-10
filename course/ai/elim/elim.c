@@ -10,6 +10,8 @@
 
 #define VVV(...)
 
+#define pm_enc_t        uint64_t
+
 typedef struct {
     bool b[ROWS_BRD * COLS_BRD];
     size_t combo;
@@ -20,6 +22,10 @@ typedef struct {
     size_t rows, cols;
     size_t nblk;
     bool *b;
+    pm_enc_t enc;
+#ifdef ENC1D
+    pm_enc_t *enc1d;
+#endif
 } shape_t;
 
 size_t g_shp_n;
@@ -27,6 +33,8 @@ shape_t **g_shp_lst;
 
 #define brd_elm_set(b, i, j, x)     b->b[(i) * COLS_BRD + (j)] = (x)
 #define brd_elm_get(b, i, j)        b->b[(i) * COLS_BRD + (j)]
+
+void shp_show(const shape_t *const s, FILE *fp);
 
 board_t *brd_open() {
     board_t *b = malloc(sizeof(board_t));
@@ -45,13 +53,13 @@ void brd_close(board_t *b) {
     free(b);
 }
 
-board_t *brd_dup(board_t *b) {
+board_t *brd_dup(const board_t *const b) {
     board_t *p = malloc(sizeof(board_t));
     *p = *b;
     return p;
 }
 
-void brd_show(board_t *b, FILE *fp) {
+void brd_show(const board_t *const b, FILE *fp) {
     fprintf(fp, "score=%4zu comb=%zu\n", b->score, b->combo);
     size_t i, j;
     fprintf(fp, "+");
@@ -80,7 +88,7 @@ int brd_score(board_t *b) {
 
 /** do that put shape to board with (x, y) position
  * it must be check with brd_fit function */
-void brd_put(board_t *b, shape_t *s, size_t x, size_t y) {
+void brd_put(board_t *const b, const shape_t *const s, size_t x, size_t y) {
     size_t i, j, k;
     for (i = k = 0; i != s->rows; i++) {
         for (j = 0; j != s->cols; j++, k++) {
@@ -112,7 +120,7 @@ void brd_unput(board_t *b, shape_t *s, size_t x, size_t y) {
 }
 
 /** check shape to board with (x, y) postion, fit or not */
-bool brd_fit(board_t *b, shape_t *s, size_t x, size_t y) {
+static inline bool brd_fit(const board_t *const b, const shape_t *const s, size_t x, size_t y) {
     size_t i, j, k;
     if (x + s->rows > ROWS_BRD || y + s->cols > COLS_BRD) {
         VVV("out of range x=%zu y=%zu shape=%zu*%zu board=%zu*%zu\n",
@@ -266,7 +274,7 @@ bool first_fit(board_t *b, shape_t *shp) {
     return false;
 }
 
-size_t fit_cnt(board_t *b, shape_t *shp) {
+size_t fit_cnt_naive(const board_t *const b, const shape_t *const shp) {
     size_t i, j, cnt = 0;
     for (i = 0; i != ROWS_BRD; i++) {
         for (j = 0; j != COLS_BRD; j++) {
@@ -276,6 +284,81 @@ size_t fit_cnt(board_t *b, shape_t *shp) {
     return cnt;
 }
 
+// two-dim patter-matching with Rabin-Karp algo
+size_t fit_cnt_enc(const board_t *const b, const shape_t *const shp) {
+    size_t i, j, cnt = 0;
+    for (i = 0; i != ROWS_BRD - shp->rows + 1; i++) {
+        for (j = 0; j != COLS_BRD - shp->cols + 1; j++) {
+            pm_enc_t enc;
+            enc = 0;
+            size_t u, v;
+            for (u = 0; u != shp->rows; u++) {
+                for (v = 0; v != shp->cols; v++) {
+                    // enc = (enc << 1) + (brd_elm_get(b, i + u, j + v));
+                    enc = (enc << 1) + (!brd_elm_get(b, i + u, j + v));
+                }
+            }
+            // printf("%zux%zu enc=%lx\n", i, j, enc);
+            // cnt += (enc | shp->enc) == shp->enc;
+            cnt += (enc & shp->enc) == shp->enc;
+        }
+    }
+    return cnt;
+}
+
+#if 0
+/** This is better complexity, but wrose performance, due to shape size is tiny
+ * This encoding optimization is bad */
+size_t fit_cnt_RK(const board_t *const b, const shape_t *const shp) {
+    size_t i, j, cnt = 0;
+    for (i = 0; i != ROWS_BRD - shp->rows + 1; i++) {
+        j = 0;
+        size_t u, v = 0;
+        pm_enc_t enc1d[ROWS_BRD] = {0};
+        for (u = 0; u != shp->rows; u++) {
+            for (v = 0; v != shp->cols; v++) {
+                enc1d[u] = (enc1d[u] << 1) + (!brd_elm_get(b, i + u, j + v));
+            }
+        }
+        for (; j != COLS_BRD - shp->cols + 1; j++) {
+            bool fit = true;
+            size_t k;
+            for (k = 0; k != shp->rows; k++) {
+                fit = fit && ((enc1d[k] & shp->enc1d[k]) == shp->enc1d[k]);
+            }
+            cnt += fit;
+
+            for (u = 0; u != shp->rows; u++) {
+                // enc1d[u] = ((enc1d[u] << 1) & ((1 << shp->cols) - 1))
+                            // + (!brd_elm_get(b, i + u, j + v));
+                enc1d[u] = (enc1d[u] << 1) + (!brd_elm_get(b, i + u, j + v));
+            }
+        }
+    }
+    return cnt;
+}
+#endif
+
+size_t fit_cnt(const board_t *const b, const shape_t *const shp) {
+#if 1
+    // return fit_cnt_naive(b, shp);
+    return fit_cnt_enc(b, shp);
+    // return fit_cnt_RK(b, shp);
+#else
+    size_t x0 = fit_cnt_naive(b, shp);
+    size_t x1 = fit_cnt_RK(b, shp);
+    if (x0 == x1) {
+        return x0;
+    } else {
+        brd_show(b, stderr);
+        shp_show(shp, stderr);
+        fprintf(stderr, "fit cnt: %zu %zu\n", x0, x1);
+        assert(0);
+    }
+#endif
+}
+
+#if 0
 bool corner(board_t *b, shape_t *shp) {
     size_t max_val = 0, mi, mj;
     size_t i, j;
@@ -378,10 +461,12 @@ bool fill_greedy(board_t *b, shape_t *shp) {
     return true;
 }
 
-bool max_capbility(board_t *b, shape_t *shp) {
-    size_t i, j, mscore = 0, mcap = 0, mi, mj;
-    for (i = 0; i != ROWS_BRD; i++) {
-        for (j = 0; j != COLS_BRD; j++) {
+#endif
+
+bool max_capbility(board_t *const b, const shape_t *const shp) {
+    size_t i, j, mscore = 0, mcap = 0, mi = 0, mj = 0;
+    for (j = 0; j != COLS_BRD; j++) {
+        for (i = 0; i != ROWS_BRD; i++) {
             if (brd_fit(b, shp, i, j)) {
                 board_t *t = brd_dup(b);
                 brd_put(t, shp, i, j);
@@ -390,12 +475,9 @@ bool max_capbility(board_t *b, shape_t *shp) {
                 score = brd_try_elim(t);
                 brd_elim(t);
                 size_t k;
-                for (k = 0; k != g_shp_n; k++) {
-                    board_t *t1 = brd_dup(t);
+                for (k = 1; k != g_shp_n; k++) { // skip consider plain 1x1 shape
                     shape_t *t_shp = g_shp_lst[k];
-                    // cap += first_fit(t1, t_shp);
-                    cap += fit_cnt(t1, t_shp);
-                    brd_close(t1);
+                    cap += fit_cnt(t, t_shp);
                 }
 
                 brd_close(t);
@@ -461,17 +543,26 @@ shape_t *shp_create(size_t rows, size_t cols, const char *s) {
     shp->rows = rows;
     shp->cols = cols;
     shp->nblk = 0;
+    shp->enc = 0;
     shp->b = malloc(sizeof(bool) * rows * cols);
     assert(rows * cols == strlen(s));
     size_t i;
     for (i = 0; i != rows * cols; i++) {
-        if (s[i] == 'O') {
-            shp->b[i] = true;
-            shp->nblk++;
-        } else {
-            shp->b[i] = false;
+        shp->b[i] = s[i] == 'O';
+        shp->nblk += shp->b[i];
+        // shp->enc = (shp->enc << 1) + (!shp->b[i]); // for RK
+        shp->enc = (shp->enc << 1) + (shp->b[i]); // for RK
+    }
+#ifdef ENC1D
+    size_t j, k;
+    shp->enc1d = malloc(sizeof(pm_enc_t) * rows);
+    for (i = k = 0; i != rows; i++) {
+        shp->enc1d[i] = 0;
+        for (j = 0; j != cols; j++, k++) {
+            shp->enc1d[i] = (shp->enc1d[i] << 1) + shp->b[k];
         }
     }
+#endif
     return shp;
 }
 
@@ -564,14 +655,25 @@ shape_t **shp_open(size_t *shp_n) {
 void shp_close(shape_t **shp_lst, size_t shp_n) {
     size_t i;
     for (i = 0; i != shp_n; i++) {
+#ifdef ENC1D
+        free(shp_lst[i]->enc1d);
+#endif
         free(shp_lst[i]->b);
         free(shp_lst[i]);
     }
     free(shp_lst);
 }
 
-void shp_show(shape_t *s, FILE *fp) {
+void shp_show(const shape_t *const s, FILE *fp) {
     size_t i, j;
+    fprintf(fp, "%zux%zu enc=%lx\n", s->rows, s->cols, s->enc);
+#ifdef ENC1D
+    fprintf(fp, "enc1d=");
+    for (i = 0; i != s->rows; i++) {
+        fprintf(fp, " %lx", s->enc1d[i]);
+    }
+    fprintf(fp, "\n");
+#endif
     for (i = 0; i != s->rows; i++) {
         for (j = 0; j != s->cols; j++) {
             fprintf(fp, "%c ", s->b[i * s->cols + j] ? 'O' : ' ');

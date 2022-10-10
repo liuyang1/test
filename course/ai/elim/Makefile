@@ -11,13 +11,13 @@ sample: a.out
 	mv 1.zip ~/
 
 clean:
-	rm -rf a.out *.txt vgcore.* gmon.out
+	rm -rf a.out *.txt vgcore.* gmon.out core
 
 a.out: elim.c
-	gcc -g -Wall -Werror elim.c
+	gcc -O2 -g -Wall -Werror elim.c
 
 prof:
-	gcc -g -Wall -Werror -pg elim.c
+	gcc -O2 -g -Wall -Werror -pg elim.c
 	rm -rf *.txt
 	./a.out sample
 	./a.out sample
