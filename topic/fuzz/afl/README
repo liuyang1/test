@@ -1,0 +1,5 @@
+- core pattern change from apport to core
+
+echo core > /proc/sys/kernel/core_pattern
+
+- remove on-demand CPU frequency scaling, (may miss short-lived processes)
