@@ -103,4 +103,4 @@ namespace rst
     };
 }
 
-bool insideTriangle(int x, int y, const Vector3f* _v);
+bool insideTriangle(float x, float y, const Vector3f* _v);

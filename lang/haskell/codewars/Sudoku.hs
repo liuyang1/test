@@ -1,6 +1,15 @@
 module Sudoku where
 
-import Data.List (splitAt, transpose)
+import Data.List (splitAt, transpose, lines)
+import Data.Char (digitToInt)
+import System.IO
+
+proc s = map (map (map digitToInt) . tail) $ splitSeg (matSize + 1) $ lines s
+
+loadMats = do
+    s <- readFile "p096_sudoku.txt"
+    mapM_ print $ id $ (!! 1) $ proc s
+    mapM_ print $ sudoku $ (!! 1) $ proc s
 
 type Mat = [[Int]]
 
@@ -53,7 +62,7 @@ updateCell m x y
           vs = fcand m x y
 
 -- 按段划分，类似于Python中的xs[::9]
-splitSeg :: Int -> [Int] -> Mat
+--splitSeg :: Int -> [Int] -> Mat
 splitSeg n [] = []
 splitSeg n xs = h: splitSeg n t
     where (h, t) = splitAt n xs

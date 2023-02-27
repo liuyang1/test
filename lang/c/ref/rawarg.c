@@ -25,6 +25,14 @@ int arg2raw(arg_st *p, int argc, char **argv) {
     return 0;
 }
 
+char *my_strndup(const char*s, size_t n) {
+    printf("%p:'%s'\n", s, s);
+    char *r = malloc(sizeof(char) * (n + 1));
+    strncpy(r, s, n);
+    r[n] = '\0';
+    return r;
+}
+
 int raw2arg(arg_st *p, int *o_argc, char ***o_argv) {
     char *r = p->raw, *o = p->raw;
     char *e;
@@ -35,7 +43,11 @@ int raw2arg(arg_st *p, int *o_argc, char ***o_argv) {
         e = strchr(r, DELIM);
         c++;
         v = realloc(v, m * c);
-        v[c - 1] = strndup(r, e - r);
+        if (e == NULL) {
+            v[c - 1] = strdup(r);
+        } else {
+            v[c - 1] = my_strndup(r, e - r);
+        }
         r = e + 1; // pass the delim
     } while (e != NULL);
     *o_argc = c;
@@ -52,23 +64,43 @@ int freearg(int argc, char **argv) {
 }
 
 void showarg(int argc, char **argv) {
+    printf("argc=%d\n", argc);
     int i;
     for (i = 0; i != argc; i++) {
-        printf("%d:%s\n", i, argv[i]);
+        printf("%d:'%s'\n", i, argv[i]);
     }
 }
 
-int main() {
-    char *argv[] = { "hello", "world", "dumb", "test"};
-    int argc = sizeof(argv) / sizeof(argv[0]);
+int unit(int argc, char **argv) {
+    // char *argv[] = { "hello", "world", "dumb", "test"};
     arg_st arg;
     arg2raw(&arg, argc, argv);
     showraw(&arg);
 
-    int c;
-    char **v;
+    int c = 0;
+    char **v = NULL;
     raw2arg(&arg, &c, &v);
     showarg(c, v);
     freearg(c, v);
+    return 0;
+}
+int main() {
+    int argc;
+#if 1
+    char *argv[] = {"hello"};
+    argc = sizeof(argv) / sizeof(argv[0]);
+    unit(argc, argv);
+#endif
+
+    char *argv1[] = {"pipe", "test"};
+    argc = sizeof(argv1) / sizeof(argv1[0]);
+    unit(argc, argv1);
+
+#if 1
+    char *argv2[] = {"cap", "test"};
+    argc = sizeof(argv2) / sizeof(argv2[0]);
+    unit(argc, argv2);
+#endif
+
     return 0;
 }

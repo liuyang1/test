@@ -23,3 +23,6 @@ banzhaf xs maj = map (\((_, b), c) -> (b, c)) $ freq $ concatMap key $ cand $ zi
     where cand xs = filter isMaj (comba xs)
           key xs = filterBy (map (not . isMaj) (subOne xs)) xs
           isMaj xs = sum (map snd xs) > maj
+
+main = do
+    print $ banzhaf [45.7, 3.4, 26.7, 2.2, 1.8, 4.98, 6.7, 0.6] 51
