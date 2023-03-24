@@ -10,6 +10,7 @@
  * - RIFF: resource interchange file format
  * https://en.wikipedia.org/wiki/Resource_Interchange_File_Format
  * https://zh.wikipedia.org/zh-cn/%E8%B3%87%E6%BA%90%E4%BA%A4%E6%8F%9B%E6%AA%94%E6%A1%88%E6%A0%BC%E5%BC%8F
+ * https://mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html
  */
 
 #include <stdio.h>
@@ -267,7 +268,7 @@ static void trans(uint8_t *src, uint32_t size, char *fn_out)
     close(fd);
 }
 
-static void process_chunk(const void *p_in)
+static void process_chunk(const void *p_in, const uint8_t *end)
 {
     Chunk *p = (Chunk *)p_in;
     char buf[FOURCC_BUFLEN];
@@ -282,7 +283,7 @@ static void process_chunk(const void *p_in)
             return;
         }
 
-        process_chunk(p->payload + 4);
+        process_chunk(p->payload + 4, end);
     } else if (p->id == fourcc("fmt ")) {
         FmtChk *chk = (FmtChk *)p->payload;
         printf(L "audio_format=%hu/'%s' channel_num=%hu "
@@ -318,25 +319,25 @@ static void process_chunk(const void *p_in)
                    isKSMedia(&ext->sub_format) ? "/ksmedia" : "");
         }
 
-        process_chunk(p->payload + p->size);
+        process_chunk(p->payload + p->size, end);
     } else if (p->id == fourcc("LIST")) {
         uint32_t fmt = *(uint32_t *)p->payload;
         printf(L "format=%s\n", show_fourcc(fmt, buf));
         if (fmt == fourcc("INFO")) {
-            process_chunk(p->payload + 4);
+            process_chunk(p->payload + 4, end);
         } else if (fmt == fourcc("adtl")) {
             printf(L "unsupported adtl chunk, skip\n");
-            process_chunk(p->payload + p->size);
+            process_chunk(p->payload + p->size, end);
         } else {
             printf(L "unkown format type, skip\n");
-            process_chunk(p->payload + p->size);
+            process_chunk(p->payload + p->size, end);
         }
     } else if (p->id == fourcc("ISFT")) {   // or other info type
         if (p->payload[p->size - 1] != '\0') {
             die("invalid payload in ISFT chunk\n");
         }
         printf(L "text=%s\n", p->payload);
-        process_chunk(p->payload + p->size);
+        process_chunk(p->payload + p->size, end);
     } else if (p->id == fourcc("data")) {
 #define     FILENAME_LEN    4096
         char fn_out[FILENAME_LEN] = {0};
@@ -345,12 +346,18 @@ static void process_chunk(const void *p_in)
             die("output filename=%s is too long\n", fn_out);
         }
         printf(L "data chunk, save to %s\n", fn_out);
-        trans(p->payload, p->size, fn_out);
+        uint32_t real_sz = end - (uint8_t *)(p + 1);
+        if (real_sz != p->size) {
+            printf(L L "data chunk is corrupted, real size=%u\n", real_sz);
+            trans(p->payload, real_sz, fn_out);
+        } else {
+            trans(p->payload, p->size, fn_out);
+        }
     } else if (p->id == fourcc("fact")) {
         FactChk *fact = (FactChk *)p->payload;
         printf(L "fact chunk, number of samples (per channel) = %u\n",
                fact->sample_num);
-        process_chunk(p->payload + p->size);
+        process_chunk(p->payload + p->size, end);
     } else {
         printf(L "unknown chunk id\n");
     }
@@ -378,7 +385,7 @@ int main(int argc, char **argv)
     }
 
     Chunk *chk = (Chunk *)p;
-    process_chunk(chk);
+    process_chunk(chk, p + size);
 
     munmap(p, size);
     close(fd_in);
