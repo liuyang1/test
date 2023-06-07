@@ -21,6 +21,7 @@
 #include <errno.h>
 #include <error.h>
 #include <ctype.h>
+#include <time.h> // for strftime
 
 #include <unistd.h>
 #include <sys/mman.h>
@@ -29,6 +30,7 @@
 #include <fcntl.h>
 
 static char *g_fn_in = NULL;
+static int g_channel_num = -1;
 
 static inline uint32_t fourcc(char *p)
 {
@@ -204,6 +206,26 @@ typedef struct {
     uint32_t sample_num;
 } FactChk;
 
+typedef struct {
+    float value; // peak value
+    uint32_t position;
+} PostionPeak;
+
+typedef struct {
+    uint32_t version;
+    uint32_t timestamp; // since 1970/1/1
+    PostionPeak peak[0];
+} PeakChk;
+
+char *fmt_epoch(uint32_t epoch) {
+    time_t t = epoch;
+    struct tm ts;
+    char buf[80];
+    ts = *localtime(&t);
+    strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
+    return strdup(buf);
+}
+
 static inline void usage(char *prog)
 {
     printf("%s [wav]\n"
@@ -236,9 +258,25 @@ static inline const char *show_audio_format(uint16_t audio_format)
     case 1: return "PCM linear";
     case 2: return "MS ADPCM";
     case 3: return "IEEEE float";
+    case 4: return "vselp"; // compaq
+    case 5: return "ibm_cvsd";
     case 6: return "A-law";
     case 7: return "Mu-law";
+    case 8: return "dts";
+    case 9: return "drm";
+    case 0xa: return "wma voice9";
+    case 0xb: return "wma voice10";
+    case 0x10: return "oki adpcm";
     case 0x11: return "DVI ADPCM";
+    case 0x12: return "mediaspace adpcm";
+    case 0x13: return "sierra adpcm";
+    case 0x14: return "g723 adpcm";
+    case 0x15: return "digistd";
+    case 0x16: return "digifix";
+    case 0x17: return "dialogic oki adpcm";
+    case 0x18: return "mediavision adpcm";
+    case 0x19: return "cu codec"; // HP
+    // ...
     case 0x55: return "MPEG Layer3";
     case 0x92: return "Dolby AC3 Spdif";
     case 0x161: return "WM Audio2";
@@ -298,6 +336,7 @@ static void process_chunk(const void *p_in, const uint8_t *end)
                chk->audio_format, show_audio_format(chk->audio_format),
                chk->channel_num, chk->sample_rate, chk->byte_rate,
                chk->block_align, chk->bits_per_sample);
+        g_channel_num = chk->channel_num;
         if (chk->audio_format == WAVE_FORMAT_EXTENSIBLE) {
             ExtensibleChk *ext = (ExtensibleChk *)(chk + 1);
             printf(L "cb_size=%d\n", ext->cb_size);
@@ -365,6 +404,20 @@ static void process_chunk(const void *p_in, const uint8_t *end)
                fact->sample_num);
 
         process_chunk(p->payload + p->size, end);
+    } else if (p->id == fourcc("PEAK")) {
+        PeakChk *peak = (PeakChk *)p->payload;
+        char *t = fmt_epoch(peak->timestamp);
+        printf(L "version=%d epoch=%d/'%s'\n", peak->version, peak->timestamp, t);
+        free(t);
+        if (g_channel_num <= 0) {
+            die("peak depend on channel_num\n");
+        }
+        int ch;
+        for (ch = 0; ch != g_channel_num; ch++) {
+            printf(L L "peak[ch=%d]=%f@%ufr\n",
+                   ch, peak->peak[ch].value, peak->peak[ch].position);
+        }
+        process_chunk(p->payload + p->size, end);
     } else if (p->id == fourcc("IART")) {
         printf(L "artist=%s\n", p->payload);
         process_chunk(p->payload + p->size + 1, end); // add one more for \0
@@ -391,13 +444,26 @@ static void process_chunk(const void *p_in, const uint8_t *end)
         printf(L "prt?=%s\n", p->payload);
         process_chunk(p->payload + p->size, end);
         // below it's unverfied
-    } else if (p->id == fourcc("ITRK") ||
-               p->id == fourcc("IKEY") ||
-               p->id == fourcc("IENG") ||
-               p->id == fourcc("ITCH") ||
-               p->id == fourcc("ISBJ") ||
-               p->id == fourcc("ISRC")) {
-        // track number, keyword, engineer, technician, subject, source
+    } else if (p->id == fourcc("ITRK") || // track number (based 1)
+               p->id == fourcc("IKEY") || // keyword
+               p->id == fourcc("IENG") || // engineer
+               p->id == fourcc("ITCH") || // technician
+               p->id == fourcc("ISBJ") || // subject
+               p->id == fourcc("ISRC") || // source
+               p->id == fourcc("IARL") || // archival location
+               p->id == fourcc("ICMS") || // commissioned
+               p->id == fourcc("ICRP") || // cropped
+               p->id == fourcc("IDIM") || // dimensions
+               p->id == fourcc("IDPI") || // dots per inch
+               p->id == fourcc("ILGT") || // lightness settings
+               p->id == fourcc("IMED") || // medium
+               p->id == fourcc("IPLT") || // palette
+               p->id == fourcc("ISHP") || // sharpness
+               p->id == fourcc("ISRF") || // source form (slide, paper)
+               p->id == fourcc("ISMP") || // smpte timecode
+               p->id == fourcc("IDIT") || // digitization time
+               p->id == fourcc("ITOC") || // table of contents
+                0) {
         printf(L "unchecked=%x\n", p->id);
         process_chunk(p->payload + p->size, end);
     } else {
