@@ -67,7 +67,8 @@ static GUID ksmedia = {
     .b = {0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71},
 };
 
-static inline isKSMedia(GUID * id) {
+static inline int isKSMedia(GUID * id)
+{
     return id->w[0] == ksmedia.w[0] && id->w[1] == ksmedia.w[1] &&
            id->b[0] == ksmedia.b[0] && id->b[1] == ksmedia.b[1] &&
            id->b[2] == ksmedia.b[2] && id->b[3] == ksmedia.b[3] &&
@@ -176,13 +177,18 @@ static inline char *show_channel_mask_map(uint32_t m, char *s, size_t n,
     size_t i, c;
     for (i = c = 0; i < 32 && i < map_size; i++) {
         if (m & (1 << i)) {
-            c += snprintf(s + c, n - c - 1, "%s,", map[i]);
+            if (c == 0) {
+                c += snprintf(s, n - 1, "%s", map[i]);
+            } else {
+                c += snprintf(s + c, n - c - 1, ",%s", map[i]);
+            }
         }
     }
     return s;
 }
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+
 static inline char *show_channel_mask_group(uint32_t m)
 {
     size_t i;
@@ -292,9 +298,9 @@ static void process_chunk(const void *p_in, const uint8_t *end)
                chk->audio_format, show_audio_format(chk->audio_format),
                chk->channel_num, chk->sample_rate, chk->byte_rate,
                chk->block_align, chk->bits_per_sample);
-        ExtensibleChk *ext = (ExtensibleChk *)(chk + 1);
-        printf(L "cb_size=%d\n", ext->cb_size);
-        if (chk->audio_format == WAVE_FORMAT_EXTENSIBLE || ext->cb_size != 0) {
+        if (chk->audio_format == WAVE_FORMAT_EXTENSIBLE) {
+            ExtensibleChk *ext = (ExtensibleChk *)(chk + 1);
+            printf(L "cb_size=%d\n", ext->cb_size);
             // cb_size should be 22
             if (chk->bits_per_sample == 0) {
                 printf(L "samples_per_block=%hu\n",
@@ -313,7 +319,7 @@ static void process_chunk(const void *p_in, const uint8_t *end)
                                          mask_map_verbose, ARRAY_SIZE(mask_map_verbose)));
             printf(L L "channel_group='%s'\n",
                    show_channel_mask_group(ext->channel_mask));
-            printf(L "sub_format=%d/'%s' GUID=%s%s\n",
+            printf(L "sub_format=0x%x/'%s' GUID=%s%s\n",
                    ext->sub_format.d, show_audio_format(ext->sub_format.d),
                    show_guid(&ext->sub_format, s, 256),
                    isKSMedia(&ext->sub_format) ? "/ksmedia" : "");
@@ -336,7 +342,7 @@ static void process_chunk(const void *p_in, const uint8_t *end)
         if (p->payload[p->size - 1] != '\0') {
             die("invalid payload in ISFT chunk\n");
         }
-        printf(L "text=%s\n", p->payload);
+        printf(L "software=%s\n", p->payload);
         process_chunk(p->payload + p->size, end);
     } else if (p->id == fourcc("data")) {
 #define     FILENAME_LEN    4096
@@ -357,6 +363,42 @@ static void process_chunk(const void *p_in, const uint8_t *end)
         FactChk *fact = (FactChk *)p->payload;
         printf(L "fact chunk, number of samples (per channel) = %u\n",
                fact->sample_num);
+
+        process_chunk(p->payload + p->size, end);
+    } else if (p->id == fourcc("IART")) {
+        printf(L "artist=%s\n", p->payload);
+        process_chunk(p->payload + p->size + 1, end); // add one more for \0
+    } else if (p->id == fourcc("ICRD")) {
+        printf(L "create_time=%s\n", p->payload);
+        process_chunk(p->payload + p->size + 1, end);
+    } else if (p->id == fourcc("INAM")) {
+        printf(L "name=%s\n", p->payload);
+        process_chunk(p->payload + p->size + 1, end);
+    } else if (p->id == fourcc("ICOP")) {
+        printf(L "copyright= %s\n", p->payload);
+        process_chunk(p->payload + p->size + 1, end);
+
+    } else if (p->id == fourcc("ICMT")) {
+        printf(L "comment=%s\n", p->payload);
+        process_chunk(p->payload + p->size, end);
+    } else if (p->id == fourcc("IGNR")) {
+        printf(L "genre=%s\n", p->payload);
+        process_chunk(p->payload + p->size, end);
+    } else if (p->id == fourcc("IPRD")) {
+        printf(L "albume=%s\n", p->payload);
+        process_chunk(p->payload + p->size, end);
+    } else if (p->id == fourcc("IPRT")) {
+        printf(L "prt?=%s\n", p->payload);
+        process_chunk(p->payload + p->size, end);
+        // below it's unverfied
+    } else if (p->id == fourcc("ITRK") ||
+               p->id == fourcc("IKEY") ||
+               p->id == fourcc("IENG") ||
+               p->id == fourcc("ITCH") ||
+               p->id == fourcc("ISBJ") ||
+               p->id == fourcc("ISRC")) {
+        // track number, keyword, engineer, technician, subject, source
+        printf(L "unchecked=%x\n", p->id);
         process_chunk(p->payload + p->size, end);
     } else {
         printf(L "unknown chunk id\n");
