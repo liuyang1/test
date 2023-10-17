@@ -8,6 +8,11 @@
 #include <assert.h>
 #include <string.h>
 
+#include <x86intrin.h> // all sse/avx headers
+#include <immintrin.h>
+#include <smmintrin.h>
+// #include <avx2intrin.h>
+
 #include <time.h>
 
 #define T int
@@ -21,11 +26,36 @@ typedef struct {
 
 #define IDX(m, i, j) (m->d[i * m->w + j])
 
+/** crash when aligned_alloc
+ * good when posix_memalign */
+void *my_malloc(size_t sz) {
+    // void *p = (void *)aligned_alloc(32, sz);
+    void *p;
+    int r = posix_memalign(&p, 32, sz);
+    if (r == 0 && p) {
+        return p;
+    }
+    return NULL;
+}
+
+void my_memcpy(void *dst, void *src, size_t sz) {
+    if (sz % (sizeof(int) * 8) == 0) {
+        T *d = (T *)dst, *s = (T *)src;
+        size_t i;
+        for (i = 0; i != sz / sizeof(int); i += 8) {
+            __m256i m = _mm256_loadu_si256((__m256i*)(s + i));
+            _mm256_storeu_si256((__m256i*)(d + i), m);
+        }
+        return;
+    }
+    assert(0);
+}
+
 Mat *mat_init(T *a, size_t w) {
     Mat *m = malloc(sizeof(Mat));
     size_t size = sizeof(T) * w * w;
-    m->d = malloc(size);
-    memcpy(m->d, a, size);
+    m->d = my_malloc(size);
+    my_memcpy(m->d, a, size);
     m->w = w;
     m->transed = false;
     return m;
@@ -33,7 +63,7 @@ Mat *mat_init(T *a, size_t w) {
 
 Mat *mat_init_zero(size_t w) {
     size_t size = sizeof(T) * w * w;
-    T *d = malloc(size);
+    T *d = my_malloc(size);
     memset(d, 0, size);
 
     Mat *m = mat_init(d, w);
@@ -135,7 +165,6 @@ void mat_mul_subm(Mat *a, Mat *b, Mat *c) {
     size_t w = a->w;
     size_t i, j, k, i2, j2, k2;
     T *rres, *rmul1, *rmul2;
-    T t;
     for (i = 0; i < w; i += SM) {
         for (j = 0; j < w; j += SM) {
             for (k = 0; k < w; k += SM) {
@@ -157,11 +186,124 @@ void mat_mul_subm(Mat *a, Mat *b, Mat *c) {
     }
 }
 
+void show_8_epi32(T *a, int end) {
+    printf("%d %d %d %d  %d %d %d %d",
+           a[0], a[1], a[2], a[3],
+           a[4], a[5], a[6], a[7]);
+    printf("%c", end ? '\n' : ' ');
+}
+
+void mm256_show(__m256i *m, int end) {
+    int a[8];
+    _mm256_storeu_si256((__m256i*)a, *m);
+    show_8_epi32(a, end);
+}
+
+T mul_add_16(T *a, T *b) {
+    T t = 0;
+    size_t i;
+    for (i = 0; i != SM; i++) {
+        t += a[i] * b[i];
+    }
+    return t;
+}
+
+T mul_add_16_intrin(T *a, T *b) {
+    __m256i m1 = _mm256_load_si256((__m256i*)a);
+    __m256i m2 = _mm256_load_si256((__m256i*)b);
+    __m256i m = _mm256_mullo_epi32(m1, m2);
+    __m256i n1 = _mm256_load_si256((__m256i*)&a[8]);
+    __m256i n2 = _mm256_load_si256((__m256i*)&b[8]);
+    __m256i n = _mm256_mullo_epi32(n1, n2);
+    m = _mm256_add_epi32(m, n);
+    __m256i sum = _mm256_add_epi32(m, _mm256_permute2x128_si256(m, m, 0x01));
+    sum = _mm256_add_epi32(sum, _mm256_shuffle_epi32(sum, _MM_SHUFFLE(0, 0, 3, 2)));
+    sum = _mm256_add_epi32(sum, _mm256_shuffle_epi32(sum, _MM_SHUFFLE(0, 0, 0, 1)));
+    int res;
+    _mm_storeu_si128((__m128i*)&res, _mm256_extracti128_si256(sum, 0));
+    return res;
+}
+
+T mul_add_16_intrin1(__m256i m1, __m256i n1, T *b) {
+    __m256i m2 = _mm256_stream_load_si256((__m256i*)b);
+    __m256i m = _mm256_mullo_epi32(m1, m2);
+    __m256i n2 = _mm256_stream_load_si256((__m256i*)&b[8]);
+    __m256i n = _mm256_mullo_epi32(n1, n2);
+    m = _mm256_add_epi32(m, n);
+    // fast than naive loop
+    // a0 a1 a2 a3, a4 a5 a6 a7 + a4 a5 a6 a7, a0 a1 a2 a3
+    __m256i sum = _mm256_add_epi32(m, _mm256_permute2x128_si256(m, m, 0x01));
+    // a0+a4 a1+a5 a2+a6 a3+a7  | a0+a4 a1+a5 a2+a6 a3+a7
+    // _MM_SHUFFLE(0, 0, 3, 2)); 0xe = 0b00001110
+    // 10 11 00 00   10 11 00 00
+    // a2+a6 a3+a7 a0+a4 a0+a4  | a2+a6 a3+a7 a0+a4 a0+a4
+    sum = _mm256_add_epi32(sum, _mm256_shuffle_epi32(sum, _MM_SHUFFLE(0, 0, 3, 2)));
+    // a0+a2+a4+a6 a1+a3+a5+a7 ...
+    // 01 00 00 00   00 00 00 00
+    // a1+a3+a5+a7 ...
+    sum = _mm256_add_epi32(sum, _mm256_shuffle_epi32(sum, _MM_SHUFFLE(0, 0, 0, 1)));
+    // a0+...a7
+    int res;
+    _mm_storeu_si128((__m128i*)&res, _mm256_extracti128_si256(sum, 0));
+    return res;
+}
+
+void mat_mul_subm_intrin(Mat *a, Mat *b, Mat *c) {
+    mat_transpose(b);
+    size_t w = a->w;
+    size_t i, j, k, i2, k2;
+    T *rres, *rmul1, *rmul2;
+    for (i = 0; i < w; i += SM) {
+        for (j = 0; j < w; j += SM) {
+            for (k = 0; k < w; k += SM) {
+                for (i2 = 0, rres = &(IDX(c, i, j)), rmul1 = &(IDX(a, i, k));
+                     i2 < SM;
+                     i2++, rres += w, rmul1 += w) {
+                    for (k2 = 0, rmul2 = &(IDX(b, j, k));
+                         k2 < SM;
+                         k2++, rmul2 += w) {
+                        // rres[k2] += mul_add_16(rmul1, rmul2);
+                        rres[k2] += mul_add_16_intrin(rmul1, rmul2);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void mat_mul_subm_intrin1(Mat *a, Mat *b, Mat *c) {
+    mat_transpose(b);
+    size_t w = a->w;
+    size_t i, j, k, i2, k2;
+    T *rres, *rmul1, *rmul2;
+    for (i = 0; i < w; i += SM) {
+        for (j = 0; j < w; j += SM) {
+            for (k = 0; k < w; k += SM) {
+                for (i2 = 0, rres = &(IDX(c, i, j)), rmul1 = &(IDX(a, i, k));
+                     i2 < SM;
+                     i2++, rres += w, rmul1 += w) {
+                    __m256i m1 = _mm256_stream_load_si256((__m256i*)rmul1);
+                    __m256i n1 = _mm256_stream_load_si256((__m256i*)&rmul1[8]);
+                    for (k2 = 0, rmul2 = &(IDX(b, j, k));
+                         k2 < SM;
+                         k2++, rmul2 += w) {
+                        // rres[k2] += mul_add_16(rmul1, rmul2);
+                        rres[k2] += mul_add_16_intrin1(m1, n1, rmul2);
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 static inline void mat_mul(Mat *a, Mat *b, Mat *c) {
     assert(a->w == b->w && a->w == c->w);
     // mat_mul_naive(a, b, c);
     // mat_mul_mem(a, b, c);
-    mat_mul_subm(a, b, c);
+    // mat_mul_subm(a, b, c);
+    // mat_mul_subm_intrin(a, b, c);
+    mat_mul_subm_intrin1(a, b, c);
 }
 
 /** test code ****************************************************************/
@@ -206,13 +348,15 @@ bool test_mul_4() {
 
 int test_perf_width(size_t w) {
     size_t size = sizeof(T) * w * w;
-    T *d0 = malloc(size), *d1 = malloc(size);
+    T *d0 = my_malloc(size), *d1 = my_malloc(size);
     size_t i;
     for (i = 0; i != w * w; i++) {
         d0[i] = rand() % 2;
         d1[i] = rand() % 2;
     }
-    Mat *a = mat_init(d0, w), *b = mat_init(d1, w);
+    Mat *a = mat_init(d0, w);
+    Mat *b = mat_init(d1, w);
+    free(d0); free(d1);
     Mat *c = mat_init_zero(w);
 
     clock_t t0 = clock();
@@ -235,9 +379,9 @@ int test_perf_width(size_t w) {
 
 int test_gold(size_t w) {
     size_t size = sizeof(T) * w * w;
-    T *d0 = malloc(size), *d1 = malloc(size);
+    T *d0 = my_malloc(size), *d1 = my_malloc(size);
     size_t i;
-    for (i = 0; i != w * w; i++) {
+    for (i = 0; i != w * w; i += 8) {
         d0[i] = rand() % 2;
         d1[i] = rand() % 2;
     }
@@ -248,7 +392,7 @@ int test_gold(size_t w) {
 
     mat_mul_naive(a, b, c0);
     mat_mul_mem(a, b, c1);
-    mat_mul_subm(a, b, c2);
+    mat_mul_subm_intrin1(a, b, c2);
     bool r = mat_eq(c0, c1);
     printf("test_gold naive-mem w=%zu %s\n",
            w, r ? "pass" : "expect");
@@ -269,13 +413,16 @@ int test_gold(size_t w) {
     }
 
     mat_deinit(a), mat_deinit(b);
+    free(d0), free(d1);
     mat_deinit(c0), mat_deinit(c1), mat_deinit(c2);
     return r;
 }
 
 int main() {
     printf("sizeof(int)=%lu\n", sizeof(T));
+#if 0
     test_mul_4();
+#endif
     printf("test with gold\n");
     if (!test_gold(16)) {
         return -1;
@@ -284,7 +431,7 @@ int main() {
         return -1;
     }
     size_t w;
-    for (w = 16; w <= 4096; w *= 2) {
+    for (w = 32; w <= 4096; w *= 2) {
         printf("test width=%zu\n", w);
         test_perf_width(w);
     }

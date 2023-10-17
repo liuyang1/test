@@ -1,0 +1,26 @@
+| naive            | 2048 | 61 226 479 |
+| naive -O2        | 2048 | 19 911 719 |
+| transpose        | 2048 | 29 880 488 |
+| transpose -O2    | 2048 | 04 114 551 |
+| trsnspose -O3    | 2048 | 04 049 396 |
+| trsnspose -O4    | 2048 | 04 013 811 |
+| subm             | 2048 | 23 273 876 |
+| subm intrin      | 2048 | 14 654 213 |
+| subm intrin1     | 2048 | 14 200 040 |
+| subm intrin1 -O2 | 2048 | 01 655 877 | BEST, may crash
+| subm -O2         | 2048 | 04 623 432 |
+| subm i2,j2,k2    | 2048 | 29 101 479 |
+
+getconf LEVEL1_DCACHE_LINESIZE  64
+
+1. -O2 is killer
+2. AVX is useful, must work with aligned buffer
+
+loadu (unalgned)
+load (default one)
+stream_load (fast, no cache, may be WRONG)
+
+shuffle, permute: https://www.codeproject.com/Articles/874396/Crunching-Numbers-with-AVX-and-AVX
+
+TODO: transpose function need rewrite with aligned buffer
+it may crash

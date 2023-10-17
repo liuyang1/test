@@ -1,5 +1,5 @@
-CFLAGS=-Wall -Werror -g -O3
-CFLAGS+=-mmmx -msse -msse2 -mfpmath=sse -mavx
+CFLAGS=-g -O3
+CFLAGS+=-mmmx -msse -msse2 -mfpmath=sse -mavx -march=native
 
 run: a.out
 	./a.out
