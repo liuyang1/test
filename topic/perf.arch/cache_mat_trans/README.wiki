@@ -1,0 +1,23 @@
+= matrix transpose with cache-oblivious =
+
+L3 cache size 35840KB
+cache alignment 64
+L2 cache size 14*256KB
+L1 cache is 14*32 kb data cache + 14*32kb insturction caches
+
+32KB matrix width=90.5
+256KB matrix width=256
+32MB matrix width=3029
+
+| w     | 32 | 64   | 128  | 256  | 512  | 1024 | 2048  | 4096  | 8192   |
+| m/kb  | 4  | 16   | 64   | 256  | 1024 | 4096 | 16384 | 65536 | 262144 |
+|       |    | L1-  | L1+  | L2   |      |      | L3-   | L3+   |        |
+| t/us  |    |      |      |      |      |      |       |       |        |
+| ratio |    | 3.93 | 4.52 | 5.96 | 4.99 | 4.18 | 4.28  | 6.31  |        |
+
+Cache alignment is 64, so best window should be 64/4=16
+
+TODO:
+
+1. Improve with recursively solution?
+2. Improve with Morton way order

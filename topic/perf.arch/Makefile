@@ -1,4 +1,4 @@
-CFLAGS=-g -O3
+CFLAGS=-O3
 CFLAGS+=-mmmx -msse -msse2 -mfpmath=sse -mavx -march=native
 
 run: a.out
@@ -11,6 +11,7 @@ sample: sample.c
 
 a.out: matMul.c
 	gcc $(CFLAGS) $^ -o $@
+	objdump -D a.out > a.asm
 
 clean:
 	rm -rf a.out sample core*

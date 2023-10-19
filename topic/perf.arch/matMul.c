@@ -141,6 +141,19 @@ void mat_mul_naive(Mat *a, Mat *b, Mat *c) {
     }
 }
 
+void mat_mul_ikj(Mat *a, Mat *b, Mat *c) {
+    size_t w = a->w;
+    size_t i, j, k;
+    for (i = 0; i != w; i++) {
+        for (k = 0; k != w; k++) {
+            T t = IDX(a, i, k);
+            for (j = 0; j != w; j++) {
+                IDX(c, i, j) += t * IDX(b, k, j);
+            }
+        }
+    }
+}
+
 void mat_mul_mem(Mat *a, Mat *b, Mat *c) {
     mat_transpose(b);
     size_t w = a->w;
@@ -187,7 +200,7 @@ void mat_mul_subm(Mat *a, Mat *b, Mat *c) {
 }
 
 void show_8_epi32(T *a, int end) {
-    printf("%d %d %d %d  %d %d %d %d",
+    printf("%d %d %d %d  %d %d %d %d\t",
            a[0], a[1], a[2], a[3],
            a[4], a[5], a[6], a[7]);
     printf("%c", end ? '\n' : ' ');
@@ -296,6 +309,31 @@ void mat_mul_subm_intrin1(Mat *a, Mat *b, Mat *c) {
     }
 }
 
+#define XM  (256/sizeof(T)/8) // 256/4/8=8
+void mat_mul_ikj_intrin(Mat *a, Mat *b, Mat *c) {
+    size_t w = a->w;
+    size_t i, j, k, i2, k2;
+    assert(a->w % XM == 0);
+    for (i = 0; i != w; i++) {
+        for (k = 0; k != w; k++) {
+            T t = IDX(a, i, k);
+            __m256i aa = _mm256_set1_epi32(t);
+            // printf("i=%d k=%d t=%d\n", i, k, t);
+            for (j = 0; j != w; j += XM) {
+                // cc += aa * bb
+                __m256i bb = _mm256_stream_load_si256((__m256i*)(&IDX(b, k, j)));
+                __m256i cc = _mm256_stream_load_si256((__m256i*)&IDX(c, i, j));
+                __m256i r = _mm256_mullo_epi32(bb, aa);
+                // mm256_show(&aa, 0), putchar('*'), mm256_show(&bb, 0), putchar('='), mm256_show(&r, 1);
+                // mm256_show(&cc, 0), putchar('+'), mm256_show(&r, 1);
+                cc = _mm256_add_epi32(cc, r);
+                // mm256_show(&cc, 1);
+                _mm256_stream_si256((__m256i*)&IDX(c, i, j), cc);
+            }
+        }
+    }
+}
+
 
 static inline void mat_mul(Mat *a, Mat *b, Mat *c) {
     assert(a->w == b->w && a->w == c->w);
@@ -303,7 +341,9 @@ static inline void mat_mul(Mat *a, Mat *b, Mat *c) {
     // mat_mul_mem(a, b, c);
     // mat_mul_subm(a, b, c);
     // mat_mul_subm_intrin(a, b, c);
-    mat_mul_subm_intrin1(a, b, c);
+    // mat_mul_subm_intrin1(a, b, c);
+    // mat_mul_ikj(a, b, c);
+    mat_mul_ikj_intrin(a, b, c);
 }
 
 /** test code ****************************************************************/
@@ -386,13 +426,16 @@ int test_gold(size_t w) {
         d1[i] = rand() % 2;
     }
     Mat *a = mat_init(d0, w), *b = mat_init(d1, w);
+    Mat *b_origin = mat_init(d1, w);
     Mat *c0 = mat_init_zero(w);
     Mat *c1 = mat_init_zero(w);
     Mat *c2 = mat_init_zero(w);
 
     mat_mul_naive(a, b, c0);
     mat_mul_mem(a, b, c1);
-    mat_mul_subm_intrin1(a, b, c2);
+    // mat_mul_subm_intrin1(a, b, c2);
+    mat_mul_ikj_intrin(a, b_origin, c2);
+    // mat_mul_ikj(a, b_origin, c2);
     bool r = mat_eq(c0, c1);
     printf("test_gold naive-mem w=%zu %s\n",
            w, r ? "pass" : "expect");

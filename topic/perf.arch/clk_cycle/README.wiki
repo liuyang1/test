@@ -1,0 +1,113 @@
+测试下如何通过计算clock cycle的方式来计算复杂度
+
+我们采用一个特别简单的例子
+
+平方数据求和，
+
+0-1024*1024*1024之间求和
+
+// 115292...241
+// 3.077s
+
+my CPU is Intel CPU E5-26809 v4 @ 2.40GHz
+1221.656MHz
+
+000000000040052d <main>:                                    <<< 定义main函数，起始地址为0x40052d
+  40052d:	55                   	push   %rbp                 <<< rbp寄存器压栈
+  40052e:	48 89 e5             	mov    %rsp,%rbp            <<< rsp的值复制给rbp，建立栈帧
+  400531:	48 83 ec 10          	sub    $0x10,%rsp           <<< rsp的数值减去0x10，分配一个0x10的大小空间（分配了i和s）
+  400535:	48 c7 45 f8 00 00 00 	movq   $0x0,-0x8(%rbp)      <<< s(%rbp-8):=0
+  40053c:	00 
+  40053d:	48 8b 45 f8          	mov    -0x8(%rbp),%rax      <<< %rax:=(%rbp-8)=0
+  400541:	48 89 45 f0          	mov    %rax,-0x10(%rbp)     <<< (%rbp-0x10):=%rax=...=0, i=0
+  400545:	eb 42                	jmp    400589 <main+0x5c>   <<< jump to 0x400589 directly
+                                                            <<< 开始循环
+0 400547:	48 8b 45 f0          	mov    -0x10(%rbp),%rax     <<< %rax=i
+1 40054b:	48 0f af 45 f0       	imul   -0x10(%rbp),%rax     <<< %rax:=%rax*i=i*i
+2 400550:	48 89 c1             	mov    %rax,%rcx            <<< %rcx:=%rax
+3 400553:	48 ba a5 05 00 00 26 	movabs $0x26000005a5,%rdx   <<< %rdx:=0x26000005a5 ???
+4 40055a:	00 00 00 
+5 40055d:	48 89 c8             	mov    %rcx,%rax            <<< %rax:=%rcx 为什么做这个, 取余转换为乘法和移位进行？？？
+6 400560:	48 f7 e2             	mul    %rdx
+7 400563:	48 89 c8             	mov    %rcx,%rax
+8 400566:	48 29 d0             	sub    %rdx,%rax
+9 400569:	48 d1 e8             	shr    %rax
+a 40056c:	48 01 d0             	add    %rdx,%rax
+b 40056f:	48 c1 e8 1e          	shr    $0x1e,%rax
+e 400573:	48 69 c0 ed ff ff 7f 	imul   $0x7fffffed,%rax,%rax
+    <<< our prime number 2147483629
+f 40057a:	48 29 c1             	sub    %rax,%rcx
+10 40057d:	48 89 c8             	mov    %rcx,%rax
+11 400580:	48 01 45 f8          	add    %rax,-0x8(%rbp)          <<< s+=%rax
+12 400584:	48 83 45 f0 01       	addq   $0x1,-0x10(%rbp)         <<< i++
+13 400589:	48 81 7d f0 00 00 00 	cmpq   $0x40000000,-0x10(%rbp)  <<< 比较i和1024*1024*1024
+14  400590:	40 
+15  400591:	75 b4                	jne    400547 <main+0x1a>       <<< 如果不相等，则跳转到 400547的代码
+  
+  400593:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  400597:	48 89 c6             	mov    %rax,%rsi
+  40059a:	bf 34 06 40 00       	mov    $0x400634,%edi
+  40059f:	b8 00 00 00 00       	mov    $0x0,%eax
+  4005a4:	e8 67 fe ff ff       	callq  400410 <printf@plt>
+  4005a9:	b8 00 00 00 00       	mov    $0x0,%eax
+  4005ae:	c9                   	leaveq 
+  4005af:	c3                   	retq   
+
+
+n cycle * 1GHz / 1221.656MHz = 3.077s
+n = 3.5
+IPC=22/3.5=6.286
+
+汇编指令
+mov
+shr: 右移
+
+
+IPC: instruction per cycle
+
+超标量 super scalar，从而在每个时钟周期执行多个指令，流水线 pipeline方式 (提到指令并行度）
+        分支预测（400591的分支几乎总是成功）
+
+
+关闭超标量，需要在BIOS内修改设置
+
+0000000000400470 <main>:
+  400470:       45 31 c0                xor    %r8d,%r8d                    <<< %r8d:=0
+  400473:       31 f6                   xor    %esi,%esi                    <<< %esi:=0
+  400475:       49 b9 a5 05 00 00 26    movabs $0x26000005a5,%r9            <<< %r9=0x26000005a5
+  40047c:       00 00 00
+  40047f:       90                      nop
+0 400480:       48 89 f7                mov    %rsi,%rdi                    <<< %rdi:=%rsi (i)
+1 400483:       48 0f af fe             imul   %rsi,%rdi                    <<< %rdi*=%rsi=i*i
+2 400487:       48 83 c6 01             add    $0x1,%rsi                    <<< %rsi++ (i++)
+3 40048b:       48 89 f8                mov    %rdi,%rax                    <<< %rax:=%rdi
+4 40048e:       49 f7 e1                mul    %r9                          <<< %rax*=%r9
+5 400491:       48 89 f8                mov    %rdi,%rax
+6 400494:       48 29 d0                sub    %rdx,%rax
+7 400497:       48 d1 e8                shr    %rax
+8 40049a:       48 8d 0c 02             lea    (%rdx,%rax,1),%rcx
+9 40049e:       48 c1 e9 1e             shr    $0x1e,%rcx
+a 4004a2:       48 69 c9 ed ff ff 7f    imul   $0x7fffffed,%rcx,%rcx
+b 4004a9:       48 29 cf                sub    %rcx,%rdi
+c 4004ac:       49 01 f8                add    %rdi,%r8                     <<< %r8+=%rdi (sum+=i*i)
+d 4004af:       48 81 fe 00 00 00 40    cmp    $0x40000000,%rsi             <<< %rsi ?= 0x40000000
+  4004b6:       75 c8                   jne    400480 <main+0x10>           <<< jump to 0x400480
+  4004b8:       48 83 ec 08             sub    $0x8,%rsp
+  4004bc:       4c 89 c2                mov    %r8,%rdx
+  4004bf:       be 54 06 40 00          mov    $0x400654,%esi
+  4004c4:       bf 01 00 00 00          mov    $0x1,%edi
+  4004c9:       31 c0                   xor    %eax,%eax
+  4004cb:       e8 90 ff ff ff          callq  400460 <__printf_chk@plt>
+  4004d0:       31 c0                   xor    %eax,%eax
+  4004d2:       48 83 c4 08             add    $0x8,%rsp
+  4004d6:       c3                      retq
+
+1.55s
+
+n = 1.550*1221.656/1024**3=1.76
+实际指令个数为0xe=14
+IPC=14/1.76=7.955
+
+TODO:
+IPC怎么分析？？？
+使用各种工具？？？Intel analyzer <<< 需要root 权限

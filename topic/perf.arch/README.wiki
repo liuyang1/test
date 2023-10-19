@@ -1,5 +1,9 @@
+https://lwn.net/Articles/255364/
+
 | naive            | 2048 | 61 226 479 |
 | naive -O2        | 2048 | 19 911 719 |
+| ikj              | 2048 | 01 927 162 |
+| ikj intrin       | 2048 | 06 141 062 |
 | transpose        | 2048 | 29 880 488 |
 | transpose -O2    | 2048 | 04 114 551 |
 | trsnspose -O3    | 2048 | 04 049 396 |
@@ -7,9 +11,11 @@
 | subm             | 2048 | 23 273 876 |
 | subm intrin      | 2048 | 14 654 213 |
 | subm intrin1     | 2048 | 14 200 040 |
-| subm intrin1 -O2 | 2048 | 01 655 877 | BEST, may crash
+| subm intrin1 -O2 | 2048 | 01 655 877 |
 | subm -O2         | 2048 | 04 623 432 |
 | subm i2,j2,k2    | 2048 | 29 101 479 |
+
+**subm intrin1 -O2**: BEST, may crash
 
 getconf LEVEL1_DCACHE_LINESIZE  64
 
