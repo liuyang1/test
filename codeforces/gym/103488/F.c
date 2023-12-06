@@ -1,10 +1,5 @@
 #include <stdio.h>
 
-double floor_height(int n, int m, int k) {
-    double h = k / (m + 0.0);
-    return (n - 1) * h;
-}
-
 int main() {
     int t;
     scanf("%d" ,&t);
