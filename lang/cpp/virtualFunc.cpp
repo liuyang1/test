@@ -3,9 +3,10 @@
 class Base
 {
     public:
-        Base(){printf("Base Ctor\n"); foo();}
-        ~Base(){printf("Base Dtor\n"); foo();}
-        virtual void foo(){printf("Base foo\n");}
+        virtual ~Base() {}
+        // Base(){printf("Base Ctor\n"); foo();}
+        // ~Base(){printf("Base Dtor\n"); foo();}
+        virtual void foo() = 0; // {printf("Base foo\n");}
 };
 
 class Derived:public Base
@@ -17,8 +18,9 @@ class Derived:public Base
 };
 
 int main(){
-    Base *p = new Derived(); 
-    p->foo();
-    delete p;
+    Base *q = new Base();
+    // Base *p = new Derived(); 
+    // p->foo();
+    // delete p;
     return 0;
 }

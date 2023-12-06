@@ -1,0 +1,9 @@
+Native Compiler invocation: /usr/bin/gcc 1.c
+Working directory: /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation
+Comptype: gcc
+* Configuring /usr/bin/gcc as a C compiler
+* Configuring /usr/bin/gcc as a C++ compiler
+* Configuring /usr/bin/gcc as a C compiler
+* Configuring /usr/bin/g++ as a C++ compiler
+* Configuring /usr/bin/g++ as a C compiler
+* Configuring /usr/bin/ld as a C++ compiler

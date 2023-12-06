@@ -1,0 +1,4 @@
+# ninja log v5
+1	54	0	out/foo.o	27a487c4c7750ff9
+1	55	0	out/bar.o	d8fb41e70f739c18
+0	24	0	out/baz_extra.o	bfaa059deb56274

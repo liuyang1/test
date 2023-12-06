@@ -28,5 +28,8 @@ stream_load (fast, no cache, may be WRONG)
 
 shuffle, permute: https://www.codeproject.com/Articles/874396/Crunching-Numbers-with-AVX-and-AVX
 
-TODO: transpose function need rewrite with aligned buffer
+TODO:
+- [X] transpose function need rewrite with aligned buffer
 it may crash
+- [X] ikj
+- [ ] check SLEEF https://sleef.org and CBLAS

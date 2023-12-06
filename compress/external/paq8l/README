@@ -1,0 +1,18 @@
+# calling flow
+main
+-> compress
+  -> encode # transform
+    -> detect
+  -> en.compress
+    -> en.code # AC
+      -> predictor
+      -> predictor.update()
+        -> APM? L1240
+        -> contextModel2 # context modle with a mixer L2581
+          -> RunContextMap rcm
+          -> Mixer m(800, 3088, 7, 128) L1166
+            -> add, set, update, p
+            -> mp, list of mixer?
+          -> ContextMap cm L1376
+
+

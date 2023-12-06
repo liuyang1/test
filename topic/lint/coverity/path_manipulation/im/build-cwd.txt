@@ -1,0 +1,1 @@
+/home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation

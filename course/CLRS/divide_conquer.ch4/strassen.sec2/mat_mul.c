@@ -468,10 +468,10 @@ void perf_test() {
     for (i = 2; i != 1024 * 8; i *= 2) {
         LOG("%d\t", i);
         perf(mat_mul_mt, i);
-        // printf("\t");
-        // perf(mat_mul, i);
-        // LOG("\t");
-        // perf(mat_mul_strassen, i);
+        printf("\t");
+        perf(mat_mul, i);
+        LOG("\t");
+        perf(mat_mul_strassen, i);
         LOG("\n");
         fflush(stdin);
     }

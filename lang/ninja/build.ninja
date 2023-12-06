@@ -1,0 +1,9 @@
+cflags = -Wall
+
+rule compile
+    command = gcc $cflags -c $in -o $out
+
+build out/foo.o: compile src/foo.c
+build out/bar.o: compile src/bar.c
+build out/baz_extra.o: compile src/baz.c
+    cflags = -Wall -DEXTRA=1

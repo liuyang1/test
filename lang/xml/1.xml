@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<audioPolicyConfiguration version="7.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <test>
+        <xi:include href="profile.xml" xpointer="xpointer(//*[@id='DDP_OR_EMPTY']/*)" />
+    </test>
+    <test>
+        <xi:include href="profile.xml" xpointer="xpointer(//*[@id='MS12_OR_EMPTY']/*)" />
+    </test>
+    <test>
+        <xi:include href="profile.xml" xpointer="xpointer(//*[@id='empty']/*)" />
+    </test>
+</audioPolicyConfiguration>

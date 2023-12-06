@@ -9,3 +9,9 @@ $(info not include)
 else
 $(info include)
 endif
+
+ifneq (,$(filter a,abc))
+$(info test aaa)
+else
+$(info test NOT aaa)
+endif

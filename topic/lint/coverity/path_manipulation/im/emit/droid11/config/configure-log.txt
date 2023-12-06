@@ -1,0 +1,166 @@
+Encountered compiler invocation for first time, configuring it: /usr/bin/gcc-4.8
+[STATUS] Using comptype gcc
+[STATUS] Environment Variables
+LESS_TERMCAP_se=[0m
+COVERITY_TEMP=/tmp/cov-yang.liu/81789e53fee1d4e9fa3488dc2fd6fce7
+COVERITY_DISENGAGE_EXES=qemuwrapper;qemu-aarch64;qemu-alpha;qemu-arm;qemu-armeb;qemu-cris;qemu-i386;qemu-m68k;qemu-microblaze;qemu-mips;qemu-mipsel;qemu-nios2;qemu-ppc;qemu-ppc64;qemu-ppc64abi32;qemu-sh4;qemu-sh4eb;qemu-sparc;qemu-sparc32plus;qemu-sparc64;qemu-x86_64
+TMUX=/tmp/tmux-1002/default,43488,3
+COVERITY_JAVA14_WARNING_FILE=/home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/warn_about_java14_compilations
+MAIL=/var/mail/yang.liu
+SSH_CLIENT=10.18.29.196 57548 22
+LESS_TERMCAP_ue=[0m
+USER=yang.liu
+LANGUAGE=
+LC_TIME=zh_CN.UTF-8
+CCACHE_DIR=/tmp/ccache
+COVERITY_IS_COMPILER_DESCENDANT=0
+COVERITY_CONFIG_FILE=/proj/coverity/cov-analysis-linux64-2020.12/config/coverity_config.xml
+XTENSA_CORE=
+LD_LIBRARY_PATH=/home/yang.liu/R/lib
+HISTIGNORE=pwd:ls:ll:histroy:exit:
+SHLVL=3
+XDG_CACHE_HOME=/tmp/xdgcache
+HOME=/home/yang.liu
+LESS=-R
+COVERITY_COMMON_TEMP=/tmp
+COVERITY_JAVA_CONFIG=javac#TEMPLATE##java#TEMPLATE##apt#TEMPLATE##javaw#TEMPLATE###
+XDG_SESSION_COOKIE=255031da5d9bd1ff52f7619a5965c194-1642387777.757958-2062112343
+SSH_TTY=/dev/pts/72
+COVERITY_PREV_XML_CATALOG_FILES=
+COVERITY_SITE_CC_CAPTURE_DESCENDANTS=
+COVERITY_OUTPUT_ENCODING=UTF-8
+LSCOLORS=Gxfxcxdxbxegedabagacad
+XIM=fcitx
+PAGER=less
+LC_MONETARY=zh_CN.UTF-8
+LESS_TERMCAP_so=[01;44;33m
+LC_CTYPE=en_US.UTF8
+COVERITY_COMPILER_PATH_MISMATCH_FILE=/home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/has_path_mismatches
+VISUAL=vim
+QT_QPA_PLATFORMTHEME=appmenu-qt5
+COVERITY_PATHLESS_CONFIGS_FILE=/home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/has_pathless_configs
+XIM_PROGRAM=fcitx
+LOGNAME=yang.liu
+GTK_IM_MODULE=xim
+COVERITY_REWRITE_FROM=
+LESS_TERMCAP_us=[01;32m
+_=/usr/bin/gcc-4.8
+XDG_SESSION_ID=437749
+TERM=screen
+UseSharedCompilation=false
+COVERITY_LD_PRELOAD=/proj/coverity/cov-analysis-linux64-2020.12/bin/libcapture-linux64-${PLATFORM}.so
+FBC_TOOL=/opt/fbc-main/tool
+HISTCONTROL=erasedups
+COVERITY_BUILD_INVOCATION_ID=1
+PATH=/home/yang.liu/R/bin:/home/yang.liu/R/usr/bin:/opt/gcc-linaro-7.3.1-2018.05-x86_64_armv8l-linux-gnueabihf/bin:/opt/gcc-linaro-aarch64-none-elf-4.9-2014.09_linux/bin:/home/yang.liu/R/bin:/home/yang.liu/R/usr/bin:/opt/openjdk-1.8/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/gnutools/arc2.3-p0/elf32-4.2.1/bin:/opt/gnutools/arc2.3-p0/uclibc-4.2.1/bin:/opt/gnutools/arc-4.8-amlogic-20130904-r2/bin:/opt/CodeSourcery/Sourcery_G++_Lite/bin:/opt/CodeSourcery/Sourcery_G++_Lite/arm-none-eabi/bin:/opt/CodeSourcery/Sourcery_G++_Lite/arm-none-linux-gnueabi/bin:/opt/gcc-linaro-arm-linux-gnueabihf/bin:/opt/gcc-linaro-aarch64-linux-gnu-4.9-2014.09_linux/bin://opt/gcc-linaro-aarch64-none-elf-4.9-2014.09_linux/bin:/opt/aarch64-cros-linux-gnu/aarch64/bin:/proj/coverity/cov-analysis-linux64-2020.12/bin:/opt/riscv-none-gcc/7.2.0-4-20180606-1631/bin:/opt/xtensa/XtDevTools/install/tools/RG-2018.9-linux/XtensaTools/bin:/opt/metaware-2013.09/MetaWare/arc/bin:/opt/fbc-main/tool/bin
+GIT_SSL_NO_VERIFY=1
+LC_ADDRESS=zh_CN.UTF-8
+ACE_ROOT=/home/liuy/tars/devel/ACE/ACE_wrappers
+LM_LICENSE_FILE=7788@10.18.11.22:5280@10.18.11.22:27000@10.18.11.22:27002@10.18.30.103:27020@10.18.11.22:5280@10.18.10.30:5280@10.18.30.103:5280@10.18.30.122:5280@10.18.30.254
+XDG_RUNTIME_DIR=/run/user/1002
+CHEATCOLORS=true
+HISTSIZE=20000
+LC_TELEPHONE=zh_CN.UTF-8
+LANG=en_US.UTF8
+COVERITY_BIN=/proj/coverity/cov-analysis-linux64-2020.12/bin
+LS_COLORS=no=00;38;5;244:rs=0:di=01;38;5;39:ln=01;38;5;37:mh=00:pi=48;5;230;38;5;136;01:so=48;5;230;38;5;136;01:do=48;5;230;38;5;136;01:bd=48;5;230;38;5;244;01:cd=48;5;230;38;5;244;01:or=48;5;235;38;5;160:su=48;5;160;38;5;230:sg=48;5;136;38;5;230:ca=30;41:tw=48;5;64;38;5;230:ow=07;48;5;235;38;5;33:st=48;5;33;38;5;230:ex=01;38;5;64:ow=01;38;5;200:*.tar=01;38;5;61:*.tgz=01;38;5;61:*.arj=01;38;5;61:*.taz=01;38;5;61:*.lzh=01;38;5;61:*.lzma=01;38;5;61:*.tlz=01;38;5;61:*.txz=01;38;5;61:*.zip=01;38;5;33:*.z=01;38;5;61:*.Z=01;38;5;61:*.dz=01;38;5;61:*.gz=01;38;5;33:*.lz=01;38;5;61:*.xz=01;38;5;61:*.bz2=01;38;5;61:*.bz=01;38;5;61:*.tbz=01;38;5;61:*.tbz2=01;38;5;61:*.tz=01;38;5;61:*.rar=01;38;5;2:*.7z=01;38;5;61:*.rz=01;38;5;61:*.img=01;38;5;69:*.subimg=01;38;5;69:*.deb=01;38;5;166:*.rpm=01;38;5;166:*.jar=01;38;5;166:*.ace=01;38;5;166:*.zoo=01;38;5;166:*.cpio=01;38;5;166:*.apk=01;38;5;166:*.gem=01;38;5;166:*.jpg=00;38;5;136:*.JPG=00;38;5;136:*.jpeg=00;38;5;136:*.gif=00;38;5;136:*.bmp=00;38;5;136:*.pbm=00;38;5;136:*.pgm=00;38;5;136:*.ppm=00;38;5;136:*.tga=00;38;5;136:*.xbm=00;38;5;136:*.xpm=00;38;5;136:*.tif=00;38;5;136:*.tiff=00;38;5;136:*.png=00;38;5;136:*.svg=00;38;5;136:*.svgz=00;38;5;136:*.mng=00;38;5;136:*.pcx=00;38;5;136:*.dl=00;38;5;136:*.xcf=00;38;5;136:*.xwd=00;38;5;136:*.yuv=07;38;5;166:*.cgm=00;38;5;136:*.emf=00;38;5;136:*.eps=00;38;5;136:*.CR2=00;38;5;136:*.ico=00;38;5;136:*.tex=01;38;5;245:*.rdf=01;38;5;245:*.owl=01;38;5;245:*.n3=01;38;5;245:*.ttl=01;38;5;245:*.nt=01;38;5;245:*.torrent=01;38;5;245:*.xml=01;38;5;245:*.json=01;38;5;245:*Rakefile=01;38;5;245:*build.xml=01;38;5;245:*rc=01;38;5;245:*.nfo=01;38;5;245:*README=01;38;5;245:*README.txt=01;38;5;245:*readme.txt=01;38;5;245:*.txt=00;38;5;246:*.md=01;38;5;245:*README.markdown=01;38;5;245:*.ini=01;38;5;245:*.yml=01;38;5;245:*.cfg=01;38;5;245:*.conf=01;38;5;245:*.log=00;38;5;242:*.bak=00;38;5;240:*.aux=00;38;5;240:*.bbl=00;38;5;240:*.blg=00;38;5;240:*~=00;38;5;240:*#=00;38;5;240:*.part=00;38;5;240:*.incomplete=00;38;5;240:*.swp=00;38;5;240:*.tmp=00;38;5;240:*.temp=00;38;5;240:*.cache=00;38;5;240:*.aac=00;38;5;166:*.au=00;38;5;166:*.flac=00;38;5;166:*.mid=00;38;5;166:*.midi=00;38;5;166:*.mka=00;38;5;166:*.mp3=00;38;5;166:*.mpc=00;38;5;166:*.ogg=00;38;5;166:*.ra=00;38;5;166:*.wav=00;38;5;166:*.m4a=00;38;5;166:*.axa=00;38;5;166:*.oga=00;38;5;166:*.spx=00;38;5;166:*.xspf=00;38;5;166:*.mov=01;38;5;166:*.mpg=01;38;5;166:*.mpeg=01;38;5;166:*.m2v=01;38;5;166:*.mkv=01;38;5;166:*.ogm=01;38;5;166:*.mp4=01;38;5;166:*.m4v=01;38;5;166:*.mp4v=01;38;5;166:*.vob=01;38;5;166:*.qt=01;38;5;166:*.nuv=01;38;5;166:*.wmv=01;38;5;166:*.asf=01;38;5;166:*.rm=01;38;5;166:*.rmvb=01;38;5;166:*.flc=01;38;5;166:*.avi=01;38;5;166:*.fli=01;38;5;166:*.flv=01;38;5;166:*.gl=01;38;5;166:*.m2ts=01;38;5;166:*.divx=01;38;5;166:*.webm=01;38;5;166:*.axv=01;38;5;166:*.anx=01;38;5;166:*.ogv=01;38;5;166:*.ogx=01;38;5;166:*.es=01\:38;5;166:*.264=01\:38;5;166:*.dat=01;38;5;166:*.265=01\:38;5;166:*.ivf=01;38;5;166:*.pdf=01;38;5;198:*.wiki=00;38;5;31:*Makefile=00;38;5;173:*.mk=00;38;5;173:*.mak=00;38;5;173:*.c=01;38;5;245:*.h=01;38;5;244:*.o=00;38;5;240:*.d=00;38;5;240:*.cpp=01;38;5;245:*.cxx=01;38;5;245:*.cc=01;38;5;245:*.java=01;38;5;245:*.class=00;38;5;240:*.py=00;38;5;45:*.pyc=00;38;5;240:*.hs=00;38;5;45:*.hi=00;38;5;240:*.rb=07;38;5;198:*.lua=00;38;5;39:*.scm=01;38;5;46:*.rkt=01;38;5;46:*.lisp=01;38;5;46:*.js=01;38;5;45:*.css=01;38;5;9:*.html=01;38;5;253:*.tpl=07;38;5;228:*.sh=00;38;5;112:*.bash=00;38;5;76:*.zsh=00;38;5;40:*.bat=00;38;5;34:*.logo=00;38;5;9:*.xlsx=01;38;5;34:*.xls=01;38;5;34:*.et=01;38;5;34:*.docx=01;38;5;45:*.doc=01;38;5;45:*.wps=01;38;5;45:*.pptx=01;38;5;220:*.ppt=01;38;5;220:*.patch=00;38;5;202:*.diff=00;38;5;202:*.key=07;38;5;198:*.store=07;38;5;198:*kb.bin=07;38;5;198:*tags=00;38;5;240:*.cscope=00;38;5;240:*GTAGS=00;38;5;240:*GPATH=00;38;5;240:*GRTAGS=00;38;5;240:*core=07;38;5;198:*tombstone_*=07;38;5;198:*.dump=07;38;5;198:*.pptx=00;38;5;220:*.ppt=00;38;5;220:*.srt=00;38;5;221:
+XMODIFIERS=@im=fcitx
+COVERITY_IDIR=/home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im
+COVERITY_TOP_PROCESS=0
+is_vim=echo "#{pane_current_command}" | grep -iqE "(^|\/)g?(view|n?vim?)(diff)?$"
+METAWARE_ROOT=/opt/metaware-2013.09
+COVERITY_REWRITE_TO=
+SHELL=/home/yang.liu/R/bin/zsh
+LC_NAME=zh_CN.UTF-8
+LESS_TERMCAP_mb=[01;31m
+LC_MEASUREMENT=zh_CN.UTF-8
+LC_IDENTIFICATION=zh_CN.UTF-8
+CLASSPATH=.:/home/yang.liu/.local/framework:
+COVERITY_OUTPUT=/home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/build-log.txt
+LESS_TERMCAP_md=[01;31m
+SAVEHIST=1000
+QT_IM_MODULE=fcitx
+COVERITY_EMIT=/home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit
+LESS_TERMCAP_me=[0m
+LC_ALL=en_US.UTF8
+PWD=/home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation
+JAVA_HOME=/usr/lib/jvm/java-6-openjdk/
+COVERITY_SITE_CC=aarch64-elf-g++;aarch64-elf-g++-3;aarch64-elf-g++-4;aarch64-elf-gcc;aarch64-elf-gcc-3;aarch64-elf-gcc-4;aarch64-linux-android-g++;aarch64-linux-android-g++-3;aarch64-linux-android-g++-4;aarch64-linux-android-gcc;aarch64-linux-android-gcc-3;aarch64-linux-android-gcc-4;aarch64-linux-gnu-g++;aarch64-linux-gnu-g++-3;aarch64-linux-gnu-g++-4;aarch64-linux-gnu-gcc;aarch64-linux-gnu-gcc-3;aarch64-linux-gnu-gcc-4;aarch64-none-elf-g++;aarch64-none-elf-g++-3;aarch64-none-elf-g++-4;aarch64-none-elf-gcc;aarch64-none-elf-gcc-3;aarch64-none-elf-gcc-4;aarch64-none-linux-gnu-g++;aarch64-none-linux-gnu-g++-3;aarch64-none-linux-gnu-g++-4;aarch64-none-linux-gnu-gcc;aarch64-none-linux-gnu-gcc-3;aarch64-none-linux-gnu-gcc-4;aarch64-poky-linux-g++;aarch64-poky-linux-g++-3;aarch64-poky-linux-g++-4;aarch64-poky-linux-gcc;aarch64-poky-linux-gcc-3;aarch64-poky-linux-gcc-4;aarch64-rdk-linux-g++;aarch64-rdk-linux-g++-3;aarch64-rdk-linux-g++-4;aarch64-rdk-linux-gcc;aarch64-rdk-linux-gcc-3;aarch64-rdk-linux-gcc-4;apt;arm-eabi-g++;arm-eabi-g++-3;arm-eabi-g++-4;arm-eabi-gcc;arm-eabi-gcc-3;arm-eabi-gcc-4;arm-linux-androideabi-g++;arm-linux-androideabi-g++-3;arm-linux-androideabi-g++-4;arm-linux-androideabi-gcc;arm-linux-androideabi-gcc-3;arm-linux-androideabi-gcc-4;arm-linux-g++;arm-linux-g++-3;arm-linux-g++-4;arm-linux-gcc;arm-linux-gcc-3;arm-linux-gcc-4;arm-linux-gnueabihf-g++;arm-linux-gnueabihf-g++-3;arm-linux-gnueabihf-g++-4;arm-linux-gnueabihf-gcc;arm-linux-gnueabihf-gcc-3;arm-linux-gnueabihf-gcc-4;arm-poky-linux-gnueabi-g++;arm-poky-linux-gnueabi-g++-3;arm-poky-linux-gnueabi-g++-4;arm-poky-linux-gnueabi-gcc;arm-poky-linux-gnueabi-gcc-3;arm-poky-linux-gnueabi-gcc-4;arm-pokymllib32-linux-gnueabi-g++;arm-pokymllib32-linux-gnueabi-g++-3;arm-pokymllib32-linux-gnueabi-g++-4;arm-pokymllib32-linux-gnueabi-gcc;arm-pokymllib32-linux-gnueabi-gcc-3;arm-pokymllib32-linux-gnueabi-gcc-4;arm-rdkmllib32-linux-gnueabi-g++;arm-rdkmllib32-linux-gnueabi-g++-3;arm-rdkmllib32-linux-gnueabi-g++-4;arm-rdkmllib32-linux-gnueabi-gcc;arm-rdkmllib32-linux-gnueabi-gcc-3;arm-rdkmllib32-linux-gnueabi-gcc-4;arm-starfish-linux-gnueabi-g++;arm-starfish-linux-gnueabi-g++-3;arm-starfish-linux-gnueabi-g++-4;arm-starfish-linux-gnueabi-gcc;arm-starfish-linux-gnueabi-gcc-3;arm-starfish-linux-gnueabi-gcc-4;c++;ccache;clang;clang++;g++;g++-3;g++-4;gcc;gcc-3;gcc-4;java;javac;javaw;ld;real-aarch64-linux-android-g++;real-aarch64-linux-android-g++-3;real-aarch64-linux-android-g++-4;real-aarch64-linux-android-gcc;real-aarch64-linux-android-gcc-3;real-aarch64-linux-android-gcc-4;riscv-none-embed-g++;riscv-none-embed-g++-3;riscv-none-embed-g++-4;riscv-none-embed-gcc;riscv-none-embed-gcc-3;riscv-none-embed-gcc-4
+COVERITY_LOG=/home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/build-log.txt
+KEYTIMEOUT=1
+SSH_CONNECTION=10.18.29.196 7529 10.18.11.214 22
+COVERITY_SYSTEM_ENCODING=UTF-8
+COVERITY_ENABLE_JAVA_PARSE_ERROR_RECOVERY=1
+LC_NUMERIC=zh_CN.UTF-8
+LC_PAPER=zh_CN.UTF-8
+MULTI_WIFI=false
+TMUX_PLUGIN_MANAGER_PATH=/home/yang.liu/.tmux/plugins/
+HISTFILE=/home/yang.liu/.zsh_history
+COVERITY_ENABLE_JAVA_ANNOTATION_FRAMEWORK_SUPPORT=1
+XTENSA_SYSTEM=
+TMUX_PANE=%2175
+COVERITY_TOP_CONFIG=/tmp/cov-yang.liu/81789e53fee1d4e9fa3488dc2fd6fce7/cov-configure/coverity_config.xml
+COVERITY_IS_COMPILER=0
+EDITOR=/home/yang.liu/R/bin/vim
+COVERITY_BIN=/proj/coverity/cov-analysis-linux64-2020.12/bin
+COVERITY_COMPILER_PATH_MISMATCH_FILE=/home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/has_path_mismatches
+COVERITY_EMIT=/home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit
+COVERITY_JAVA_CONFIG=javac#TEMPLATE##java#TEMPLATE##apt#TEMPLATE##javaw#TEMPLATE###
+COVERITY_OUTPUT=/home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/build-log.txt
+COVERITY_OUTPUT_ENCODING=UTF-8
+COVERITY_BUILD_INVOCATION_ID=1
+COVERITY_TEMP=/tmp/cov-yang.liu/81789e53fee1d4e9fa3488dc2fd6fce7
+COVERITY_COMMON_TEMP=/tmp
+COVERITY_SITE_CC=aarch64-elf-g++;aarch64-elf-g++-3;aarch64-elf-g++-4;aarch64-elf-gcc;aarch64-elf-gcc-3;aarch64-elf-gcc-4;aarch64-linux-android-g++;aarch64-linux-android-g++-3;aarch64-linux-android-g++-4;aarch64-linux-android-gcc;aarch64-linux-android-gcc-3;aarch64-linux-android-gcc-4;aarch64-linux-gnu-g++;aarch64-linux-gnu-g++-3;aarch64-linux-gnu-g++-4;aarch64-linux-gnu-gcc;aarch64-linux-gnu-gcc-3;aarch64-linux-gnu-gcc-4;aarch64-none-elf-g++;aarch64-none-elf-g++-3;aarch64-none-elf-g++-4;aarch64-none-elf-gcc;aarch64-none-elf-gcc-3;aarch64-none-elf-gcc-4;aarch64-none-linux-gnu-g++;aarch64-none-linux-gnu-g++-3;aarch64-none-linux-gnu-g++-4;aarch64-none-linux-gnu-gcc;aarch64-none-linux-gnu-gcc-3;aarch64-none-linux-gnu-gcc-4;aarch64-poky-linux-g++;aarch64-poky-linux-g++-3;aarch64-poky-linux-g++-4;aarch64-poky-linux-gcc;aarch64-poky-linux-gcc-3;aarch64-poky-linux-gcc-4;aarch64-rdk-linux-g++;aarch64-rdk-linux-g++-3;aarch64-rdk-linux-g++-4;aarch64-rdk-linux-gcc;aarch64-rdk-linux-gcc-3;aarch64-rdk-linux-gcc-4;apt;arm-eabi-g++;arm-eabi-g++-3;arm-eabi-g++-4;arm-eabi-gcc;arm-eabi-gcc-3;arm-eabi-gcc-4;arm-linux-androideabi-g++;arm-linux-androideabi-g++-3;arm-linux-androideabi-g++-4;arm-linux-androideabi-gcc;arm-linux-androideabi-gcc-3;arm-linux-androideabi-gcc-4;arm-linux-g++;arm-linux-g++-3;arm-linux-g++-4;arm-linux-gcc;arm-linux-gcc-3;arm-linux-gcc-4;arm-linux-gnueabihf-g++;arm-linux-gnueabihf-g++-3;arm-linux-gnueabihf-g++-4;arm-linux-gnueabihf-gcc;arm-linux-gnueabihf-gcc-3;arm-linux-gnueabihf-gcc-4;arm-poky-linux-gnueabi-g++;arm-poky-linux-gnueabi-g++-3;arm-poky-linux-gnueabi-g++-4;arm-poky-linux-gnueabi-gcc;arm-poky-linux-gnueabi-gcc-3;arm-poky-linux-gnueabi-gcc-4;arm-pokymllib32-linux-gnueabi-g++;arm-pokymllib32-linux-gnueabi-g++-3;arm-pokymllib32-linux-gnueabi-g++-4;arm-pokymllib32-linux-gnueabi-gcc;arm-pokymllib32-linux-gnueabi-gcc-3;arm-pokymllib32-linux-gnueabi-gcc-4;arm-rdkmllib32-linux-gnueabi-g++;arm-rdkmllib32-linux-gnueabi-g++-3;arm-rdkmllib32-linux-gnueabi-g++-4;arm-rdkmllib32-linux-gnueabi-gcc;arm-rdkmllib32-linux-gnueabi-gcc-3;arm-rdkmllib32-linux-gnueabi-gcc-4;arm-starfish-linux-gnueabi-g++;arm-starfish-linux-gnueabi-g++-3;arm-starfish-linux-gnueabi-g++-4;arm-starfish-linux-gnueabi-gcc;arm-starfish-linux-gnueabi-gcc-3;arm-starfish-linux-gnueabi-gcc-4;c++;ccache;clang;clang++;g++;g++-3;g++-4;gcc;gcc-3;gcc-4;java;javac;javaw;ld;real-aarch64-linux-android-g++;real-aarch64-linux-android-g++-3;real-aarch64-linux-android-g++-4;real-aarch64-linux-android-gcc;real-aarch64-linux-android-gcc-3;real-aarch64-linux-android-gcc-4;riscv-none-embed-g++;riscv-none-embed-g++-3;riscv-none-embed-g++-4;riscv-none-embed-gcc;riscv-none-embed-gcc-3;riscv-none-embed-gcc-4
+COVERITY_SITE_CC_CAPTURE_DESCENDANTS=
+COVERITY_PATHLESS_CONFIGS_FILE=/home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/has_pathless_configs
+COVERITY_SITE_CC=aarch64-elf-g++;aarch64-elf-g++-3;aarch64-elf-g++-4;aarch64-elf-gcc;aarch64-elf-gcc-3;aarch64-elf-gcc-4;aarch64-linux-android-g++;aarch64-linux-android-g++-3;aarch64-linux-android-g++-4;aarch64-linux-android-gcc;aarch64-linux-android-gcc-3;aarch64-linux-android-gcc-4;aarch64-linux-gnu-g++;aarch64-linux-gnu-g++-3;aarch64-linux-gnu-g++-4;aarch64-linux-gnu-gcc;aarch64-linux-gnu-gcc-3;aarch64-linux-gnu-gcc-4;aarch64-none-elf-g++;aarch64-none-elf-g++-3;aarch64-none-elf-g++-4;aarch64-none-elf-gcc;aarch64-none-elf-gcc-3;aarch64-none-elf-gcc-4;aarch64-none-linux-gnu-g++;aarch64-none-linux-gnu-g++-3;aarch64-none-linux-gnu-g++-4;aarch64-none-linux-gnu-gcc;aarch64-none-linux-gnu-gcc-3;aarch64-none-linux-gnu-gcc-4;aarch64-poky-linux-g++;aarch64-poky-linux-g++-3;aarch64-poky-linux-g++-4;aarch64-poky-linux-gcc;aarch64-poky-linux-gcc-3;aarch64-poky-linux-gcc-4;aarch64-rdk-linux-g++;aarch64-rdk-linux-g++-3;aarch64-rdk-linux-g++-4;aarch64-rdk-linux-gcc;aarch64-rdk-linux-gcc-3;aarch64-rdk-linux-gcc-4;apt;arm-eabi-g++;arm-eabi-g++-3;arm-eabi-g++-4;arm-eabi-gcc;arm-eabi-gcc-3;arm-eabi-gcc-4;arm-linux-androideabi-g++;arm-linux-androideabi-g++-3;arm-linux-androideabi-g++-4;arm-linux-androideabi-gcc;arm-linux-androideabi-gcc-3;arm-linux-androideabi-gcc-4;arm-linux-g++;arm-linux-g++-3;arm-linux-g++-4;arm-linux-gcc;arm-linux-gcc-3;arm-linux-gcc-4;arm-linux-gnueabihf-g++;arm-linux-gnueabihf-g++-3;arm-linux-gnueabihf-g++-4;arm-linux-gnueabihf-gcc;arm-linux-gnueabihf-gcc-3;arm-linux-gnueabihf-gcc-4;arm-poky-linux-gnueabi-g++;arm-poky-linux-gnueabi-g++-3;arm-poky-linux-gnueabi-g++-4;arm-poky-linux-gnueabi-gcc;arm-poky-linux-gnueabi-gcc-3;arm-poky-linux-gnueabi-gcc-4;arm-pokymllib32-linux-gnueabi-g++;arm-pokymllib32-linux-gnueabi-g++-3;arm-pokymllib32-linux-gnueabi-g++-4;arm-pokymllib32-linux-gnueabi-gcc;arm-pokymllib32-linux-gnueabi-gcc-3;arm-pokymllib32-linux-gnueabi-gcc-4;arm-rdkmllib32-linux-gnueabi-g++;arm-rdkmllib32-linux-gnueabi-g++-3;arm-rdkmllib32-linux-gnueabi-g++-4;arm-rdkmllib32-linux-gnueabi-gcc;arm-rdkmllib32-linux-gnueabi-gcc-3;arm-rdkmllib32-linux-gnueabi-gcc-4;arm-starfish-linux-gnueabi-g++;arm-starfish-linux-gnueabi-g++-3;arm-starfish-linux-gnueabi-g++-4;arm-starfish-linux-gnueabi-gcc;arm-starfish-linux-gnueabi-gcc-3;arm-starfish-linux-gnueabi-gcc-4;c++;ccache;clang;clang++;g++;g++-3;g++-4;gcc;gcc-3;gcc-4;java;javac;javaw;ld;real-aarch64-linux-android-g++;real-aarch64-linux-android-g++-3;real-aarch64-linux-android-g++-4;real-aarch64-linux-android-gcc;real-aarch64-linux-android-gcc-3;real-aarch64-linux-android-gcc-4;riscv-none-embed-g++;riscv-none-embed-g++-3;riscv-none-embed-g++-4;riscv-none-embed-gcc;riscv-none-embed-gcc-3;riscv-none-embed-gcc-4
+COVERITY_TOP_CONFIG=/tmp/cov-yang.liu/81789e53fee1d4e9fa3488dc2fd6fce7/cov-configure/coverity_config.xml
+COVERITY_DISENGAGE_EXES=qemuwrapper;qemu-aarch64;qemu-alpha;qemu-arm;qemu-armeb;qemu-cris;qemu-i386;qemu-m68k;qemu-microblaze;qemu-mips;qemu-mipsel;qemu-nios2;qemu-ppc;qemu-ppc64;qemu-ppc64abi32;qemu-sh4;qemu-sh4eb;qemu-sparc;qemu-sparc32plus;qemu-sparc64;qemu-x86_64
+COVERITY_REWRITE_FROM=
+COVERITY_REWRITE_TO=
+COVERITY_TOP_PROCESS=0
+COVERITY_IS_COMPILER=0
+COVERITY_IS_COMPILER_DESCENDANT=0
+COVERITY_LD_PRELOAD=/proj/coverity/cov-analysis-linux64-2020.12/bin/libcapture-linux64-${PLATFORM}.so
+Added template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml
+Using cached template compiler configuration instance /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im/emit/droid11/config/57d3250b6a52741a95625a65a64a4edc/coverity_config.xml

@@ -84,3 +84,5 @@ buildreport
 
 course/algs4/bin/
 course/algs4/*/test
+
+core

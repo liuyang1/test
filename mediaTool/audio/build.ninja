@@ -1,0 +1,11 @@
+cflags = -Wall -g
+ldflags = -lm
+
+rule compile
+    command = gcc $cflags -c $in -o $out
+
+rule link
+    command = gcc $in $ldflags -o $out
+
+build bandpass_lfo.o: compile bandpass_lfo.c
+build a.out: link bandpass_lfo.o

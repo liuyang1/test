@@ -1,0 +1,5 @@
+Translation unit:
+1 -> /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/1.c (recoverable errors)
+cov-emit invocation time (seconds): 0
+cov-translate invocation time (seconds): 1
+cov-build invocation time (seconds): 1

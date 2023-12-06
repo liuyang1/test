@@ -1,0 +1,4 @@
+/proj/coverity/cov-analysis-linux64-2020.12/bin/cov-security-da --dir /home/yang.liu/git/hub/test/topic/lint/coverity/path_manipulation/im 
+cov-security-da version 2020.12 on Linux 4.4.0-31-generic x86_64
+Internal version numbers: 49c2db45e2 p-vader-push-1409
+
