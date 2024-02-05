@@ -1,0 +1,15 @@
+Follow this page: https://gist.github.com/33eyes/431e3d432f73371509d176d0dfb95b6e
+
+1. Config the repo:
+    git config filter.strip-notebook-output.clean 'jupyter nbconvert --ClearOutputPreprocessor.enabled=True --to=notebook --stdin --stdout --log-level=ERROR'  
+
+2. Create .gitattributes file inside the dir with the notebook (NOTE: INSIDE the dir, not in root of repo)
+    echo '*.ipynb filter=strip-notebook-output' > .gitattributes
+
+Add the ipynb files, it will strip the output result.
+
+You may check jupyter command first
+    jupyter nbconvert --ClearOutputPreprocessor.enabled=True --to=notebook --stdin --stdout --log-level=ERROR < test.ipynb
+
+Extra reminder:
+install jupyter directly through pip, then it cowork with your python. Otherwise, it may have other kernel's if with miniconda, conda, or homebrew's jupyter
