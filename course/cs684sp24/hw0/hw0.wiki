@@ -1,0 +1,12 @@
+Ref: https://web.njit.edu/~mjk76/teaching/cs684-sp24/projects/hw0.html
+
+This test is simply run the ./hw0sample
+
+Reverse engineering to check ./hw0sample
+
+1. main function, simple execute 3 commands with `system` command
+2. The 3 command are pure text in .rodata section
+
+    lsb_release -a 2>&1 | grep Description > /tmp/t1.txt
+    gcc -v 2>&1 | tail -1 > /tmp/t2.txt
+    paste /tmp/t1.txt /tmp/t2.txt | md5sum | cut -f1 -d\  > output.txt
