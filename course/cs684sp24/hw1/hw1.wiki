@@ -1,0 +1,38 @@
+https://web.njit.edu/~mjk76/teaching/cs684-sp24/projects/hw1.html
+
+Target:
+The exact grading rubric (e.g., x points for y coverage) is: statement coverage 50% (one point) to 94% (five points); branch coverage 50% (one point) to 92% (five points).
+
+Question:
+Q: How did you go about manually creating or otherwise obtaining test cases?
+A:
+1. think about edge cases
+2. review code and result, add more test case
+3. generate random test case
+
+Q:Did you use or modify any of the tests we provided or tests from the Internet as part of your answer? (Reminder: You are allowed to do that in this class!)
+A: yes
+
+Q:What was harder than you expected or different than you expected?
+A: corner case, such as int() return None. I waste too much on this.
+I think, this may be un-testable, with this framework
+
+baseline
+stmt 70% br 66%
+== Log ==
+1. add cases
+edge case
+random case
+
+L112
+创建Node，以None为参数。这个无法触发。因为int函数或者成功，或者throww ValueError，不会返回为None
+
+stmt 90% br 87%
+
++random case
+
+stmt 95% br 93%
+
++corner case with 'x' instrument
+
+stmt 96% br 95%

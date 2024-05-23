@@ -1,0 +1,45 @@
+coverage run --append avl.py simple1.avl
+1  
+/\ 
+ 2 
+ /\
+coverage run --append avl.py simple2.avl
+  2.  
+ /  \ 
+1   5 
+/\  /\
+   3  
+   /\ 
+for file in  ; do \
+	coverage run --append avl.py $f; \
+done
+coverage report
+Name     Stmts   Miss  Cover
+----------------------------
+avl.py     182     54    70%
+----------------------------
+TOTAL      182     54    70%
+coverage run --append --branch avl.py simple1.avl
+1  
+/\ 
+ 2 
+ /\
+coverage run --append --branch avl.py simple2.avl
+  2.  
+ /  \ 
+1   5 
+/\  /\
+   3  
+   /\ 
+coverage report
+Name     Stmts   Miss Branch BrPart  Cover
+------------------------------------------
+avl.py     182     54     94     19    66%
+------------------------------------------
+TOTAL      182     54     94     19    66%
+coverage report -m
+Name     Stmts   Miss Branch BrPart  Cover   Missing
+----------------------------------------------------
+avl.py     182     54     94     19    66%   82-85, 88, 101, 109-112, 121, 123-127, 139-141, 145, 171->exit, 189, 201-202, 211, 212->214, 216, 223-238, 244-248, 253-254, 284, 286-292, 301->303, 304-306, 319->312
+----------------------------------------------------
+TOTAL      182     54     94     19    66%
