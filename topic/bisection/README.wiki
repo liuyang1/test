@@ -1,0 +1,20 @@
+Background:
+
+To merge CR efficiency, we want to do BFT(build, flash, test) with a bundle of several CRs.
+However, there may be a bad CR that break the BFT by mistake.
+On that situation, we need do bi-section search to find the bad CRs.
+In more worse case, they are more bad CR in the bundle. We will check the CRs one by one to locate all bad CRs.
+
+Analysis:
+Assume the prob of bad CRs is p.
+- all good CRs, prob=(1-p)^N, it need one time BFT.
+- one bad CRs, prob=N*p*(1-p)^N, it need 2*[log(N)+1] times BFT.
+    - first time build (bad)
+    - 2\*log(N) time to locate the bad/good CL
+    - one more time to BFT with all the good CR
+- two bad CRs, prob=1-p0-p1, we guess it need (N+4) times BFT.
+
+Conclusion:
+
+We will find when prob=0.05, the best bundle size is [4,8]
+Otherwise, it may cost even more time to find the bad CRs.
