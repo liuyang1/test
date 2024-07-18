@@ -1,0 +1,18 @@
+timewarrir is a cmd tool to record work time
+we could use python/json/applescript to record the work time in OSX's calendar
+
+timew summary
+timew day
+timew export for 1day
+
+
+[
+{"id":6,"start":"20240717T231840Z","end":"20240718T000141Z","tags":["avts","doc_writing"]},
+{"id":5,"start":"20240718T000906Z","end":"20240718T003014Z","tags":["mail_reading","simple"]},
+{"id":4,"start":"20240718T013154Z","end":"20240718T013520Z","tags":["avts","core","doc_writing"]},
+{"id":3,"start":"20240718T020739Z","end":"20240718T022127Z","tags":["avts","core","doc_writing"]},
+{"id":2,"start":"20240718T062025Z","end":"20240718T075153Z","tags":["avts","doc_reading","simple"]},
+{"id":1,"start":"20240718T084207Z","end":"20240718T100655Z","tags":["normal","qa_meeting"]}
+]
+
+
