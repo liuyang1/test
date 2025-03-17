@@ -1,0 +1,27 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#001F3F;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#003366;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="200" height="200" rx="20" ry="20" fill="url(#bg-gradient)" />
+  
+  <!-- 边框线条 -->
+  <rect x="10" y="10" width="180" height="180" rx="15" ry="15" 
+        fill="none" stroke="#0066CC" stroke-width="2" />
+
+  <!-- Lyz字母 -->
+  <g fill="#FFFFFF" stroke="#FFFFFF" stroke-width="8" stroke-linecap="square">
+    <!-- L -->
+    <path d="M40 60 v60 h30" fill="none" />
+    
+    <!-- y -->
+    <path d="M85 75 l12 30 M97 75 l18 60" fill="none" />
+    
+    <!-- z -->
+    <path d="M130 75 h30 l-30 30 h30" fill="none" />
+  </g>
+</svg>

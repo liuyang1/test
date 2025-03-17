@@ -1,0 +1,1 @@
+When I try to playback 4k online video, it's smooth. But when I playback specific local stream, it may be stutter at specific time.

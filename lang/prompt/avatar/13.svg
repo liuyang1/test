@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <!-- 背景 -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#051c33;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0a3d66;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="20" ry="20" fill="url(#bg-gradient)"/>
+  <rect x="5" y="5" width="190" height="190" rx="15" ry="15" fill="none" stroke="#1a5c8a" stroke-width="2"/>
+
+  <!-- L -->
+  <path d="M45 55 v70 h35" stroke="#a0e0ff" stroke-width="6" fill="none" stroke-linecap="square" stroke-linejoin="miter"/>
+  
+  <!-- y -->
+  <path d="M90 70 v30 l15 30 M105 70 v30 l-15 30" stroke="#a0e0ff" stroke-width="6" fill="none" stroke-linecap="square" stroke-linejoin="miter"/>
+  
+  <!-- z -->
+  <path d="M125 70 h35 l-35 50 h35" stroke="#a0e0ff" stroke-width="6" fill="none" stroke-linecap="square" stroke-linejoin="miter"/>
+  
+  <!-- 衬线 -->
+  <path d="M40 55 h10 M75 125 v10 M85 70 h10 M120 70 h10 M155 70 h10 M120 120 h10 M155 120 h10" stroke="#a0e0ff" stroke-width="3" stroke-linecap="square"/>
+</svg>

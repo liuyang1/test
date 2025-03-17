@@ -1,0 +1,5 @@
+== Sep-18 Agenda ==
+prompt学习
+- https://github.com/langgptai/LangGPT
+- https://github.com/langgptai/awesome-claude-prompts#mbti-personality-analysis
+- https://www.lijigang.com/posts/chatgpt-prompt-structure/

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <!-- 背景 -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#041528;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0a2d4d;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="15" ry="15" fill="url(#bg-gradient)"/>
+  <rect x="5" y="5" width="190" height="190" rx="10" ry="10" fill="none" stroke="#1a5c8a" stroke-width="1.5"/>
+
+  <!-- L -->
+  <path d="M45 50 q0 35 0 70 q0 5 5 5 h25 q5 0 5 -5" fill="none" stroke="#a0e0ff" stroke-width="4" stroke-linecap="square"/>
+  
+  <!-- y -->
+  <path d="M90 65 q0 15 0 30 q0 5 5 5 q5 0 5 -5 q0 -15 0 -30 M95 95 q0 15 10 30" fill="none" stroke="#a0e0ff" stroke-width="4" stroke-linecap="square"/>
+  <path d="M105 65 q0 15 0 30 q0 5 -5 5 q-5 0 -5 -5 q0 -15 0 -30 M100 95 q0 15 -10 30" fill="none" stroke="#a0e0ff" stroke-width="4" stroke-linecap="square"/>
+  
+  <!-- z -->
+  <path d="M125 70 h30 q5 0 5 5 q0 5 -5 5 l-30 40 q-5 5 0 10 h30 q5 0 5 -5" fill="none" stroke="#a0e0ff" stroke-width="4" stroke-linecap="square"/>
+  
+  <!-- 衬线 -->
+  <path d="M40 50 h10 M75 125 v10 M85 65 h10 M120 70 h10 M155 70 h10 M120 130 h10 M155 130 h10" stroke="#a0e0ff" stroke-width="2" stroke-linecap="square"/>
+</svg>

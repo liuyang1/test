@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" rx="20" ry="20" fill="#0a2a4a"/>
+  
+  <!-- L -->
+  <path d="M40 50 v70 h40" stroke="#ffffff" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- y -->
+  <path d="M90 70 v30 q0 20 15 20 t15 -20 v-30 M105 100 v30" stroke="#ffffff" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- z -->
+  <path d="M130 70 h40 l-40 50 h40" stroke="#ffffff" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Serifs -->
+  <path d="M35 50 h10 M75 120 v10 M85 70 h10 M125 70 h10 M165 70 h10 M125 120 h10 M165 120 h10" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+</svg>

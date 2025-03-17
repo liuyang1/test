@@ -1,0 +1,27 @@
+<svg width="400" height="600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="#FAFAFA"/>
+  
+  <text x="200" y="50" font-family="楷体" font-size="24" fill="#333" text-anchor="middle">汉语新解</text>
+  
+  <line x1="50" y1="70" x2="350" y2="70" stroke="#888" stroke-width="1"/>
+  
+  <text x="50" y="100" font-family="汇文明朝体" font-size="20" fill="#555">金领</text>
+  <text x="50" y="130" font-family="Arial" font-size="16" fill="#777">Golden Collar</text>
+  <text x="50" y="160" font-family="MS Gothic" font-size="16" fill="#777">ゴールデンカラー</text>
+  
+  <text x="50" y="200" font-family="汇文明朝体" font-size="16" fill="#555">
+    <tspan x="50" dy="0">"金领"，啊，这个词儿就像是给奴隶戴上的黄金项圈。</tspan>
+    <tspan x="50" dy="24">闪闪发光，让人羡慕，却不知道戴上它的人已经把</tspan>
+    <tspan x="50" dy="24">灵魂卖给了996的魔鬼。它是现代社会的紧箍咒，</tspan>
+    <tspan x="50" dy="24">看似尊贵，实则束缚。每天梳妆打扮，西装革履地</tspan>
+    <tspan x="50" dy="24">奔向写字楼，其实不过是在为资本主义的巨轮添油</tspan>
+    <tspan x="50" dy="24">加柴罢了。</tspan>
+  </text>
+  
+  <path d="M200,350 Q150,400 200,450 T200,550" fill="none" stroke="#FFD700" stroke-width="3"/>
+  <circle cx="200" cy="450" r="30" fill="none" stroke="#333" stroke-width="2"/>
+  
+  <text x="200" y="580" font-family="汇文明朝体" font-size="18" fill="#555" text-anchor="middle">
+    金光闪闪的枷锁，困住了无数追逐梦想的灵魂。
+  </text>
+</svg>

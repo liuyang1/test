@@ -1,0 +1,8 @@
+apply to where
+
+internal
+- jira/confluence
+- quip
+
+public
+- trello
