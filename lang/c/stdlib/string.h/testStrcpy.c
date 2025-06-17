@@ -65,8 +65,38 @@ int test_strncpy() {
     return 0;
 }
 
+int unit_strncoy_logic(char *src) {
+#define LEN 8
+    char dst[] = "01234567";
+
+    size_t src_len = strlen(src);
+    if (src_len >= LEN) {
+        printf("over size skip src=%s\n", src);
+        return -1;
+    }
+    strncpy(dst, src, LEN);
+    if (strcmp(src, dst) == 0) {
+        printf("SUCC dst=%s src=%s\n", dst, src);
+        retur/Users/lyz/git/amz/00.valut/01.wiki/amzn/business.wiki
+            0;
+    } else {
+        printf("FAIL dst=%s src=%s\n", dst, src);
+        return -1;
+    }
+}
+
+int test_strncpy_logic() {
+    unit_strncoy_logic("abc");
+    unit_strncoy_logic("abcdef");
+    unit_strncoy_logic("abcdefg");
+    unit_strncoy_logic("abcdefgh");
+    unit_strncoy_logic("abcdefghi");
+    return 0;
+}
+
 int main() {
-    test_strncpy();
+    // test_strncpy();
+    test_strncpy_logic();
 
     return 0;
 }

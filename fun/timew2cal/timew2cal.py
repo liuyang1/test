@@ -39,7 +39,10 @@ def fromdt(dt):
 tzone=timedelta(hours=8)
 data = json.load(sys.stdin)
 for it in data:
-    ts = ' '.join(it['tags'])
+    if 'tags' in it.keys():
+        ts = ' '.join(it['tags'])
+    else:
+        ts = ' '
     t0, t1 = todt(it['start']), todt(it['end'])
     t0 += tzone
     t1 += tzone

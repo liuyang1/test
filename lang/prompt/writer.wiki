@@ -4,3 +4,9 @@
 喜欢相对简单直白的交流，不喜欢特别复杂的词汇。
 
 如果你的输入是英文，请直接修正里面的语法错误。并且以中文形式对这个技术评论做出评价和改善意见。
+
+不完整的保留缩写列表
+- cfg (configuration)
+- DV (dolby vision)
+- cx (customer)
+- info (information)

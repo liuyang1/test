@@ -1,0 +1,29 @@
+\documentclass{article}
+\usepackage[fontset=mac]{ctex} % Use CTeX with Mac font set
+\begin{document}
+1. All horses are the same color; we can prove this by induction on the number of horses in a given set. 
+Here's how: "If there's just one horse then it's the same color as itself, so the basis is trivial.
+For the induction step, assume that there are n horses numbered 1 to n. By the induction hypothesis, horses 1 through n − 1 are the same color, and similarly horses 2 through n are the same color. 
+But the middle horses, 2 through n − 1, can't change color when they're in different groups;
+these are horses, not chameleons. So horses 1 and n must be the same color as well, by transitivity. Thus all n horses are the same color; QED." What, if anything, is wrong with this reasoning?
+
+所有的马是同一个颜色的。我们可以使用数学归纳法来证明。
+如果只有一匹马，那么自然颜色相同。
+下面是归纳部分，马匹1到马匹n-1的颜色是相同的。类似的马匹2到马匹n的颜色也是相同的。注意到马匹2到马匹n-1的颜色，在两个组合里是一个颜色。那么根据传递性，N个马的颜色都是一样的。
+
+请问上述证明过程有什么问题？
+
+A: 当N=2的时候，2..n-1是空集。上述的传递性不存在。因此无法成立。
+
+2. Find the shortest sequence of moves that transfer a tower of n disks from the left peg A to the right peg B, if direct moves between A and B are disallowed. (Each move must be to or from the middle peg. As usual, a larger disk must never appear above a smaller one.)
+
+A:
+
+T(1) =2
+
+a) We need first T(N-1) moves to move the piles from size 0 to size n-2, to peg B.
+b) Then we need one move to move the largest disk to middle peg.
+c) 
+T(n) = 2 
+
+\end{document}

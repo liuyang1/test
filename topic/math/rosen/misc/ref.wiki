@@ -1,0 +1,7 @@
+= book =
+https://math.stackexchange.com/questions/1930558/textbook-recommendation-for-discrete-mathematics/1930644#1930644
+== Rosen - Discrete Math and its application ==
+https://github.com/lair001/rosen-discrete-math-materials
+
+= course =
+https://github.com/alison-li/math240

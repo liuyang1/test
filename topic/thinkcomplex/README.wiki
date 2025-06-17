@@ -1,0 +1,4 @@
+TODO
+
+- [ ] try random graph, but following zipf's law
+    - https://en.wikipedia.org/wiki/Zipf%27s_law

@@ -15,4 +15,4 @@ timew export for 1day
 {"id":1,"start":"20240718T084207Z","end":"20240718T100655Z","tags":["normal","qa_meeting"]}
 ]
 
-
+watch "timew | awk '/Total/{print \$NF}' | figlet -f banner"
