@@ -1,0 +1,10 @@
+name = "deadlock"
+version = "0.1.0"
+defaultTargets = ["deadlock"]
+
+[[lean_lib]]
+name = "Deadlock"
+
+[[lean_exe]]
+name = "deadlock"
+root = "Main"
