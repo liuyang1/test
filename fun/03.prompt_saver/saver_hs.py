@@ -33,7 +33,7 @@ def main():
         # 准备预览文本
         preview_head = content[:20]
         preview_tail = content[-10:] if len(content) > 30 else ""
-        preview = f"{preview_head}...{preview_tail}" if preview_tail else preview_head
+        preview = f"{preview_head}......{preview_tail}" if preview_tail else preview_head
 
         # 写入文件
         with open(target_file, "a", encoding="utf-8") as f:
@@ -41,7 +41,7 @@ def main():
 
         # 发送通知
         # notify("记录成功", preview)
-        print("Succ Record with: " + preview)
+        print("SR:" + preview)
 
     except Exception as e:
         # notify("错误", str(e))
