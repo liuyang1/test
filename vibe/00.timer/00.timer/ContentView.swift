@@ -4,6 +4,7 @@ import AVFoundation
 struct ContentView: View {
     @ObservedObject var timer: TimerModel
     @FocusState private var isInputFocused: Bool
+    @State private var isHovering = false
     
     var body: some View {
         ZStack {
@@ -11,14 +12,18 @@ struct ContentView: View {
                 .cornerRadius(8)
             
             HStack(spacing: 8) {
-                Button(action: { timer.reset() }) {
-                    Image(systemName: "arrow.counterclockwise.circle.fill")
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
-                        .frame(width: 24, height: 24)
-                        .contentShape(Rectangle())
+                if isHovering {
+                    Button(action: { timer.reset() }) {
+                        Image(systemName: "arrow.counterclockwise.circle.fill")
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
+                            .frame(width: 24, height: 24)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    Spacer().frame(width: 24)
                 }
-                .buttonStyle(.plain)
                 
                 Divider()
                     .frame(height: 20)
@@ -50,17 +55,24 @@ struct ContentView: View {
                 Divider()
                     .frame(height: 20)
                 
-                Button(action: { timer.toggleStartPause() }) {
-                    Image(systemName: timer.isRunning ? "pause.fill" : "play.fill")
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
-                        .frame(width: 24, height: 24)
-                        .contentShape(Rectangle())
+                if isHovering {
+                    Button(action: { timer.toggleStartPause() }) {
+                        Image(systemName: timer.isRunning ? "pause.fill" : "play.fill")
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
+                            .frame(width: 24, height: 24)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    Spacer().frame(width: 24)
                 }
-                .buttonStyle(.plain)
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 6)
+        }
+        .onHover { hovering in
+            isHovering = hovering
         }
         .onReceive(NotificationCenter.default.publisher(for: .toggleTimer)) { _ in
             timer.toggleStartPause()
