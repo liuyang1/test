@@ -32,7 +32,7 @@ struct ContentView: View {
                     .font(.system(size: 24, weight: .medium, design: .rounded))
                     .multilineTextAlignment(.center)
                     .textFieldStyle(.plain)
-                    .disabled(timer.isRunning || timer.isPaused)
+                    .allowsHitTesting(!(timer.isRunning || timer.isPaused))
                     .focused($isInputFocused)
                     .frame(width: 80)
                     .foregroundColor(.primary)
