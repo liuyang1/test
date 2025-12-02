@@ -65,7 +65,11 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: .toggleTimer)) { _ in
             timer.toggleStartPause()
         }
-        .background(RightClickHandler())
+        .contextMenu {
+            Button("退出") {
+                NSApplication.shared.terminate(nil)
+            }
+        }
     }
 }
 
@@ -79,35 +83,6 @@ struct VisualEffectBlur: NSViewRepresentable {
     }
     
     func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
-}
-
-struct RightClickHandler: NSViewRepresentable {
-    func makeNSView(context: Context) -> NSView {
-        let view = RightClickView()
-        return view
-    }
-    
-    func updateNSView(_ nsView: NSView, context: Context) {}
-}
-
-class RightClickView: NSView {
-    override init(frame frameRect: NSRect) {
-        super.init(frame: frameRect)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    override func rightMouseDown(with event: NSEvent) {
-        let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "退出", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
-        NSMenu.popUpContextMenu(menu, with: event, for: self)
-    }
-    
-    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
-        return true
-    }
 }
 
 class TimerModel: ObservableObject {
