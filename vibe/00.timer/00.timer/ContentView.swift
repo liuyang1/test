@@ -77,6 +77,9 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: .toggleTimer)) { _ in
             timer.toggleStartPause()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .resetTimer)) { _ in
+            timer.reset()
+        }
         .contextMenu {
             Button("退出") {
                 NSApplication.shared.terminate(nil)

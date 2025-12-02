@@ -65,14 +65,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         var eventType = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
         
         InstallEventHandler(GetApplicationEventTarget(), { (nextHandler, theEvent, userData) -> OSStatus in
-            NotificationCenter.default.post(name: .toggleTimer, object: nil)
+            var hotKeyID = EventHotKeyID()
+            GetEventParameter(theEvent, EventParamName(kEventParamDirectObject), EventParamType(typeEventHotKeyID), nil, MemoryLayout<EventHotKeyID>.size, nil, &hotKeyID)
+            
+            if hotKeyID.id == 1 {
+                NotificationCenter.default.post(name: .toggleTimer, object: nil)
+            } else if hotKeyID.id == 2 {
+                NotificationCenter.default.post(name: .resetTimer, object: nil)
+            }
             return noErr
         }, 1, &eventType, nil, &eventHandler)
         
-        let hotKeyID = EventHotKeyID(signature: OSType(0x54494D52), id: 1) // 'TIMR'
-        
         // ⌃⌘M: controlKey + cmdKey + M(46)
-        RegisterEventHotKey(46, UInt32(controlKey | cmdKey), hotKeyID, GetApplicationEventTarget(), 0, &hotKeyRef)
+        let toggleHotKeyID = EventHotKeyID(signature: OSType(0x54494D52), id: 1)
+        RegisterEventHotKey(46, UInt32(controlKey | cmdKey), toggleHotKeyID, GetApplicationEventTarget(), 0, &hotKeyRef)
+        
+        // ⌃⌘R: controlKey + cmdKey + R(15)
+        let resetHotKeyID = EventHotKeyID(signature: OSType(0x54494D52), id: 2)
+        var resetHotKeyRef: EventHotKeyRef?
+        RegisterEventHotKey(15, UInt32(controlKey | cmdKey), resetHotKeyID, GetApplicationEventTarget(), 0, &resetHotKeyRef)
     }
     
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
@@ -88,4 +99,5 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 extension Notification.Name {
     static let toggleTimer = Notification.Name("toggleTimer")
+    static let resetTimer = Notification.Name("resetTimer")
 }
