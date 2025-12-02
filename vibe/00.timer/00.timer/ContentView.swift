@@ -24,7 +24,7 @@ struct ContentView: View {
                     .frame(height: 20)
                 
                 TextField("", text: $timer.inputText)
-                    .font(.system(size: 24, weight: .medium, design: .monospaced))
+                    .font(.system(size: 24, weight: .medium, design: .rounded))
                     .multilineTextAlignment(.center)
                     .textFieldStyle(.plain)
                     .disabled(timer.isRunning || timer.isPaused)
