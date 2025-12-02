@@ -2,77 +2,118 @@ import SwiftUI
 import AVFoundation
 
 struct ContentView: View {
-    @StateObject private var timer = TimerModel()
-    @State private var isHovering = false
+    @ObservedObject var timer: TimerModel
+    @FocusState private var isInputFocused: Bool
     
     var body: some View {
-        HStack(spacing: 4) {
-            if isHovering {
-                Button(action: { NSApplication.shared.terminate(nil) }) {
-                    Image(systemName: "xmark.circle.fill")
+        ZStack {
+            VisualEffectBlur()
+                .cornerRadius(8)
+            
+            HStack(spacing: 8) {
+                Button(action: { timer.reset() }) {
+                    Image(systemName: "arrow.counterclockwise.circle.fill")
                         .font(.system(size: 14))
-                        .foregroundColor(.gray.opacity(0.7))
+                        .foregroundColor(.secondary)
+                        .frame(width: 24, height: 24)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .frame(width: 20)
-            } else {
-                Spacer().frame(width: 20)
-            }
-            
-            Spacer()
-            
-            TextField("", text: $timer.inputText)
-                .font(.system(size: 24, weight: .medium, design: .monospaced))
-                .multilineTextAlignment(.center)
-                .textFieldStyle(.plain)
-                .disabled(timer.isRunning)
-                .frame(width: 80)
-                .foregroundColor(.black)
-                .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
-                .padding(4)
-                .background(Color.white.opacity(0.1))
-                .cornerRadius(4)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 4)
-                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                )
-            
-            Spacer()
-            
-            if isHovering {
-                Button(action: {
-                    if timer.isRunning {
-                        timer.stop()
-                    } else {
-                        timer.start()
+                
+                Divider()
+                    .frame(height: 20)
+                
+                TextField("", text: $timer.inputText)
+                    .font(.system(size: 24, weight: .medium, design: .monospaced))
+                    .multilineTextAlignment(.center)
+                    .textFieldStyle(.plain)
+                    .disabled(timer.isRunning || timer.isPaused)
+                    .focused($isInputFocused)
+                    .frame(width: 80)
+                    .foregroundColor(.primary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.primary.opacity(0.05))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(Color.primary.opacity(0.1), lineWidth: 0.5)
+                    )
+                    .onChange(of: isInputFocused) { oldValue, newValue in
+                        if newValue && !timer.isRunning && !timer.isPaused {
+                            timer.inputText = ""
+                        }
                     }
-                }) {
-                    Image(systemName: timer.isRunning ? "stop.fill" : "play.fill")
+                
+                Divider()
+                    .frame(height: 20)
+                
+                Button(action: { timer.toggleStartPause() }) {
+                    Image(systemName: timer.isRunning ? "pause.fill" : "play.fill")
                         .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                        .frame(width: 24, height: 24)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .frame(width: 20)
-            } else {
-                Spacer().frame(width: 20)
             }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-        .background(Color(NSColor.windowBackgroundColor).opacity(0.85))
-        .cornerRadius(8)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-        )
-        .onHover { hovering in
-            isHovering = hovering
+        .onReceive(NotificationCenter.default.publisher(for: .toggleTimer)) { _ in
+            timer.toggleStartPause()
         }
+        .background(RightClickHandler())
+    }
+}
+
+struct VisualEffectBlur: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = .hudWindow
+        view.blendingMode = .behindWindow
+        view.state = .active
+        return view
+    }
+    
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
+}
+
+struct RightClickHandler: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView {
+        let view = RightClickView()
+        return view
+    }
+    
+    func updateNSView(_ nsView: NSView, context: Context) {}
+}
+
+class RightClickView: NSView {
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func rightMouseDown(with event: NSEvent) {
+        let menu = NSMenu()
+        menu.addItem(NSMenuItem(title: "退出", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        NSMenu.popUpContextMenu(menu, with: event, for: self)
+    }
+    
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        return true
     }
 }
 
 class TimerModel: ObservableObject {
     @Published var inputText = "00:00"
     @Published var isRunning = false
+    @Published var isPaused = false
     
     private var seconds = 0
     private var targetSeconds = 0
@@ -80,32 +121,58 @@ class TimerModel: ObservableObject {
     private var timerInstance: Timer?
     private var originalInput = ""
     
-    func start() {
-        originalInput = inputText
-        let cleanInput = inputText.replacingOccurrences(of: ":", with: "").replacingOccurrences(of: " ", with: "")
-        let minutes = Int(cleanInput) ?? 0
-        
-        if minutes > 0 {
-            isCountdown = true
-            targetSeconds = minutes * 60
-            seconds = targetSeconds
+    func toggleStartPause() {
+        if isRunning {
+            pause()
         } else {
-            isCountdown = false
-            seconds = 0
+            start()
         }
-        
-        isRunning = true
-        updateDisplay()
+    }
+    
+    func start() {
+        if isPaused {
+            // 继续计时
+            isPaused = false
+            isRunning = true
+        } else {
+            // 开始新计时
+            originalInput = inputText
+            
+            // 只提取数字
+            let cleanInput = inputText.filter { $0.isNumber }
+            let minutes = Int(cleanInput) ?? 0
+            
+            if minutes > 0 {
+                isCountdown = true
+                targetSeconds = minutes * 60
+                seconds = targetSeconds
+            } else {
+                isCountdown = false
+                seconds = 0
+            }
+            
+            isRunning = true
+            isPaused = false
+            updateDisplay()
+        }
         
         timerInstance = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.tick()
         }
     }
     
-    func stop() {
+    func pause() {
         timerInstance?.invalidate()
         timerInstance = nil
         isRunning = false
+        isPaused = true
+    }
+    
+    func reset() {
+        timerInstance?.invalidate()
+        timerInstance = nil
+        isRunning = false
+        isPaused = false
         seconds = 0
         inputText = "00:00"
     }
@@ -115,7 +182,7 @@ class TimerModel: ObservableObject {
             seconds -= 1
             if seconds <= 0 {
                 seconds = 0
-                stop()
+                pause()
                 playSound()
             }
         } else {
