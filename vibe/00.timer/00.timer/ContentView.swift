@@ -8,8 +8,8 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-            VisualEffectBlur()
-                .cornerRadius(8)
+            RoundedRectangle(cornerRadius: 8)
+                .fill(.ultraThinMaterial)
             
             HStack(spacing: 8) {
                 if isHovering {
@@ -86,18 +86,6 @@ struct ContentView: View {
             }
         }
     }
-}
-
-struct VisualEffectBlur: NSViewRepresentable {
-    func makeNSView(context: Context) -> NSVisualEffectView {
-        let view = NSVisualEffectView()
-        view.material = .hudWindow
-        view.blendingMode = .behindWindow
-        view.state = .active
-        return view
-    }
-    
-    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
 }
 
 class TimerModel: ObservableObject {
