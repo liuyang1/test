@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  sync:
+    build: ./server
+    ports:
+      - "4444:4444"
+    restart: unless-stopped
+    environment:
+      - PORT=4444

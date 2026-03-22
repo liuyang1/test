@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Build output
+web/dist/
+server/dist/
+
+# Vite cache
+web/node_modules/.vite/
+
+# Test artifacts
+web/test-results/
+web/playwright-report/
+web/coverage/
+web/blob-report/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
