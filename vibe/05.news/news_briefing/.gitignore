@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+temp/
+output/
+assets/bgm.mp3
+assets/ding.mp3
