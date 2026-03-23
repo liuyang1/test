@@ -7,3 +7,4 @@ services:
     restart: unless-stopped
     environment:
       - PORT=4444
+      - SYNC_AUTH_TOKEN=${SYNC_AUTH_TOKEN}

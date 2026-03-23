@@ -5,8 +5,9 @@ import { Checklist, ChecklistHandle } from './Checklist'
 import { LabelPicker } from './LabelPicker'
 import { PinIcon, PaletteIcon, LabelIcon, CheckBoxIcon, TextIcon, ArchiveIcon, MenuIcon, LightbulbIcon, DeleteIcon, SearchIcon, GridViewIcon, ListViewIcon, SettingsIcon, EditIcon } from './Icons'
 import { createChecklistItemData as createChecklistItem } from '../sync/yjs-sync'
-import { parseHashTags } from '../sync/note-utils'
+import { parseHashTags, isEmptyHtml, stripHtml } from '../sync/note-utils'
 import { RichEditor, RichEditorHandle, FormatBar } from './RichEditor'
+import { HashTagSuggest } from './HashTagSuggest'
 
 // ─── NoteInput ───
 
@@ -27,6 +28,7 @@ export const NoteInput = forwardRef<NoteInputHandle, InputProps>(({ onAdd, allLa
   const [checklist, setChecklist] = useState<ReturnType<typeof createChecklistItem>[]>([])
   const [showColors, setShowColors] = useState(false)
   const [showLabels, setShowLabels] = useState(false)
+  const [titleCursor, setTitleCursor] = useState(0)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLTextAreaElement>(null)
   const titleRef = useRef<HTMLInputElement>(null)
@@ -48,14 +50,14 @@ export const NoteInput = forwardRef<NoteInputHandle, InputProps>(({ onAdd, allLa
   }, [expanded, title, content, color, pinned, selectedLabels, isChecklist, checklist])
 
   const submit = useCallback(() => {
-    const hasContent = title.trim() || content.trim() || checklist.some(i => i.text.trim())
+    const hasContent = title.trim() || !isEmptyHtml(content) || checklist.some(i => i.text.trim())
     if (hasContent) {
       const { clean: ct, tags: tt } = parseHashTags(title)
-      const { clean: cc, tags: tc } = parseHashTags(content)
+      const { clean: cc, tags: tc } = parseHashTags(isEmptyHtml(content) ? '' : content)
       const tags = [...new Set([...selectedLabels, ...tt, ...tc])]
       tags.forEach(t => { if (!allLabels.includes(t)) onAddLabel(t) })
-      if (isChecklist) onAdd({ title: ct, type: 'checklist', checklist: checklist.filter(i => i.text.trim()), color, pinned, labels: tags })
-      else onAdd({ title: ct, content: cc, color, pinned, labels: tags })
+      if (isChecklist) onAdd({ title: ct, type: 'checklist', checklist: checklist.filter(i => i.text.trim()), color, pinned, labels: tags, content: '' })
+      else onAdd({ title: ct, content: isEmptyHtml(cc) ? '' : cc, color, pinned, labels: tags })
     }
     reset()
   }, [title, content, color, pinned, selectedLabels, isChecklist, checklist, allLabels])
@@ -68,6 +70,16 @@ export const NoteInput = forwardRef<NoteInputHandle, InputProps>(({ onAdd, allLa
     onExpandChange(false)
   }
   const toggleLabel = (l: string) => setSelectedLabels(p => p.includes(l) ? p.filter(x => x !== l) : [...p, l])
+  const hashTagSelect = (label: string, start: number, end: number) => {
+    setTitle(t => t.slice(0, start) + t.slice(end))
+    setTitleCursor(start)
+    if (!selectedLabels.includes(label)) setSelectedLabels(p => [...p, label])
+    setTimeout(() => { titleRef.current?.setSelectionRange(start, start) }, 0)
+  }
+  const hashTagCreate = (label: string, start: number, end: number) => {
+    onAddLabel(label)
+    hashTagSelect(label, start, end)
+  }
   const focusTitle = () => { titleRef.current?.focus(); titleRef.current?.setSelectionRange(titleRef.current.value.length, titleRef.current.value.length) }
   const focusContent = () => { isChecklist ? checklistRef.current?.focusFirst() : richRef.current?.focus() }
 
@@ -86,7 +98,7 @@ export const NoteInput = forwardRef<NoteInputHandle, InputProps>(({ onAdd, allLa
     { t: 'Color', icon: <PaletteIcon size={18} />, fn: () => { setShowColors(!showColors); setShowLabels(false) } },
     { t: 'Labels', icon: <LabelIcon size={18} />, fn: () => { setShowLabels(!showLabels); setShowColors(false) } },
     { t: isChecklist ? 'Text' : 'Checklist', icon: isChecklist ? <TextIcon size={18} /> : <CheckBoxIcon size={18} />, fn: () => {
-      if (!isChecklist) { const items = content.split('\n').filter(l => l.trim()).map(l => createChecklistItem(l)); setChecklist(items.length ? items : [createChecklistItem()]); setContent('') }
+      if (!isChecklist) { const text = stripHtml(content); const items = text.split('\n').filter(l => l.trim()).map(l => createChecklistItem(l)); setChecklist(items.length ? items : [createChecklistItem()]); setContent('') }
       else { setContent(checklist.map(i => i.text).filter(Boolean).join('\n')); setChecklist([]) }
       setIsChecklist(!isChecklist)
     }},
@@ -99,9 +111,13 @@ export const NoteInput = forwardRef<NoteInputHandle, InputProps>(({ onAdd, allLa
       <div ref={wrapperRef} className="border border-[#e0e0e0] rounded-lg shadow-md overflow-hidden" style={{ backgroundColor: color }}>
         <div className="p-4">
           <div className="flex items-center gap-2 mb-2">
-            <input ref={titleRef} value={title} onChange={e => setTitle(e.target.value)}
+            <input ref={titleRef} value={title} onChange={e => { setTitle(e.target.value); setTitleCursor(e.target.selectionStart ?? 0) }}
+              onKeyUp={e => setTitleCursor((e.target as HTMLInputElement).selectionStart ?? 0)}
+              onClick={e => setTitleCursor((e.target as HTMLInputElement).selectionStart ?? 0)}
               onKeyDown={e => { if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); focusContent() } if (e.key === 'Escape') { e.preventDefault(); submit() } }}
               placeholder="Title" className="flex-1 outline-none font-medium text-[15px] bg-transparent text-[#202124] placeholder:text-[#80868b]" />
+            <HashTagSuggest text={title} cursorPos={titleCursor} allLabels={allLabels} anchorRef={titleRef}
+              onSelect={hashTagSelect} onCreate={hashTagCreate} />
             <button onClick={() => setPinned(!pinned)} tabIndex={-1}
               className={`pin-btn w-9 h-9 flex items-center justify-center rounded-full hover:bg-black/[0.08] ${pinned ? 'pinned' : 'unpinned'}`}>
               <PinIcon size={18} filled={pinned} />

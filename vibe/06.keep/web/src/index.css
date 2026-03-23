@@ -2,12 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
-
 * { -webkit-tap-highlight-color: transparent; }
 
 body {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Google Sans', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: #202124;
   background: #fff;
   -webkit-font-smoothing: antialiased;
@@ -63,8 +61,10 @@ body {
 input[type="checkbox"] { accent-color: #5f6368; cursor: pointer; }
 
 /* Pin animation */
-.pin-btn { transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease; }
-.pin-btn:active { transform: scale(0.8) rotate(-15deg); }
+.pin-btn { transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease, opacity 0.2s ease; opacity: 0; }
+.note-card:hover .pin-btn { opacity: 0.54; }
+.note-card:hover .pin-btn:hover { opacity: 0.87; }
+.note-card:hover .pin-btn.pinned { opacity: 0.71; }
 .pin-btn.pinned { color: #202124; }
 .pin-btn.unpinned { color: #bdc1c6; }
 .pin-btn.unpinned:hover { color: #5f6368; }

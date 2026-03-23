@@ -1,4 +1,5 @@
 const http = require('http')
+const crypto = require('crypto')
 const { WebSocketServer } = require('ws')
 const Y = require('yjs')
 const syncProtocol = require('y-protocols/sync')
@@ -6,6 +7,7 @@ const encoding = require('lib0/encoding')
 const decoding = require('lib0/decoding')
 
 const PORT = process.env.PORT || 4444
+const AUTH_TOKEN = process.env.SYNC_AUTH_TOKEN || crypto.randomBytes(32).toString('hex')
 
 // In-memory Yjs documents keyed by room name
 const docs = new Map()
@@ -35,11 +37,25 @@ const server = http.createServer((req, res) => {
   res.end('Keep Sync Server')
 })
 
-const wss = new WebSocketServer({ server })
+const wss = new WebSocketServer({ noServer: true })
+
+server.on('upgrade', (req, socket, head) => {
+  const url = new URL(req.url, `http://${req.headers.host}`)
+  const token = url.searchParams.get('token')
+  if (token !== AUTH_TOKEN) {
+    socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n')
+    socket.destroy()
+    return
+  }
+  wss.handleUpgrade(req, socket, head, (conn) => {
+    wss.emit('connection', conn, req)
+  })
+})
 
 wss.on('connection', (conn, req) => {
-  // Room name from URL path: /room-name
-  const roomName = req.url?.slice(1) || 'default'
+  // Room name from URL path, strip query params
+  const pathname = new URL(req.url, `http://${req.headers.host}`).pathname
+  const roomName = pathname.slice(1).replace(/[^a-zA-Z0-9_-]/g, '') || 'default'
   const room = getDoc(roomName)
   room.conns.add(conn)
 
@@ -91,4 +107,5 @@ wss.on('connection', (conn, req) => {
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Keep Sync Server running on port ${PORT}`)
+  if (!process.env.SYNC_AUTH_TOKEN) console.log(`Generated auth token: ${AUTH_TOKEN}`)
 })

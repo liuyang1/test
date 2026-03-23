@@ -43,4 +43,5 @@ export const ImageIcon = (p: Omit<Props, 'children'>) => <Icon {...p}>image</Ico
 export const PersonIcon = (p: Omit<Props, 'children'>) => <Icon {...p}>person_add</Icon>
 export const UndoIcon = (p: Omit<Props, 'children'>) => <Icon {...p}>undo</Icon>
 export const RedoIcon = (p: Omit<Props, 'children'>) => <Icon {...p}>redo</Icon>
+export const CheckCircleIcon = (p: Omit<Props, 'children'>) => <Icon {...p}>check_circle</Icon>
 export const EditIcon = (p: Omit<Props, 'children'>) => <Icon {...p}>edit</Icon>

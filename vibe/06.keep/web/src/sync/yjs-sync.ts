@@ -5,7 +5,8 @@ import { Note, ChecklistItem } from '../types/note'
 import { v4 as uuidv4 } from 'uuid'
 
 const WS_URL = import.meta.env.VITE_SYNC_URL || `ws://${window.location.hostname}:4444`
-const ROOM = 'keep-notes'
+const ROOM = import.meta.env.VITE_DB_NAME || 'keep-notes'
+const SYNC_TOKEN = import.meta.env.VITE_SYNC_TOKEN || ''
 
 const ydoc = new Y.Doc()
 const yNotes = ydoc.getMap<Y.Map<any>>('notes')
@@ -24,7 +25,7 @@ export function connectSync() {
   if (window.location.search.includes('nosync')) return
   console.log(`[sync] connecting to ${WS_URL}`)
   try {
-    wsProvider = new WebsocketProvider(WS_URL, ROOM, ydoc, { connect: true })
+    wsProvider = new WebsocketProvider(WS_URL, ROOM, ydoc, { connect: true, params: { token: SYNC_TOKEN } })
     wsProvider.on('status', ({ status }: { status: string }) => {
       console.log(`[sync] ${status}`)
       syncStatusCallback?.(status)

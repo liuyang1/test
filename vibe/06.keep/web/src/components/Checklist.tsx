@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react'
+import { useRef, useEffect, useState, forwardRef, useImperativeHandle, useCallback } from 'react'
 import { ChecklistItem } from '../types/note'
 import { createChecklistItemData as createChecklistItem } from '../sync/yjs-sync'
 import { useSettings } from '../hooks/useSettings'
@@ -14,12 +14,27 @@ interface Props {
   onBackspaceAtStart?: () => void
 }
 
+/* Google Keep checkbox SVGs — 18×18 square style */
+const UncheckedSvg = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#000" style={{ opacity: 0.54 }}>
+    <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+  </svg>
+)
+const CheckedSvg = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#000" style={{ opacity: 0.54 }}>
+    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/>
+    <path d="M18 9l-1.4-1.4-6.6 6.6-2.6-2.6L6 13l4 4z"/>
+  </svg>
+)
+
 export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, preview, onEscape, moveCheckedToBottom: propMoveChecked, onBackspaceAtStart }, ref) => {
   const settings = useSettings()
   const moveCheckedToBottom = propMoveChecked ?? settings.moveCheckedToBottom
   const [focusId, setFocusId] = useState<string | null>(null)
   const [showChecked, setShowChecked] = useState(true)
   const firstInputRef = useRef<HTMLInputElement>(null)
+  const [dragId, setDragId] = useState<string | null>(null)
+  const [dragOverId, setDragOverId] = useState<string | null>(null)
 
   useImperativeHandle(ref, () => ({
     focusFirst: () => {
@@ -49,33 +64,47 @@ export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, 
         checked: items.filter(i => i.checked).sort((a, b) => a.sortOrder - b.sortOrder),
       }
     }
-    // When not moving checked to bottom, show all in original order
     return { unchecked: items.sort((a, b) => a.sortOrder - b.sortOrder), checked: [] as ChecklistItem[] }
   }
 
+  const handleDrop = useCallback((targetId: string) => {
+    if (!dragId || dragId === targetId) return
+    const sorted = [...items].sort((a, b) => a.sortOrder - b.sortOrder)
+    const fromIdx = sorted.findIndex(i => i.id === dragId)
+    const toIdx = sorted.findIndex(i => i.id === targetId)
+    if (fromIdx < 0 || toIdx < 0) return
+    const moved = sorted.splice(fromIdx, 1)[0]
+    sorted.splice(toIdx, 0, moved)
+    onChange(sorted.map((it, i) => ({ ...it, sortOrder: i })))
+    setDragId(null)
+    setDragOverId(null)
+  }, [dragId, items, onChange])
+
   const { unchecked, checked } = getSorted()
 
-  // ─── Preview mode (on cards) ───
+  // ─── Preview mode (on cards) — grid: 30px checkbox col + 1fr content, top-aligned ───
   if (preview) {
-    const display = unchecked.slice(0, 8)
     return (
-      <div className="space-y-0.5">
-        {display.map(i => (
-          <div key={i.id} className="flex items-center gap-2 py-0.5">
-            <input type="checkbox" checked={!moveCheckedToBottom ? i.checked : false}
-              onChange={e => { e.stopPropagation(); update(i.id, { checked: !i.checked }) }}
-              onClick={e => e.stopPropagation()}
-              className="w-[15px] h-[15px] flex-shrink-0 cursor-pointer" />
-            <span className={`text-[14px] leading-snug truncate ${i.checked ? 'line-through text-[#80868b]' : 'text-[#3c4043]'}`}>{i.text || '\u00A0'}</span>
+      <div>
+        {unchecked.map(i => (
+          <div key={i.id} className="grid min-h-[29px]" style={{ gridTemplateColumns: '30px 1fr' }}>
+            <div className="w-[22px] pt-[3px]">
+              <button onClick={e => { e.stopPropagation(); update(i.id, { checked: !i.checked }) }}
+                className="checklist-check cursor-pointer outline-none" tabIndex={-1}>
+                {(!moveCheckedToBottom ? i.checked : false) ? <CheckedSvg /> : <UncheckedSvg />}
+              </button>
+            </div>
+            <div className={`text-[11pt] leading-[1.38] font-['Google_Sans_Text',Roboto,sans-serif] pt-[3px] ${i.checked ? 'line-through text-[#80868b]' : 'text-[#3c4043]'}`}>
+              {i.text || '\u00A0'}
+            </div>
           </div>
         ))}
-        {unchecked.length > 8 && <div className="text-[12px] text-[#80868b] pl-6">+{unchecked.length - 8} more</div>}
-        {checked.length > 0 && <div className="text-[12px] text-[#80868b] pl-6 mt-1">+{checked.length} checked</div>}
+        {checked.length > 0 && <div className="text-[12px] text-[#80868b] pl-[30px] mt-1">+{checked.length} checked</div>}
       </div>
     )
   }
 
-  // ─── Edit mode ───
+  // ─── Edit mode — drag handle + checkbox + content ───
   const handleKeyDown = (e: React.KeyboardEvent, itemId: string, idx: number) => {
     if (e.key === 'Enter') { e.preventDefault(); addItemAfter(itemId) }
     else if (e.key === 'Backspace' && !items.find(i => i.id === itemId)?.text) {
@@ -90,7 +119,7 @@ export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, 
   }
 
   return (
-    <div className="space-y-0.5">
+    <div>
       {unchecked.map((item, idx) => (
         <EditRow key={item.id} item={item} checked={!moveCheckedToBottom ? item.checked : false} autoFocus={focusId === item.id}
           inputRef={idx === 0 ? firstInputRef : undefined}
@@ -98,9 +127,14 @@ export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, 
           onChange={t => update(item.id, { text: t })}
           onKeyDown={e => handleKeyDown(e, item.id, idx)}
           onRemove={() => remove(item.id)}
-          onFocused={() => { if (focusId === item.id) setFocusId(null) }} />
+          onFocused={() => { if (focusId === item.id) setFocusId(null) }}
+          isDragOver={dragOverId === item.id}
+          onDragStart={() => setDragId(item.id)}
+          onDragOver={() => setDragOverId(item.id)}
+          onDrop={() => handleDrop(item.id)}
+          onDragEnd={() => { setDragId(null); setDragOverId(null) }} />
       ))}
-      <button onClick={addItem} tabIndex={-1} className="text-[13px] text-[#80868b] hover:text-[#5f6368] pl-7 py-1 transition-colors">
+      <button onClick={addItem} tabIndex={-1} className="text-[13px] text-[#80868b] hover:text-[#5f6368] pl-[54px] py-1 transition-colors">
         + List item
       </button>
       {moveCheckedToBottom && checked.length > 0 && (
@@ -110,10 +144,15 @@ export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, 
             {checked.length} completed
           </button>
           {showChecked && checked.map(item => (
-            <div key={item.id} className="flex items-center gap-2 group py-0.5">
-              <input type="checkbox" checked onChange={() => update(item.id, { checked: false })} className="w-[15px] h-[15px] flex-shrink-0" tabIndex={-1} />
-              <span className="flex-1 text-[14px] line-through text-[#80868b]">{item.text}</span>
-              <button onClick={() => remove(item.id)} tabIndex={-1} className="opacity-0 group-hover:opacity-100 text-[#80868b] hover:text-[#5f6368] text-xs transition-opacity">✕</button>
+            <div key={item.id} className="grid min-h-[29px] group" style={{ gridTemplateColumns: '24px 30px 1fr auto' }}>
+              <div />
+              <div className="w-[22px] pt-[3px]">
+                <button onClick={() => update(item.id, { checked: false })} className="cursor-pointer outline-none" tabIndex={-1}>
+                  <CheckedSvg />
+                </button>
+              </div>
+              <div className="pt-[3px] text-[14px] line-through text-[#80868b]">{item.text}</div>
+              <button onClick={() => remove(item.id)} tabIndex={-1} className="opacity-0 group-hover:opacity-100 text-[#80868b] hover:text-[#5f6368] text-xs px-1 transition-opacity self-start pt-[5px]">✕</button>
             </div>
           ))}
         </>
@@ -122,9 +161,10 @@ export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, 
   )
 })
 
-function EditRow({ item, checked, autoFocus, inputRef: extRef, onCheck, onChange, onKeyDown, onRemove, onFocused }: {
+function EditRow({ item, checked, autoFocus, inputRef: extRef, onCheck, onChange, onKeyDown, onRemove, onFocused, isDragOver, onDragStart, onDragOver, onDrop, onDragEnd }: {
   item: ChecklistItem; checked: boolean; autoFocus: boolean; inputRef?: React.RefObject<HTMLInputElement | null>
   onCheck: () => void; onChange: (t: string) => void; onKeyDown: (e: React.KeyboardEvent) => void; onRemove: () => void; onFocused: () => void
+  isDragOver: boolean; onDragStart: () => void; onDragOver: () => void; onDrop: () => void; onDragEnd: () => void
 }) {
   const localRef = useRef<HTMLInputElement>(null)
   const r = extRef || localRef
@@ -133,11 +173,29 @@ function EditRow({ item, checked, autoFocus, inputRef: extRef, onCheck, onChange
   }, [autoFocus])
 
   return (
-    <div className="flex items-center gap-2 group py-0.5">
-      <input type="checkbox" checked={checked} onChange={onCheck} className="w-[15px] h-[15px] flex-shrink-0" tabIndex={-1} />
+    <div className={`grid min-h-[29px] group ${isDragOver ? 'border-t-2 border-[#1a73e8]' : 'border-t border-transparent'}`}
+      style={{ gridTemplateColumns: '24px 30px 1fr auto' }}
+      onDragOver={e => { e.preventDefault(); onDragOver() }} onDrop={e => { e.preventDefault(); onDrop() }}>
+      {/* Drag handle — visible on hover */}
+      <div className="flex items-start pt-[5px] cursor-grab opacity-0 group-hover:opacity-[.54] transition-opacity"
+        draggable onDragStart={onDragStart} onDragEnd={onDragEnd} data-testid="drag-handle">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#000" style={{ opacity: 0.54 }}>
+          <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
+          <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+          <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
+        </svg>
+      </div>
+      {/* Checkbox — top-aligned via pt-[3px] */}
+      <div className="w-[22px] pt-[3px]">
+        <button onClick={onCheck} className="cursor-pointer outline-none" tabIndex={-1}>
+          {checked ? <CheckedSvg /> : <UncheckedSvg />}
+        </button>
+      </div>
+      {/* Input */}
       <input ref={r} type="text" value={item.text} onChange={e => onChange(e.target.value)} onKeyDown={onKeyDown}
-        placeholder="List item" className={`flex-1 bg-transparent outline-none text-[14px] placeholder:text-[#bdc1c6] ${checked ? 'line-through text-[#80868b]' : 'text-[#3c4043]'}`} />
-      <button onClick={onRemove} tabIndex={-1} className="opacity-0 group-hover:opacity-100 text-[#80868b] hover:text-[#5f6368] text-xs transition-opacity">✕</button>
+        placeholder="List item" className={`bg-transparent outline-none text-[14px] pt-[4px] placeholder:text-[#bdc1c6] ${checked ? 'line-through text-[#80868b]' : 'text-[#3c4043]'}`} />
+      {/* Remove button */}
+      <button onClick={onRemove} tabIndex={-1} className="opacity-0 group-hover:opacity-100 text-[#80868b] hover:text-[#5f6368] text-xs px-1 transition-opacity self-start pt-[5px]">✕</button>
     </div>
   )
 }

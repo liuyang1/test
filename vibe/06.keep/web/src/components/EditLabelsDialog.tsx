@@ -67,9 +67,9 @@ export function EditLabelsDialog({ labels, onAdd, onRemove, onRename, onClose }:
                 </>
               ) : (
                 <>
-                  <span className="w-8 h-8 rounded-full flex items-center justify-center text-[#5f6368]">
-                    <LabelIcon size={18} />
-                  </span>
+                  <button onClick={() => onRemove(l)} className="w-8 h-8 rounded-full flex items-center justify-center text-[#5f6368] opacity-0 group-hover:opacity-100 hover:bg-black/[0.08] transition-opacity" data-testid="delete-label">
+                    <DeleteIcon size={18} />
+                  </button>
                   <span className="flex-1 text-[14px] text-[#202124] py-1 cursor-text" onClick={() => startEdit(l)}>{l}</span>
                   <button onClick={() => startEdit(l)} className="w-8 h-8 rounded-full flex items-center justify-center text-[#5f6368] opacity-0 group-hover:opacity-100 hover:bg-black/[0.08] transition-opacity">
                     <span className="material-symbols-outlined" style={{ fontSize: 18 }}>edit</span>

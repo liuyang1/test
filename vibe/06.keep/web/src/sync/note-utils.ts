@@ -33,3 +33,13 @@ export function parseHashTags(text: string): { clean: string; tags: string[] } {
   const clean = text.replace(/#(\S+)/g, (_, tag) => { tags.push(tag); return '' }).trim()
   return { clean, tags }
 }
+
+/** Check if HTML content is effectively empty (e.g. '<p></p>', '<p><br></p>') */
+export function isEmptyHtml(html: string): boolean {
+  return !html || !html.replace(/<[^>]*>/g, '').replace(/\s|&nbsp;/g, '')
+}
+
+/** Strip HTML tags and return plain text */
+export function stripHtml(html: string): string {
+  return html.replace(/<[^>]+>/g, '\n').replace(/\n+/g, '\n').trim()
+}

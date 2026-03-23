@@ -4,8 +4,10 @@ import { ColorPicker, getNoteBackground } from './ColorPicker'
 import { Checklist, ChecklistHandle } from './Checklist'
 import { LabelPicker } from './LabelPicker'
 import { RichEditor, RichEditorHandle, FormatBar } from './RichEditor'
+import { HashTagSuggest } from './HashTagSuggest'
 import { PinIcon, PaletteIcon, LabelIcon, CheckBoxIcon, TextIcon, ArchiveIcon, UnarchiveIcon, DeleteIcon, MoreIcon } from './Icons'
 import { createChecklistItemData as createChecklistItem } from '../sync/yjs-sync'
+import { stripHtml, isEmptyHtml } from '../sync/note-utils'
 
 interface Props {
   note: Note; labels: string[]
@@ -21,6 +23,7 @@ export function NoteEditor({ note, labels, onSave, onClose, onDelete, onAddLabel
   const [showColors, setShowColors] = useState(false)
   const [showLabels, setShowLabels] = useState(false)
   const [editor, setEditor] = useState<any>(null)
+  const [titleCursor, setTitleCursor] = useState(0)
   const titleRef = useRef<HTMLInputElement>(null)
   const richRef = useRef<RichEditorHandle>(null)
   const checklistRef = useRef<ChecklistHandle>(null)
@@ -31,14 +34,26 @@ export function NoteEditor({ note, labels, onSave, onClose, onDelete, onAddLabel
   const patch = (p: Partial<Note>) => { const u = { ...draft, ...p }; setDraft(u); onSave(u) }
   const toggleType = () => {
     if (draft.type === 'text') {
-      const text = draft.content.replace(/<[^>]+>/g, '\n').replace(/\n+/g, '\n')
+      const text = stripHtml(draft.content)
       const items = text.split('\n').filter(l => l.trim()).map(l => createChecklistItem(l))
       patch({ type: 'checklist', checklist: items.length ? items : [createChecklistItem()], content: '' })
     } else {
-      patch({ type: 'text', content: `<p>${draft.checklist.map(i => i.text).filter(Boolean).join('</p><p>')}</p>`, checklist: [] })
+      const text = draft.checklist.map(i => i.text).filter(Boolean)
+      patch({ type: 'text', content: text.length ? `<p>${text.join('</p><p>')}</p>` : '', checklist: [] })
     }
   }
   const toggleLabel = (l: string) => patch({ labels: draft.labels.includes(l) ? draft.labels.filter(x => x !== l) : [...draft.labels, l] })
+  const hashTagSelect = (label: string, start: number, end: number) => {
+    const newTitle = draft.title.slice(0, start) + draft.title.slice(end)
+    const newLabels = draft.labels.includes(label) ? draft.labels : [...draft.labels, label]
+    patch({ title: newTitle, labels: newLabels })
+    setTitleCursor(start)
+    setTimeout(() => { titleRef.current?.setSelectionRange(start, start) }, 0)
+  }
+  const hashTagCreate = (label: string, start: number, end: number) => {
+    onAddLabel(label)
+    hashTagSelect(label, start, end)
+  }
   const focusTitle = () => { titleRef.current?.focus(); titleRef.current?.setSelectionRange(titleRef.current.value.length, titleRef.current.value.length) }
   const focusContent = () => { draft.type === 'checklist' ? checklistRef.current?.focusFirst() : richRef.current?.focus() }
 
@@ -50,9 +65,13 @@ export function NoteEditor({ note, labels, onSave, onClose, onDelete, onAddLabel
         {/* Content */}
         <div className="p-4 sm:p-5 flex-1 overflow-y-auto">
           <div className="flex items-start gap-2">
-            <input ref={titleRef} value={draft.title} onChange={e => patch({ title: e.target.value })}
+            <input ref={titleRef} value={draft.title} onChange={e => { patch({ title: e.target.value }); setTitleCursor(e.target.selectionStart ?? 0) }}
+              onKeyUp={e => setTitleCursor((e.target as HTMLInputElement).selectionStart ?? 0)}
+              onClick={e => setTitleCursor((e.target as HTMLInputElement).selectionStart ?? 0)}
               onKeyDown={e => { if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); focusContent() } }}
               placeholder="Title" className="flex-1 bg-transparent outline-none font-medium text-[18px] text-[#202124] mb-3 placeholder:text-[#80868b]" />
+            <HashTagSuggest text={draft.title} cursorPos={titleCursor} allLabels={labels} anchorRef={titleRef}
+              onSelect={hashTagSelect} onCreate={hashTagCreate} />
             <button onClick={() => patch({ pinned: !draft.pinned })} tabIndex={-1}
               className={`pin-btn w-9 h-9 rounded-full flex items-center justify-center hover:bg-black/[0.08] flex-shrink-0 transition-all ${draft.pinned ? 'pinned' : 'unpinned'}`}>
               <PinIcon size={22} filled={draft.pinned} />
