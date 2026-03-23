@@ -4,6 +4,40 @@
 
 - Node.js >= 18 (recommended: 20 LTS)
 
+## iOS App
+
+### Structure
+
+```
+ios/
+├── KeepApp.xcodeproj/     # Xcode project (open this on macOS)
+├── KeepApp/
+│   └── KeepApp.swift      # @main App entry point
+└── Keep/                   # Swift Package (library)
+    ├── Package.swift
+    ├── Sources/
+    │   ├── Models/         # Note, ChecklistItem, Constants
+    │   ├── ViewModels/     # NotesViewModel (CRUD, search, labels, selection)
+    │   ├── Views/          # SwiftUI views (ContentView, NoteCard, Editor, etc.)
+    │   └── Sync/           # LocalStore (JSON persistence), SyncClient (WebSocket)
+    └── Tests/              # Unit tests (NoteTests, ViewModelTests)
+```
+
+### Building on macOS
+
+1. Open `ios/KeepApp.xcodeproj` in Xcode 15+
+2. Add the local `Keep` package: File → Add Package → Add Local → select `ios/Keep/`
+3. Select an iOS 17+ simulator or device
+4. Build & Run (⌘R)
+
+### Architecture
+
+- **SwiftUI** with `@StateObject` / `@ObservedObject` for state management
+- **Local persistence**: JSON files in the app's documents directory (mirrors IndexedDB on web)
+- **Sync**: WebSocket client ready for connecting to the same Node.js sync server (port 4444). Currently uses JSON-based sync; a future version could integrate a native Yjs CRDT port
+- **Same data model** as the web app: `Note`, `ChecklistItem`, same color palette, same label system
+- **Features**: Notes grid, pinned/unpinned sections, checklist editing, color picker, label picker, search, multi-select with bulk actions, archive, trash, sidebar navigation
+
 ## Running
 
 ### Start the sync server
