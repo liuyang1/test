@@ -58,9 +58,9 @@ export function NoteCard({ note, onClick, onUpdate, listView }: Props) {
         )}
       </div>
 
-      {/* Hover action bar — same icons as editor toolbar (Google Keep style) */}
+      {/* Hover action bar */}
       {!note.deleted && (
-        <div className="card-actions absolute bottom-0 left-0 right-0 flex items-center px-1 py-0.5 rounded-b-lg relative" data-testid="card-actions">
+        <div className="card-actions flex items-center px-0 py-0.5 -mx-0.5 relative" data-testid="card-actions">
           <ActionBtn title="Archive" onClick={act(() => onUpdate({ ...note, archived: !note.archived, updatedAt: Date.now() }))}><ArchiveIcon size={16} /></ActionBtn>
           <ActionBtn title="Change color" onClick={act(() => setShowColorPicker(!showColorPicker))}><PaletteIcon size={16} /></ActionBtn>
           <ActionBtn title="Add label" onClick={act(onClick)}><LabelIcon size={16} /></ActionBtn>

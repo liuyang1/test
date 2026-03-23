@@ -4,12 +4,14 @@ import {
   getAllNotes, upsertNote, deleteNotePermanently, onNotesChange,
   connectSync, waitForSync, createNoteData,
   getAllLabels, addLabel, removeLabel, renameLabel, onLabelsChange,
+  onSyncStatus,
 } from '../sync/yjs-sync'
 
 export function useNotes() {
   const [notes, setNotes] = useState<Note[]>([])
   const [labels, setLabels] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
+  const [syncStatus, setSyncStatus] = useState('disconnected')
 
   useEffect(() => {
     let unsubNotes: (() => void) | undefined
@@ -28,6 +30,7 @@ export function useNotes() {
 
       unsubNotes = onNotesChange(setNotes)
       unsubLabels = onLabelsChange(setLabels)
+      onSyncStatus(setSyncStatus)
     })
 
     return () => { unsubNotes?.(); unsubLabels?.() }
@@ -93,7 +96,7 @@ export function useNotes() {
   }, [notes])
 
   return {
-    notes, labels, loading, save, add, remove, restore, emptyTrash, getFiltered,
+    notes, labels, loading, syncStatus, save, add, remove, restore, emptyTrash, getFiltered,
     addLabel, removeLabel, renameLabel,
   }
 }

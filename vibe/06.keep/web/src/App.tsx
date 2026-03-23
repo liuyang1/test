@@ -8,7 +8,7 @@ import { EditLabelsDialog } from './components/EditLabelsDialog'
 import { SettingsContext } from './hooks/useSettings'
 
 export default function App() {
-  const { notes, labels, loading, save, add, remove, restore, emptyTrash, getFiltered, addLabel, removeLabel, renameLabel } = useNotes()
+  const { notes, labels, loading, syncStatus, save, add, remove, restore, emptyTrash, getFiltered, addLabel, removeLabel, renameLabel } = useNotes()
   const [view, setView] = useState<NoteView>('notes')
   const [activeLabel, setActiveLabel] = useState('')
   const [search, setSearch] = useState('')
@@ -107,6 +107,12 @@ export default function App() {
           onSave={u => { save(u); setEditing(u) }} onClose={() => setEditing(null)}
           onDelete={() => { remove(editing.id); setEditing(null) }} onAddLabel={addLabel} />
       )}
+
+      {/* Sync status */}
+      <div className="fixed bottom-3 left-3 flex items-center gap-1.5 text-[11px] text-[#80868b] select-none" title={`Sync: ${syncStatus}`}>
+        <span className={`w-2 h-2 rounded-full ${syncStatus === 'connected' ? 'bg-green-400' : syncStatus === 'connecting' ? 'bg-yellow-400 animate-pulse' : 'bg-red-300'}`} />
+        {syncStatus !== 'connected' && <span>{syncStatus === 'connecting' ? 'Syncing...' : 'Offline'}</span>}
+      </div>
     </div>
     </SettingsContext.Provider>
   )

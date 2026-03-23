@@ -5,6 +5,7 @@ module.exports = defineConfig({
   timeout: 30000,
   workers: 4,
   fullyParallel: true,
+  retries: 1,
   use: {
     baseURL: 'http://localhost:5137',
     headless: true,

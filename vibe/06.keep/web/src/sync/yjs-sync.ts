@@ -4,7 +4,7 @@ import { IndexeddbPersistence } from 'y-indexeddb'
 import { Note, ChecklistItem } from '../types/note'
 import { v4 as uuidv4 } from 'uuid'
 
-const WS_URL = import.meta.env.VITE_SYNC_URL || 'ws://localhost:4444'
+const WS_URL = import.meta.env.VITE_SYNC_URL || `ws://${window.location.hostname}:4444`
 const ROOM = 'keep-notes'
 
 const ydoc = new Y.Doc()
@@ -14,16 +14,24 @@ const yLabels = ydoc.getArray<string>('labels')
 const indexeddbProvider = new IndexeddbPersistence(ROOM, ydoc)
 
 let wsProvider: WebsocketProvider | null = null
+let syncStatusCallback: ((status: string) => void) | null = null
+
+export function onSyncStatus(cb: (status: string) => void) { syncStatusCallback = cb }
 
 export function connectSync() {
   if (wsProvider) return
+  // Skip sync in test mode
+  if (window.location.search.includes('nosync')) return
+  console.log(`[sync] connecting to ${WS_URL}`)
   try {
     wsProvider = new WebsocketProvider(WS_URL, ROOM, ydoc, { connect: true })
     wsProvider.on('status', ({ status }: { status: string }) => {
       console.log(`[sync] ${status}`)
+      syncStatusCallback?.(status)
     })
   } catch (e) {
     console.warn('[sync] Failed to connect:', e)
+    syncStatusCallback?.('error')
   }
 }
 
@@ -154,3 +162,11 @@ export function waitForSync(): Promise<void> {
 
 // Re-export pure utility functions
 export { createNoteData, createChecklistItemData, parseHashTags } from './note-utils'
+
+// Test helper: clear all data
+export function clearAllData() {
+  ydoc.transact(() => {
+    yNotes.forEach((_, key) => yNotes.delete(key))
+    while (yLabels.length > 0) yLabels.delete(0, 1)
+  })
+}

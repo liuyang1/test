@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test'
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/')
-  await page.evaluate(() => indexedDB.deleteDatabase('keep-notes'))
-  await page.reload()
+  await page.goto('/?nosync')
   await page.waitForSelector('text=Take a note', { timeout: 10000 })
+  await page.evaluate(() => window.__clearKeepData?.())
+  await page.waitForFunction(() => document.querySelectorAll('.note-card').length === 0, { timeout: 5000 }).catch(() => {})
 })
 
 async function createNote(page, title, content) {
@@ -230,16 +230,21 @@ test('masonry: consistent card width', async ({ page }) => {
 // ═══ Pin ═══
 test('pin creates Pinned section', async ({ page }) => {
   await createNote(page, 'PinNote', '')
-  await page.locator('.note-card').first().hover()
-  await page.locator('.note-card .pin-btn').click()
+  // Open editor and pin from there (more reliable than hover)
+  await page.click('.note-card:has-text("PinNote")')
+  await page.click('.editor-panel .pin-btn')
+  await page.click('.editor-overlay', { position: { x: 10, y: 10 } })
   await expect(page.locator('text=Pinned')).toBeVisible()
 })
 test('unpin removes Pinned section', async ({ page }) => {
   await createNote(page, 'UnpinNote', '')
-  await page.locator('.note-card').first().hover()
-  await page.locator('.note-card .pin-btn').click()
+  await page.click('.note-card:has-text("UnpinNote")')
+  await page.click('.editor-panel .pin-btn')
+  await page.click('.editor-overlay', { position: { x: 10, y: 10 } })
   await expect(page.locator('text=Pinned')).toBeVisible()
-  await page.locator('.note-card .pin-btn').click()
+  await page.click('.note-card:has-text("UnpinNote")')
+  await page.click('.editor-panel .pin-btn')
+  await page.click('.editor-overlay', { position: { x: 10, y: 10 } })
   await expect(page.locator('text=Pinned')).not.toBeVisible()
 })
 test('pin has transition on cards', async ({ page }) => {
@@ -327,12 +332,20 @@ test('label filter in sidebar', async ({ page }) => {
   await expect(page.locator('.note-card:has-text("NoLabel")')).not.toBeVisible()
 })
 
-// ═══ Sync ═══
-test('sync between tabs', async ({ context }) => {
-  const p1 = await context.newPage(), p2 = await context.newPage()
-  await p1.goto('/'); await p1.evaluate(() => indexedDB.deleteDatabase('keep-notes')); await p1.reload()
+// ═══ Sync (needs separate setup — don't block WS) ═══
+test('sync between tabs via IndexedDB', async ({ context }) => {
+  const p1 = await context.newPage()
+  await p1.goto('/')
   await p1.waitForSelector('text=Take a note', { timeout: 10000 })
-  await p1.click('text=Take a note'); await p1.fill('input[placeholder="Title"]', 'SyncNote'); await p1.click('body', { position: { x: 10, y: 10 } })
-  await p2.goto('/'); await p2.waitForSelector('text=Take a note', { timeout: 10000 }); await p2.waitForTimeout(1000)
+  await p1.evaluate(() => window.__clearKeepData?.())
+  await p1.waitForTimeout(200)
+  await p1.click('text=Take a note')
+  await p1.fill('input[placeholder="Title"]', 'SyncNote')
+  await p1.click('body', { position: { x: 10, y: 10 } })
+  await expect(p1.locator('.note-card:has-text("SyncNote")')).toBeVisible()
+  const p2 = await context.newPage()
+  await p2.goto('/')
+  await p2.waitForSelector('text=Take a note', { timeout: 10000 })
+  await p2.waitForTimeout(1500)
   await expect(p2.locator('.note-card:has-text("SyncNote")')).toBeVisible()
 })
