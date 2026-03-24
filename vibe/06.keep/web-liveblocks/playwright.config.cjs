@@ -12,7 +12,7 @@ module.exports = defineConfig({
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command: 'npx vite --host 0.0.0.0 --port 5138 --mode test',
+    command: 'npx vite --host localhost --port 5138 --mode test',
     port: 5138,
     reuseExistingServer: true,
     timeout: 15000,
