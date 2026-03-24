@@ -6,14 +6,12 @@ import { Linkified, LinkPreview, extractUrls } from './LinkPreview'
 import { PinIcon, PaletteIcon, ArchiveIcon, DeleteIcon, LabelIcon, MoreIcon, CheckCircleIcon } from './Icons'
 import { isEmptyHtml } from '../sync/note-utils'
 import { ColorPicker, getNoteBackground } from './ColorPicker'
-
-function trimTrailingEmptyLi(html: string): string {
-  return html.replace(/<li>(\s|<br\s*\/?>|&nbsp;)*<\/li>\s*(<\/(ul|ol)>)/gi, '$2')
-}
+import { LabelPicker } from './LabelPicker'
 
 interface Props {
   note: Note; onClick: () => void; onUpdate: (note: Note) => void; listView?: boolean
   selected?: boolean; onSelect?: (id: string) => void; selectionActive?: boolean
+  allLabels?: string[]; onAddLabel?: (label: string) => void
 }
 
 function formatDate(ts: number): string {
@@ -23,8 +21,9 @@ function formatDate(ts: number): string {
   return d.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
-export function NoteCard({ note, onClick, onUpdate, listView, selected, onSelect, selectionActive }: Props) {
+export function NoteCard({ note, onClick, onUpdate, listView, selected, onSelect, selectionActive, allLabels = [], onAddLabel }: Props) {
   const [showColorPicker, setShowColorPicker] = useState(false)
+  const [showLabelPicker, setShowLabelPicker] = useState(false)
   const allText = [note.title, note.content, ...note.checklist.map(i => i.text)].join(' ')
   const urls = extractUrls(allText)
   const isDefault = note.color === '#ffffff'
@@ -66,7 +65,7 @@ export function NoteCard({ note, onClick, onUpdate, listView, selected, onSelect
           <Checklist items={note.checklist} onChange={items => onUpdate({ ...note, checklist: items, updatedAt: Date.now() })} preview />
         ) : (note.content && !isEmptyHtml(note.content)) ? (
           <div className={`note-content text-[11pt] leading-[1.38] text-[#3c4043] font-['Google_Sans_Text',Roboto,sans-serif] [&_h1]:text-[18px] [&_h1]:font-medium [&_h2]:text-[15px] [&_h2]:font-medium [&_h2]:italic [&_h2]:text-[#5f6368] [&_strong]:font-medium [&_a]:text-[#1a73e8] [&_a]:underline [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5`}
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(trimTrailingEmptyLi(note.content)) }} onClick={e => { if ((e.target as HTMLElement).tagName === 'A') e.stopPropagation() }} />
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(note.content) }} onClick={e => { if ((e.target as HTMLElement).tagName === 'A') e.stopPropagation() }} />
         ) : null}
         <LinkPreview urls={urls} />
         {note.labels.length > 0 && (
@@ -79,21 +78,28 @@ export function NoteCard({ note, onClick, onUpdate, listView, selected, onSelect
       </div>
 
       {/* Date — visible by default, hidden when action bar shows */}
-      <div className={`text-[11px] text-[#80868b] ${note.deleted ? 'mt-1.5' : 'mt-0.5 h-[26px] leading-[26px] group-hover:opacity-0 transition-opacity duration-200'}`}>
+      <div className={`text-[11px] text-[#80868b] ${note.deleted ? 'mt-1.5' : 'mt-3 h-[26px] leading-[26px] group-hover:hidden'}`}>
         {formatDate(note.updatedAt)}
       </div>
 
-      {/* Hover action bar — at bottom, order: Background, Label, Archive, Delete, More */}
+      {/* Hover action bar — in flow, shown only on hover */}
       {!note.deleted && (
-        <div className="card-actions absolute bottom-0 left-0 right-0 flex items-center px-1 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" data-testid="card-actions">
-          <ActionBtn title="Background options" onClick={act(() => setShowColorPicker(!showColorPicker))}><PaletteIcon size={18} /></ActionBtn>
-          <ActionBtn title="Add label" onClick={act(onClick)}><LabelIcon size={18} /></ActionBtn>
+        <div className="card-actions hidden group-hover:flex items-center mt-3 px-1 py-0.5 -mx-1" data-testid="card-actions">
+          <ActionBtn title="Background options" onClick={act(() => { setShowColorPicker(!showColorPicker); setShowLabelPicker(false) })}><PaletteIcon size={18} /></ActionBtn>
+          <ActionBtn title="Add label" onClick={act(() => { setShowLabelPicker(!showLabelPicker); setShowColorPicker(false) })}><LabelIcon size={18} /></ActionBtn>
           <ActionBtn title="Archive" onClick={act(() => onUpdate({ ...note, archived: !note.archived, updatedAt: Date.now() }))}><ArchiveIcon size={18} /></ActionBtn>
           <ActionBtn title="Delete" onClick={act(() => onUpdate({ ...note, deleted: true, deletedAt: Date.now(), updatedAt: Date.now() }))}><DeleteIcon size={18} /></ActionBtn>
           <ActionBtn title="More" onClick={act(onClick)}><MoreIcon size={18} /></ActionBtn>
           {showColorPicker && (
             <div className="absolute bottom-10 left-0 z-20 bg-white rounded-lg shadow-xl border border-[#e0e0e0] p-1" onClick={e => e.stopPropagation()}>
               <ColorPicker current={note.color} onChange={c => { onUpdate({ ...note, color: c, updatedAt: Date.now() }); setShowColorPicker(false) }} />
+            </div>
+          )}
+          {showLabelPicker && (
+            <div className="absolute bottom-10 left-0 z-20 bg-white rounded-lg shadow-xl border border-[#e0e0e0] p-2 w-56" onClick={e => e.stopPropagation()}>
+              <LabelPicker allLabels={allLabels} selected={note.labels}
+                onToggle={l => onUpdate({ ...note, labels: note.labels.includes(l) ? note.labels.filter(x => x !== l) : [...note.labels, l], updatedAt: Date.now() })}
+                onCreateLabel={l => { onAddLabel?.(l); onUpdate({ ...note, labels: [...note.labels, l], updatedAt: Date.now() }) }} />
             </div>
           )}
         </div>

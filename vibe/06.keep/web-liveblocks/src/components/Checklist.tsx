@@ -51,11 +51,20 @@ export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, 
     onChange(items.filter(i => i.id !== id))
   }
   const addItemAfter = (afterId: string) => {
+    const sorted = [...items].sort((a, b) => a.sortOrder - b.sortOrder)
+    const idx = sorted.findIndex(i => i.id === afterId)
+    const curOrder = sorted[idx]?.sortOrder ?? Date.now()
+    const nextOrder = sorted[idx + 1]?.sortOrder ?? curOrder + 2
     const n = createChecklistItem()
-    const idx = items.findIndex(i => i.id === afterId)
-    const next = [...items]; next.splice(idx + 1, 0, n); onChange(next); setFocusId(n.id)
+    n.sortOrder = (curOrder + nextOrder) / 2
+    onChange([...items, n]); setFocusId(n.id)
   }
-  const addItem = () => { const n = createChecklistItem(); onChange([...items, n]); setFocusId(n.id) }
+  const addItem = () => {
+    const maxOrder = items.length ? Math.max(...items.map(i => i.sortOrder)) : 0
+    const n = createChecklistItem()
+    n.sortOrder = settings.newItemPosition === 'bottom' ? maxOrder + 1 : maxOrder + 1
+    onChange([...items, n]); setFocusId(n.id)
+  }
 
   const getSorted = () => {
     if (moveCheckedToBottom) {
@@ -144,15 +153,15 @@ export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, 
             {checked.length} completed
           </button>
           {showChecked && checked.map(item => (
-            <div key={item.id} className="grid min-h-[29px] group" style={{ gridTemplateColumns: '24px 30px 1fr auto' }}>
+            <div key={item.id} className="grid min-h-[29px] group items-center" style={{ gridTemplateColumns: '24px 30px 1fr auto' }}>
               <div />
-              <div className="w-[22px] pt-[3px]">
+              <div className="w-[22px] flex items-center">
                 <button onClick={() => update(item.id, { checked: false })} className="cursor-pointer outline-none" tabIndex={-1}>
                   <CheckedSvg />
                 </button>
               </div>
-              <div className="pt-[3px] text-[14px] line-through text-[#80868b]">{item.text}</div>
-              <button onClick={() => remove(item.id)} tabIndex={-1} className="opacity-0 group-hover:opacity-100 text-[#80868b] hover:text-[#5f6368] text-xs px-1 transition-opacity self-start pt-[5px]">✕</button>
+              <div className="text-[14px] line-through text-[#80868b]">{item.text}</div>
+              <button onClick={() => remove(item.id)} tabIndex={-1} className="opacity-0 group-hover:opacity-100 text-[#80868b] hover:text-[#5f6368] text-xs px-1 transition-opacity">✕</button>
             </div>
           ))}
         </>
@@ -173,11 +182,11 @@ function EditRow({ item, checked, autoFocus, inputRef: extRef, onCheck, onChange
   }, [autoFocus])
 
   return (
-    <div className={`grid min-h-[29px] group ${isDragOver ? 'border-t-2 border-[#1a73e8]' : 'border-t border-transparent'}`}
+    <div className={`grid min-h-[29px] group items-center ${isDragOver ? 'border-t-2 border-[#1a73e8]' : 'border-t border-transparent'}`}
       style={{ gridTemplateColumns: '24px 30px 1fr auto' }}
       onDragOver={e => { e.preventDefault(); onDragOver() }} onDrop={e => { e.preventDefault(); onDrop() }}>
       {/* Drag handle — visible on hover */}
-      <div className="flex items-start pt-[5px] cursor-grab opacity-0 group-hover:opacity-[.54] transition-opacity"
+      <div className="flex items-center justify-center cursor-grab opacity-0 group-hover:opacity-[.54] transition-opacity"
         draggable onDragStart={onDragStart} onDragEnd={onDragEnd} data-testid="drag-handle">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="#000" style={{ opacity: 0.54 }}>
           <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
@@ -185,17 +194,17 @@ function EditRow({ item, checked, autoFocus, inputRef: extRef, onCheck, onChange
           <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
         </svg>
       </div>
-      {/* Checkbox — top-aligned via pt-[3px] */}
-      <div className="w-[22px] pt-[3px]">
+      {/* Checkbox */}
+      <div className="w-[22px] flex items-center">
         <button onClick={onCheck} className="cursor-pointer outline-none" tabIndex={-1}>
           {checked ? <CheckedSvg /> : <UncheckedSvg />}
         </button>
       </div>
       {/* Input */}
       <input ref={r} type="text" value={item.text} onChange={e => onChange(e.target.value)} onKeyDown={onKeyDown}
-        placeholder="List item" className={`bg-transparent outline-none text-[14px] pt-[4px] placeholder:text-[#bdc1c6] ${checked ? 'line-through text-[#80868b]' : 'text-[#3c4043]'}`} />
+        placeholder="List item" className={`bg-transparent outline-none text-[14px] placeholder:text-[#bdc1c6] ${checked ? 'line-through text-[#80868b]' : 'text-[#3c4043]'}`} />
       {/* Remove button */}
-      <button onClick={onRemove} tabIndex={-1} className="opacity-0 group-hover:opacity-100 text-[#80868b] hover:text-[#5f6368] text-xs px-1 transition-opacity self-start pt-[5px]">✕</button>
+      <button onClick={onRemove} tabIndex={-1} className="opacity-0 group-hover:opacity-100 text-[#80868b] hover:text-[#5f6368] text-xs px-1 transition-opacity">✕</button>
     </div>
   )
 }

@@ -12,6 +12,7 @@ interface Props {
   onUpdate: (note: Note) => void
   layout: LayoutView
   selected?: Set<string>; onToggleSelect?: (id: string) => void
+  allLabels?: string[]; onAddLabel?: (label: string) => void
 }
 
 // ─── Masonry layout engine ───
@@ -60,7 +61,7 @@ function useMasonry(containerRef: React.RefObject<HTMLDivElement | null>, itemCo
 }
 
 // ─── Sortable card wrapper ───
-function SortableNote({ note, onClick, onUpdate, listView, selected, onToggleSelect, selectionActive }: { note: Note; onClick: () => void; onUpdate: (n: Note) => void; listView: boolean; selected?: boolean; onToggleSelect?: (id: string) => void; selectionActive?: boolean }) {
+function SortableNote({ note, onClick, onUpdate, listView, selected, onToggleSelect, selectionActive, allLabels, onAddLabel }: { note: Note; onClick: () => void; onUpdate: (n: Note) => void; listView: boolean; selected?: boolean; onToggleSelect?: (id: string) => void; selectionActive?: boolean; allLabels?: string[]; onAddLabel?: (label: string) => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: note.id,
     transition: { duration: 250, easing: 'cubic-bezier(0.25, 1, 0.5, 1)' },
@@ -74,14 +75,14 @@ function SortableNote({ note, onClick, onUpdate, listView, selected, onToggleSel
         zIndex: isDragging ? -1 : 'auto',
       }}
       {...attributes} {...listeners}>
-      <NoteCard note={note} onClick={onClick} onUpdate={onUpdate} listView={listView} selected={selected} onSelect={onToggleSelect} selectionActive={selectionActive} />
+      <NoteCard note={note} onClick={onClick} onUpdate={onUpdate} listView={listView} selected={selected} onSelect={onToggleSelect} selectionActive={selectionActive} allLabels={allLabels} onAddLabel={onAddLabel} />
     </div>
   )
 }
 
 // ─── Section with masonry or list ───
-function Section({ notes, onSelect, onReorder, onUpdate, label, layout, selected, onToggleSelect }: {
-  notes: Note[]; onSelect: (n: Note) => void; onReorder: (id: string, s: number) => void; onUpdate: (n: Note) => void; label?: string; layout: LayoutView; selected?: Set<string>; onToggleSelect?: (id: string) => void
+function Section({ notes, onSelect, onReorder, onUpdate, label, layout, selected, onToggleSelect, allLabels, onAddLabel }: {
+  notes: Note[]; onSelect: (n: Note) => void; onReorder: (id: string, s: number) => void; onUpdate: (n: Note) => void; label?: string; layout: LayoutView; selected?: Set<string>; onToggleSelect?: (id: string) => void; allLabels?: string[]; onAddLabel?: (label: string) => void
 }) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
   const [activeNote, setActiveNote] = useState<Note | null>(null)
@@ -116,13 +117,13 @@ function Section({ notes, onSelect, onReorder, onUpdate, label, layout, selected
             <div className="max-w-2xl mx-auto space-y-2">
               {notes.map(n => (
                 <div key={n.id} data-note-id={n.id}>
-                  <NoteCard note={n} onClick={() => onSelect(n)} onUpdate={onUpdate} listView selected={selected?.has(n.id)} onSelect={onToggleSelect} selectionActive={!!selected?.size} />
+                  <NoteCard note={n} onClick={() => onSelect(n)} onUpdate={onUpdate} listView selected={selected?.has(n.id)} onSelect={onToggleSelect} selectionActive={!!selected?.size} allLabels={allLabels} onAddLabel={onAddLabel} />
                 </div>
               ))}
             </div>
           ) : (
             <div ref={containerRef} className="relative" style={{ minHeight: height }} data-testid="masonry-grid">
-              {notes.map(n => <SortableNote key={n.id} note={n} onClick={() => onSelect(n)} onUpdate={onUpdate} listView={false} selected={selected?.has(n.id)} onToggleSelect={onToggleSelect} selectionActive={!!selected?.size} />)}
+              {notes.map(n => <SortableNote key={n.id} note={n} onClick={() => onSelect(n)} onUpdate={onUpdate} listView={false} selected={selected?.has(n.id)} onToggleSelect={onToggleSelect} selectionActive={!!selected?.size} allLabels={allLabels} onAddLabel={onAddLabel} />)}
             </div>
           )}
         </SortableContext>
@@ -139,7 +140,7 @@ function Section({ notes, onSelect, onReorder, onUpdate, label, layout, selected
   )
 }
 
-export function NoteGrid({ pinned, unpinned, onSelect, onReorder, onUpdate, layout, selected, onToggleSelect }: Props) {
+export function NoteGrid({ pinned, unpinned, onSelect, onReorder, onUpdate, layout, selected, onToggleSelect, allLabels, onAddLabel }: Props) {
   if (!pinned.length && !unpinned.length) return (
     <div className="text-center mt-32">
       <div className="text-6xl mb-4 opacity-20">💡</div>
@@ -148,9 +149,9 @@ export function NoteGrid({ pinned, unpinned, onSelect, onReorder, onUpdate, layo
   )
   return (
     <div className="px-3 sm:px-4 pb-8">
-      {pinned.length > 0 && <Section notes={pinned} onSelect={onSelect} onReorder={onReorder} onUpdate={onUpdate} label="Pinned" layout={layout} selected={selected} onToggleSelect={onToggleSelect} />}
+      {pinned.length > 0 && <Section notes={pinned} onSelect={onSelect} onReorder={onReorder} onUpdate={onUpdate} label="Pinned" layout={layout} selected={selected} onToggleSelect={onToggleSelect} allLabels={allLabels} onAddLabel={onAddLabel} />}
       {pinned.length > 0 && unpinned.length > 0 && <div className="mt-4" />}
-      {unpinned.length > 0 && <Section notes={unpinned} onSelect={onSelect} onReorder={onReorder} onUpdate={onUpdate} label={pinned.length > 0 ? 'Others' : undefined} layout={layout} selected={selected} onToggleSelect={onToggleSelect} />}
+      {unpinned.length > 0 && <Section notes={unpinned} onSelect={onSelect} onReorder={onReorder} onUpdate={onUpdate} label={pinned.length > 0 ? 'Others' : undefined} layout={layout} selected={selected} onToggleSelect={onToggleSelect} allLabels={allLabels} onAddLabel={onAddLabel} />}
     </div>
   )
 }

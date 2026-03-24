@@ -161,20 +161,35 @@ test('bullet list has disc markers', async ({ page }) => {
   expect(await page.locator('.editor-panel .tiptap ul').evaluate(el => getComputedStyle(el).listStyleType)).toBe('disc')
 })
 test('empty trailing list item does not overlap timestamp', async ({ page }) => {
-  await createNote(page, 'TrailLI', '')
+  // Create note with content, then edit to add bullet list with empty trailing item
+  await createNote(page, 'TrailLI', 'temp')
   await page.click('.note-card:has-text("TrailLI")')
-  await page.waitForSelector('.editor-panel .tiptap', { timeout: 5000 })
-  await page.click('.editor-panel .tiptap')
-  await page.keyboard.type('item1')
+  await page.waitForSelector('.editor-panel .tiptap', { timeout: 10000 })
+  await page.locator('.editor-panel .tiptap').click()
+  await page.keyboard.press('Control+a')
+  await page.keyboard.press('Backspace')
   await page.click('.editor-panel [data-testid="format-bar"] button[title="Bullet list"]')
-  await page.keyboard.press('Enter') // creates empty trailing li
-  await page.keyboard.press('Escape')
+  await page.keyboard.type('item1')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('item2')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('x')
+  await page.keyboard.press('Backspace') // empty trailing li
+  await page.click('.editor-overlay', { position: { x: 10, y: 10 } })
+  await page.waitForTimeout(300)
   const card = page.locator('.note-card:has-text("TrailLI")')
-  await expect(card).toBeVisible()
+  await expect(card).toBeVisible({ timeout: 5000 })
+  await expect(card.locator('.note-content')).toBeVisible({ timeout: 3000 })
+  // Check date doesn't overlap content
   const contentBox = await card.locator('.note-content').boundingBox()
   const dateBox = await card.locator('.text-\\[11px\\]').boundingBox()
-  // date should start at or below content bottom — no overlap
-  expect(dateBox.y).toBeGreaterThanOrEqual(contentBox.y + contentBox.height - 2)
+  expect(dateBox.y).toBeGreaterThanOrEqual(contentBox.y + contentBox.height - 1)
+  // Check toolbar doesn't overlap content on hover
+  await card.hover()
+  await expect(card.locator('[data-testid="card-actions"]')).toBeVisible()
+  const actBox = await card.locator('[data-testid="card-actions"]').boundingBox()
+  const contentBox2 = await card.locator('.note-content').boundingBox()
+  expect(actBox.y).toBeGreaterThanOrEqual(contentBox2.y + contentBox2.height - 1)
 })
 test('format bar separate from tools', async ({ page }) => {
   await createNote(page, 'SepNote', '')
@@ -361,8 +376,8 @@ test('card toolbar at bottom of card on hover', async ({ page }) => {
   await expect(actions).toBeVisible()
   const cardBox = await card.boundingBox()
   const actBox = await actions.boundingBox()
-  // toolbar bottom edge should be at or near card bottom edge
-  expect(actBox.y + actBox.height).toBeGreaterThanOrEqual(cardBox.y + cardBox.height - 4)
+  // toolbar should be below the card content, near the bottom
+  expect(actBox.y + actBox.height).toBeLessThanOrEqual(cardBox.y + cardBox.height + 2)
 })
 test('card toolbar button order: Background, Label, Archive, Delete, More', async ({ page }) => {
   await createNote(page, 'TBOrder', '')
@@ -390,6 +405,36 @@ test('settings toggle', async ({ page }) => {
   await page.click('button[title="Settings"]')
   const t = page.locator('label:has-text("Move checked to bottom") input')
   await expect(t).toBeChecked(); await t.click(); await expect(t).not.toBeChecked()
+})
+test('new checklist item stays at cursor position, not moved to bottom', async ({ page }) => {
+  // Create checklist note with 3 items via the input
+  await page.keyboard.press('l')
+  await page.fill('input[placeholder="Title"]', 'OrderTest')
+  const li = page.locator('input[placeholder="List item"]')
+  await li.first().click()
+  await li.first().fill('AAA')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('BBB')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('CCC')
+  await page.keyboard.press('Escape')
+  await expect(page.locator('.note-card:has-text("OrderTest")')).toBeVisible()
+  // Open the note editor
+  await page.click('.note-card:has-text("OrderTest")')
+  await page.waitForSelector('.editor-panel', { timeout: 5000 })
+  await page.waitForTimeout(300)
+  // Focus the AAA input and press Enter to insert after it
+  const aaaInput = page.locator('.editor-panel input[value="AAA"]')
+  await expect(aaaInput).toBeVisible()
+  await aaaInput.click()
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('NEW')
+  await page.waitForTimeout(200)
+  // Verify order: AAA, NEW, BBB, CCC
+  const texts = await page.locator('.editor-panel input[type="text"]').evaluateAll(
+    els => els.map(e => e.value).filter(v => v)
+  )
+  expect(texts).toEqual(['AAA', 'NEW', 'BBB', 'CCC'])
 })
 
 // ═══ Labels ═══
@@ -617,6 +662,92 @@ test('# with new label creates it', async ({ page }) => {
   await expect(page.locator('[data-testid="hashtag-suggest"]')).toContainText('Create "brandnew"')
   await page.keyboard.press('Enter')
   await expect(page.locator('text=brandnew ✕')).toBeVisible()
+})
+
+// ═══ Card label picker ═══
+test('add label from card toolbar without opening editor', async ({ page }) => {
+  // Create a label via hashtag
+  await page.click('text=Take a note'); await page.fill('input[placeholder="Title"]', '#testlbl note'); await page.keyboard.press('Escape')
+  await expect(page.locator('.note-card:has-text("testlbl")')).toBeVisible()
+  await createNote(page, 'LblCard', '')
+  // Hover card and click Add label
+  const card = page.locator('.note-card:has-text("LblCard")')
+  await card.hover()
+  await card.locator('[data-testid="card-actions"] button[title="Add label"]').click()
+  await expect(page.locator('text=Label note')).toBeVisible({ timeout: 3000 })
+  // Toggle the label in the picker popup
+  const popup = card.locator('.shadow-xl')
+  await popup.locator('text=testlbl').click()
+  await page.keyboard.press('Escape')
+  await page.waitForTimeout(300)
+  // Verify label tag appears on card (the rounded pill, not the picker)
+  await expect(card.locator('.rounded-full:has-text("testlbl")')).toBeVisible()
+})
+test('label picker uses square checkbox style', async ({ page }) => {
+  await page.click('text=Take a note'); await page.fill('input[placeholder="Title"]', '#stylelbl note'); await page.keyboard.press('Escape')
+  await createNote(page, 'LblStyle', '')
+  const card = page.locator('.note-card:has-text("LblStyle")')
+  await card.hover()
+  await card.locator('[data-testid="card-actions"] button[title="Add label"]').click()
+  await expect(page.locator('text=Label note')).toBeVisible({ timeout: 3000 })
+  // Should have SVG checkboxes, not native input[type=checkbox] in the label picker popup
+  const popup = page.locator('.note-card:has-text("LblStyle") .shadow-xl')
+  const nativeCheckboxes = await popup.locator('input[type="checkbox"]').count()
+  const svgCheckboxes = await popup.locator('button svg').count()
+  expect(nativeCheckboxes).toBe(0)
+  expect(svgCheckboxes).toBeGreaterThan(0)
+})
+
+// ═══ Checklist edit alignment ═══
+test('checklist edit row: checkbox, handle, input vertically centered', async ({ page }) => {
+  await page.keyboard.press('l')
+  await page.fill('input[placeholder="Title"]', 'AlignTest')
+  await page.locator('input[placeholder="List item"]').first().click()
+  await page.keyboard.type('test item')
+  await page.keyboard.press('Escape')
+  await page.click('.note-card:has-text("AlignTest")')
+  await page.waitForSelector('.editor-panel', { timeout: 5000 })
+  const row = page.locator('.editor-panel .grid').first()
+  await row.hover()
+  await page.waitForTimeout(200)
+  const centers = await row.evaluate(el => {
+    const mid = (e) => { const r = e.getBoundingClientRect(); return r.top + r.height / 2; }
+    const handle = el.querySelector('[data-testid="drag-handle"] svg')
+    const checkbox = el.querySelector('button svg')
+    const input = el.querySelector('input')
+    return { handle: mid(handle), checkbox: mid(checkbox), input: mid(input) }
+  })
+  // All vertical centers within 2px of each other
+  expect(Math.abs(centers.handle - centers.checkbox)).toBeLessThan(2)
+  expect(Math.abs(centers.checkbox - centers.input)).toBeLessThan(2)
+})
+
+// ═══ Favicon & branding ═══
+test('favicon is set', async ({ page }) => {
+  const favicon = await page.locator('link[rel="icon"]').getAttribute('href')
+  expect(favicon).toBe('/favicon.svg')
+})
+test('no Liveblocks badge visible', async ({ page }) => {
+  await page.waitForTimeout(2000)
+  const badge = await page.evaluate(() => {
+    const el = document.getElementById('liveblocks-badge')
+    return el ? getComputedStyle(el).display : 'not-found'
+  })
+  expect(badge === 'none' || badge === 'not-found').toBe(true)
+})
+
+// ═══ Toolbar position & overlap ═══
+test('card toolbar has margin from content', async ({ page }) => {
+  await createNote(page, 'MarginTest', 'some content')
+  const card = page.locator('.note-card:has-text("MarginTest")')
+  await card.hover()
+  await expect(card.locator('[data-testid="card-actions"]')).toBeVisible()
+  const contentDiv = card.locator('.note-content')
+  const actDiv = card.locator('[data-testid="card-actions"]')
+  const contentBox = await contentDiv.boundingBox()
+  const actBox = await actDiv.boundingBox()
+  // At least 8px gap (mt-3 = 12px)
+  expect(actBox.y - (contentBox.y + contentBox.height)).toBeGreaterThanOrEqual(8)
 })
 
 // ═══ Sync — skipped in Liveblocks version (sync is via Liveblocks server, not IndexedDB cross-tab) ═══

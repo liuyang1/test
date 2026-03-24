@@ -102,6 +102,145 @@ Fixed by adding `isEmptyHtml()` and `stripHtml()` utilities that properly detect
 Tests run on a separate Vite instance (port 5138) with an isolated IndexedDB (`keep-notes-test`), so your development data is never affected.
 
 ```bash
-cd web
+cd web-liveblocks
 npx playwright test --config=playwright.config.cjs
 ```
+
+## Deploying the Liveblocks Version
+
+### Prerequisites
+
+- Node.js >= 18
+- A [Liveblocks](https://liveblocks.io) account (free tier works)
+
+### 1. Install & Configure
+
+```bash
+cd web-liveblocks
+npm install
+```
+
+Create `.env`:
+
+```
+VITE_LIVEBLOCKS_KEY=pk_dev_YOUR_KEY_HERE
+VITE_DB_NAME=keep-your-room-name
+```
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `VITE_LIVEBLOCKS_KEY` | Yes (for sync) | Liveblocks public key (`pk_*`). Get from [liveblocks.io/dashboard](https://liveblocks.io/dashboard). Leave empty for offline-only. |
+| `VITE_DB_NAME` | No | Room name and IndexedDB name. Users sharing the same room sync in real-time. Default: `keep-notes` |
+
+### 2. Local Development
+
+```bash
+npm run dev                    # http://localhost:5137 (default)
+```
+
+The dev server port is configured in `vite.config.ts` (default: 5137). The e2e tests use a separate instance on port 5138 with `--mode test` (loads `.env.test` for offline/isolated mode), so they don't conflict with your dev server.
+
+To run on a custom port:
+```bash
+npx vite --port 5138
+```
+
+Append `?nosync` to the URL for offline-only mode (no Liveblocks, local IndexedDB only).
+
+### 3. Build for Production
+
+```bash
+npm run build                  # outputs to dist/
+npm run preview                # preview locally
+```
+
+Set env vars at build time — Vite bakes them into the JS bundle.
+
+### 4. Deploy
+
+The `dist/` folder is a static SPA. Deploy anywhere:
+
+**Vercel:**
+```bash
+npx vercel --prod
+```
+
+**Netlify:**
+```bash
+npx netlify deploy --prod --dir=dist
+```
+
+**GitHub Pages / S3 / CloudFront:**
+Upload `dist/` contents. No server needed.
+
+**Docker (nginx):**
+```dockerfile
+FROM nginx:alpine
+COPY dist/ /usr/share/nginx/html/
+RUN echo 'server { listen 80; root /usr/share/nginx/html; \
+  location / { try_files $uri /index.html; } }' \
+  > /etc/nginx/conf.d/default.conf
+```
+
+### 5. Running Tests
+
+```bash
+npm test                       # unit tests
+npm run test:e2e               # e2e (port 5138, isolated DB)
+npx playwright test --ui       # e2e with UI
+```
+
+E2e uses `.env.test` (`VITE_LIVEBLOCKS_KEY=` empty, `VITE_DB_NAME=keep-notes-test`) to isolate test data.
+
+## Settings: New Item Position
+
+The "New items at bottom" setting controls where newly created checklist items appear within a note.
+
+- **Checked (default)**: New checklist items added via the "+ List item" button appear at the bottom of the list.
+- **Unchecked**: New checklist items appear at the position where you press Enter (after the current item), not auto-moved to the bottom.
+
+### Bug Fix
+
+Previously, `addItemAfter()` inserted the new item at the correct array index but gave it a `sortOrder` of `Date.now()` (always the highest value). Since the list renders sorted by `sortOrder`, the new item always appeared at the bottom regardless of where it was inserted.
+
+**Fix**: `addItemAfter()` now computes a `sortOrder` halfway between the current item and the next item, so the new item stays in position.
+
+### Test Coverage
+
+- `new checklist item stays at cursor position, not moved to bottom` — creates items AAA, BBB, CCC, then inserts NEW after AAA and verifies order is AAA, NEW, BBB, CCC
+
+## Card Toolbar Fixes
+
+### Position & Overlap
+The card hover toolbar (Background, Label, Archive, Delete, More) is rendered in normal document flow below the card content, with `mt-3` (12px) margin. On hover, the date is hidden and the toolbar is shown via `hidden`/`group-hover:flex` toggle. This prevents overlap with content including empty trailing list items.
+
+### Button Order
+Matches Google Keep: Background options → Add label → Archive → Delete → More.
+
+### Label Picker on Card
+The "Add label" button opens a label picker popup directly on the card, so you can add/remove labels without opening the editor. The picker uses the same Google Keep square SVG checkboxes as the checklist component.
+
+### Test Coverage
+- `card toolbar button order` — verifies exact button order
+- `card toolbar at bottom of card on hover` — verifies toolbar position
+- `card toolbar has margin from content` — verifies ≥8px gap between content and toolbar
+- `empty trailing list item does not overlap timestamp` — verifies no overlap with empty bullet items
+- `add label from card toolbar without opening editor` — verifies label picker works on card
+- `label picker uses square checkbox style` — verifies SVG checkboxes, no native inputs
+
+## Checklist Edit Alignment
+
+Drag handle, checkbox, and text input in checklist edit mode are vertically centered using CSS grid `items-center`, replacing manual `pt-[3px]`/`pt-[5px]` padding offsets.
+
+### Test Coverage
+- `checklist edit row: checkbox, handle, input vertically centered` — verifies all three elements share the same vertical center (within 2px)
+
+## Favicon & Branding
+
+- Orange lightbulb favicon (`public/favicon.svg`) — Google Keep lightbulb shape with `#FF8C00` orange background
+- Material Symbols Outlined icons use `opsz: 24` for rounder rendering matching Google Keep
+- Liveblocks "Powered by" badge hidden via `#liveblocks-badge { display: none !important; }`
+
+### Test Coverage
+- `favicon is set` — verifies `link[rel="icon"]` points to `/favicon.svg`
+- `no Liveblocks badge visible` — verifies badge is hidden or absent

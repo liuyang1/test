@@ -114,7 +114,8 @@ export default function App() {
             onSelect={note => { if (view === 'trash') { if (confirm('Restore this note?')) restore(note.id) } else setEditing(note) }}
             onReorder={(id, s) => { const n = notes.find(x => x.id === id); if (n) save({ ...n, sortOrder: s }) }}
             onUpdate={save}
-            selected={selected} onToggleSelect={view !== 'trash' ? toggleSelect : undefined} />
+            selected={selected} onToggleSelect={view !== 'trash' ? toggleSelect : undefined}
+            allLabels={labels} onAddLabel={addLabel} />
         </div>
       </main>
 

@@ -15,9 +15,12 @@ body {
 }
 
 .material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   user-select: none;
 }
+
+/* Hide Liveblocks badge */
+#liveblocks-badge { display: none !important; }
 
 /* Card hover actions + transitions */
 .note-card {

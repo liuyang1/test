@@ -74,24 +74,24 @@ export function NoteCard({ note, onClick, onUpdate, listView, selected, onSelect
         )}
       </div>
 
-      {/* Hover action bar */}
+      {/* Hover action bar — matches Keep: 32px buttons, 18px icons, opacity transition */}
       {!note.deleted && (
-        <div className="card-actions flex items-center px-0 py-0.5 -mx-0.5 relative" data-testid="card-actions">
-          <ActionBtn title="Archive" onClick={act(() => onUpdate({ ...note, archived: !note.archived, updatedAt: Date.now() }))}><ArchiveIcon size={16} /></ActionBtn>
-          <ActionBtn title="Change color" onClick={act(() => setShowColorPicker(!showColorPicker))}><PaletteIcon size={16} /></ActionBtn>
-          <ActionBtn title="Add label" onClick={act(onClick)}><LabelIcon size={16} /></ActionBtn>
-          <ActionBtn title="Delete" onClick={act(() => onUpdate({ ...note, deleted: true, deletedAt: Date.now(), updatedAt: Date.now() }))}><DeleteIcon size={16} /></ActionBtn>
-          <ActionBtn title="More" onClick={act(onClick)}><MoreIcon size={16} /></ActionBtn>
+        <div className="card-actions flex items-center px-1 py-0.5 -mx-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200" data-testid="card-actions">
+          <ActionBtn title="Archive" onClick={act(() => onUpdate({ ...note, archived: !note.archived, updatedAt: Date.now() }))}><ArchiveIcon size={18} /></ActionBtn>
+          <ActionBtn title="Change color" onClick={act(() => setShowColorPicker(!showColorPicker))}><PaletteIcon size={18} /></ActionBtn>
+          <ActionBtn title="Add label" onClick={act(onClick)}><LabelIcon size={18} /></ActionBtn>
+          <ActionBtn title="Delete" onClick={act(() => onUpdate({ ...note, deleted: true, deletedAt: Date.now(), updatedAt: Date.now() }))}><DeleteIcon size={18} /></ActionBtn>
+          <ActionBtn title="More" onClick={act(onClick)}><MoreIcon size={18} /></ActionBtn>
           {showColorPicker && (
-            <div className="absolute bottom-8 left-0 z-20 bg-white rounded-lg shadow-xl border border-[#e0e0e0] p-1" onClick={e => e.stopPropagation()}>
+            <div className="absolute bottom-10 left-0 z-20 bg-white rounded-lg shadow-xl border border-[#e0e0e0] p-1" onClick={e => e.stopPropagation()}>
               <ColorPicker current={note.color} onChange={c => { onUpdate({ ...note, color: c, updatedAt: Date.now() }); setShowColorPicker(false) }} />
             </div>
           )}
         </div>
       )}
 
-      {/* Date — always visible, bottom right, subtle */}
-      <div className={`text-[11px] text-[#80868b] ${note.deleted ? 'mt-1.5' : 'mt-1 group-hover:invisible'}`}>
+      {/* Date — visible by default, hidden when action bar shows */}
+      <div className={`text-[11px] text-[#80868b] ${note.deleted ? 'mt-1.5' : 'mt-0.5 h-[26px] leading-[26px] group-hover:opacity-0 transition-opacity duration-200'}`}>
         {formatDate(note.updatedAt)}
       </div>
     </div>
@@ -101,7 +101,7 @@ export function NoteCard({ note, onClick, onUpdate, listView, selected, onSelect
 function ActionBtn({ children, title, onClick }: { children: React.ReactNode; title: string; onClick: (e: React.MouseEvent) => void }) {
   return (
     <button title={title} onClick={onClick}
-      className="w-7 h-7 rounded-full flex items-center justify-center text-[#5f6368] hover:bg-black/[0.08] active:bg-black/[0.12] transition-colors">
+      className="w-8 h-8 mx-[3px] rounded-full flex items-center justify-center text-[#202124] opacity-[.71] hover:opacity-100 hover:bg-black/[0.08] active:bg-black/[0.12] transition-all">
       {children}
     </button>
   )
