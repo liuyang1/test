@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test --config=playwright.config.cjs"
+    "test:e2e": "playwright test --config=playwright.config.cjs",
+    "postinstall": "bash scripts/patch-playwright.sh"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

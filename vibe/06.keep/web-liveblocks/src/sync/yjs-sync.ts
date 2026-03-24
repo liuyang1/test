@@ -5,7 +5,7 @@ import { IndexeddbPersistence } from 'y-indexeddb'
 import { Note, ChecklistItem } from '../types/note'
 import { v4 as uuidv4 } from 'uuid'
 
-const ROOM = import.meta.env.VITE_DB_NAME || 'keep-notes'
+const ROOM = (window as any).__KEEP_ROOM__ || import.meta.env.VITE_DB_NAME || 'keep-notes'
 const LIVEBLOCKS_KEY = import.meta.env.VITE_LIVEBLOCKS_KEY || ''
 const USE_LIVEBLOCKS = !!LIVEBLOCKS_KEY && !window.location.search.includes('nosync')
 
