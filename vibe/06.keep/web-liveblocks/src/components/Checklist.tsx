@@ -50,6 +50,15 @@ export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, 
     if (idx > 0) setFocusId(uc[idx - 1].id)
     onChange(items.filter(i => i.id !== id))
   }
+  const addItemBefore = (beforeId: string) => {
+    const sorted = [...items].sort((a, b) => a.sortOrder - b.sortOrder)
+    const idx = sorted.findIndex(i => i.id === beforeId)
+    const curOrder = sorted[idx]?.sortOrder ?? Date.now()
+    const prevOrder = idx > 0 ? sorted[idx - 1].sortOrder : curOrder - 2
+    const n = createChecklistItem()
+    n.sortOrder = (prevOrder + curOrder) / 2
+    onChange([...items, n]); setFocusId(n.id)
+  }
   const addItemAfter = (afterId: string) => {
     const sorted = [...items].sort((a, b) => a.sortOrder - b.sortOrder)
     const idx = sorted.findIndex(i => i.id === afterId)
@@ -115,7 +124,15 @@ export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, 
 
   // ─── Edit mode — drag handle + checkbox + content ───
   const handleKeyDown = (e: React.KeyboardEvent, itemId: string, idx: number) => {
-    if (e.key === 'Enter') { e.preventDefault(); addItemAfter(itemId) }
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      const input = e.target as HTMLInputElement
+      if (input.selectionStart === 0 && input.value.length > 0) {
+        addItemBefore(itemId)
+      } else {
+        addItemAfter(itemId)
+      }
+    }
     else if (e.key === 'Backspace' && !items.find(i => i.id === itemId)?.text) {
       e.preventDefault()
       if (idx === 0 && unchecked.length <= 1) { onBackspaceAtStart?.(); return }

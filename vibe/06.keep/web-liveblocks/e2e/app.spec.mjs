@@ -15,6 +15,15 @@ async function createNote(page, title, content) {
   await expect(page.locator(`.note-card:has-text("${title}")`)).toBeVisible()
 }
 
+async function navigateTo(page, viewName) {
+  const sidebar = page.locator('aside')
+  await sidebar.hover()
+  await page.waitForTimeout(200)
+  await sidebar.locator(`button:has-text("${viewName}")`).first().click()
+  await page.mouse.move(600, 300)
+  await page.waitForTimeout(300)
+}
+
 // ═══ CRUD ═══
 test('create text note', async ({ page }) => { await createNote(page, 'TextNote', 'body') })
 test('create checklist via L', async ({ page }) => {
@@ -436,6 +445,28 @@ test('new checklist item stays at cursor position, not moved to bottom', async (
   )
   expect(texts).toEqual(['AAA', 'NEW', 'BBB', 'CCC'])
 })
+test('Enter at start of first checklist item inserts before it', async ({ page }) => {
+  await page.keyboard.press('l')
+  await page.fill('input[placeholder="Title"]', 'BeforeTest')
+  await page.locator('input[placeholder="List item"]').first().click()
+  await page.keyboard.type('AAA')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('BBB')
+  await page.keyboard.press('Escape')
+  await page.click('.note-card:has-text("BeforeTest")')
+  await page.waitForSelector('.editor-panel', { timeout: 5000 })
+  // Put cursor at position 0 of AAA and press Enter
+  const aaaInput = page.locator('.editor-panel input[value="AAA"]')
+  await aaaInput.click()
+  await page.keyboard.press('Home')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('NEW')
+  await page.waitForTimeout(200)
+  const texts = await page.locator('.editor-panel input[type="text"]').evaluateAll(
+    els => els.map(e => e.value).filter(v => v)
+  )
+  expect(texts).toEqual(['NEW', 'AAA', 'BBB'])
+})
 
 // ═══ Labels ═══
 test('edit labels dialog', async ({ page }) => {
@@ -748,6 +779,249 @@ test('card toolbar has margin from content', async ({ page }) => {
   const actBox = await actDiv.boundingBox()
   // At least 8px gap (mt-3 = 12px)
   expect(actBox.y - (contentBox.y + contentBox.height)).toBeGreaterThanOrEqual(8)
+})
+
+// ═══ Trash ═══
+test('empty trash removes all deleted notes', async ({ page }) => {
+  await createNote(page, 'TrashA', '')
+  await createNote(page, 'TrashB', '')
+  for (const name of ['TrashA', 'TrashB']) {
+    const card = page.locator(`.note-card:has-text("${name}")`)
+    await card.hover()
+    await card.locator('[data-testid="card-actions"] button[title="Delete"]').click()
+    await page.waitForTimeout(300)
+  }
+  await navigateTo(page, 'Trash')
+  await expect(page.locator('.note-card')).toHaveCount(2)
+  await page.click('text=Empty trash')
+  await page.waitForTimeout(500)
+  await expect(page.locator('.note-card')).toHaveCount(0)
+})
+test('restore note from trash', async ({ page }) => {
+  await createNote(page, 'RestoreMe', '')
+  const card = page.locator('.note-card:has-text("RestoreMe")')
+  await card.hover()
+  await card.locator('[data-testid="card-actions"] button[title="Delete"]').click()
+  await page.waitForTimeout(300)
+  await navigateTo(page, 'Trash')
+  page.on('dialog', dialog => dialog.accept())
+  await page.click('.note-card:has-text("RestoreMe")')
+  await page.waitForTimeout(500)
+  await navigateTo(page, 'Notes')
+  await expect(page.locator('.note-card:has-text("RestoreMe")')).toBeVisible()
+})
+
+// ═══ Editor content ═══
+test('edit note content and save', async ({ page }) => {
+  await createNote(page, 'EditContent', 'original')
+  await page.click('.note-card:has-text("EditContent")')
+  await page.waitForSelector('.editor-panel .tiptap', { timeout: 5000 })
+  await page.click('.editor-panel .tiptap')
+  await page.keyboard.press('Control+a')
+  await page.keyboard.type('modified')
+  await page.keyboard.press('Escape')
+  await expect(page.locator('.note-card:has-text("modified")')).toBeVisible()
+})
+test('click overlay closes editor', async ({ page }) => {
+  await createNote(page, 'OverlayClose', 'text')
+  await page.click('.note-card:has-text("OverlayClose")')
+  await expect(page.locator('.editor-panel')).toBeVisible()
+  await page.click('.editor-overlay', { position: { x: 10, y: 10 } })
+  await expect(page.locator('.editor-panel')).not.toBeVisible()
+})
+
+// ═══ Checklist: move checked to bottom ═══
+test('checked items move to bottom when setting enabled', async ({ page }) => {
+  // Setting is on by default
+  await page.keyboard.press('l')
+  await page.fill('input[placeholder="Title"]', 'CheckBottom')
+  await page.locator('input[placeholder="List item"]').first().click()
+  await page.keyboard.type('First')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('Second')
+  await page.keyboard.press('Escape')
+  await page.click('.note-card:has-text("CheckBottom")')
+  await page.waitForSelector('.editor-panel', { timeout: 5000 })
+  // Check the first item
+  await page.locator('.editor-panel button.cursor-pointer').first().click()
+  await page.waitForTimeout(300)
+  // "First" should now be in completed section, "Second" should be the unchecked item
+  const unchecked = await page.locator('.editor-panel input[type="text"]').first().inputValue()
+  expect(unchecked).toBe('Second')
+})
+
+// ═══ Card label: remove ═══
+test('remove label from card toolbar', async ({ page }) => {
+  await createNote(page, 'RemLabel', '')
+  // Create a label by adding it to another note
+  await createNote(page, 'LabelSource', '')
+  const src = page.locator('.note-card:has-text("LabelSource")')
+  await src.hover()
+  await src.locator('[data-testid="card-actions"] button[title="Add label"]').click()
+  await expect(src.locator('.shadow-xl')).toBeVisible()
+  // Create new label "remlbl"
+  await src.locator('.shadow-xl input').fill('remlbl')
+  await src.locator('.shadow-xl').getByText('Create "remlbl"').click()
+  await src.locator('[data-testid="card-actions"] button[title="Add label"]').click()
+  await page.waitForTimeout(200)
+  // Now add remlbl to RemLabel card
+  const card = page.locator('.note-card:has-text("RemLabel")')
+  await card.hover()
+  await card.locator('[data-testid="card-actions"] button[title="Add label"]').click()
+  await expect(card.locator('.shadow-xl')).toBeVisible()
+  await card.locator('.shadow-xl').getByText('remlbl').click()
+  await card.locator('[data-testid="card-actions"] button[title="Add label"]').click()
+  await page.waitForTimeout(200)
+  await expect(card.locator('.rounded-full:has-text("remlbl")')).toBeVisible()
+  // Remove it
+  await card.hover()
+  await card.locator('[data-testid="card-actions"] button[title="Add label"]').click()
+  await expect(card.locator('.shadow-xl')).toBeVisible()
+  await card.locator('.shadow-xl').getByText('remlbl').click()
+  await card.locator('[data-testid="card-actions"] button[title="Add label"]').click()
+  await page.waitForTimeout(200)
+  await expect(card.locator('.rounded-full:has-text("remlbl")')).not.toBeVisible()
+})
+
+// ═══ Sidebar navigation ═══
+test('sidebar: archive view', async ({ page }) => {
+  await createNote(page, 'ArchSide', '')
+  const card = page.locator('.note-card:has-text("ArchSide")')
+  await card.hover()
+  await card.locator('[data-testid="card-actions"] button[title="Archive"]').click()
+  await navigateTo(page, 'Archive')
+  await expect(page.locator('.note-card:has-text("ArchSide")')).toBeVisible()
+})
+test('sidebar: trash view', async ({ page }) => {
+  await createNote(page, 'TrashSide', '')
+  const card = page.locator('.note-card:has-text("TrashSide")')
+  await card.hover()
+  await card.locator('[data-testid="card-actions"] button[title="Delete"]').click()
+  await navigateTo(page, 'Trash')
+  await expect(page.locator('.note-card:has-text("TrashSide")')).toBeVisible()
+})
+
+// ═══ Note input: color & pin ═══
+test('create pinned note from input', async ({ page }) => {
+  await page.click('text=Take a note')
+  await page.fill('input[placeholder="Title"]', 'PinInput')
+  await page.click('.pin-btn.unpinned')
+  await page.click('body', { position: { x: 10, y: 10 } })
+  await expect(page.locator('.note-card:has-text("PinInput") .pin-btn.pinned')).toBeVisible()
+})
+
+// ═══ Empty state ═══
+test('empty state shows placeholder', async ({ page }) => {
+  await expect(page.locator('text=Notes you add appear here')).toBeVisible()
+})
+
+// ═══ Special characters ═══
+test('note with emoji and Chinese text', async ({ page }) => {
+  await createNote(page, '🎉 测试笔记', '你好世界')
+  await expect(page.locator('.note-card:has-text("🎉 测试笔记")')).toBeVisible()
+  await expect(page.locator('.note-card:has-text("你好世界")')).toBeVisible()
+})
+test('note with HTML-like text is escaped', async ({ page }) => {
+  await createNote(page, '<script>alert</script>', '')
+  const card = page.locator('.note-card').first()
+  const html = await card.innerHTML()
+  expect(html).not.toContain('<script>')
+  await expect(card.locator('.font-medium')).toContainText('<script>')
+})
+
+// ═══ Multiple labels ═══
+test('note with multiple labels displays all', async ({ page }) => {
+  await page.click('text=Take a note')
+  await page.fill('input[placeholder="Title"]', '#lab1 #lab2 multi')
+  await page.keyboard.press('Escape')
+  const card = page.locator('.note-card:has-text("multi")')
+  await expect(card.locator('.rounded-full:has-text("lab1")')).toBeVisible()
+  await expect(card.locator('.rounded-full:has-text("lab2")')).toBeVisible()
+})
+
+// ═══ Unarchive ═══
+test('unarchive note from editor', async ({ page }) => {
+  await createNote(page, 'UnArch', '')
+  const card = page.locator('.note-card:has-text("UnArch")')
+  await card.hover()
+  await card.locator('[data-testid="card-actions"] button[title="Archive"]').click()
+  await page.waitForTimeout(300)
+  await navigateTo(page, 'Archive')
+  await page.click('.note-card:has-text("UnArch")')
+  await page.waitForSelector('.editor-panel', { timeout: 5000 })
+  await page.click('.editor-panel button[title="Unarchive"]')
+  await page.waitForTimeout(300)
+  await navigateTo(page, 'Notes')
+  await expect(page.locator('.note-card:has-text("UnArch")')).toBeVisible()
+})
+
+// ═══ Search ═══
+test('search checklist content', async ({ page }) => {
+  await page.keyboard.press('l')
+  await page.fill('input[placeholder="Title"]', 'SearchCL')
+  await page.locator('input[placeholder="List item"]').first().click()
+  await page.keyboard.type('unique_item_xyz')
+  await page.keyboard.press('Escape')
+  await page.fill('input[placeholder="Search"]', 'unique_item_xyz')
+  await expect(page.locator('.note-card:has-text("SearchCL")')).toBeVisible()
+})
+test('clear search restores all notes', async ({ page }) => {
+  await createNote(page, 'SearchA', '')
+  await createNote(page, 'SearchB', '')
+  await page.fill('input[placeholder="Search"]', 'SearchA')
+  await expect(page.locator('.note-card')).toHaveCount(1)
+  await page.fill('input[placeholder="Search"]', '')
+  await expect(page.locator('.note-card')).toHaveCount(2)
+})
+
+// ═══ Export / Import ═══
+test('export function exists and import adds notes', async ({ page }) => {
+  await createNote(page, 'ExportMe', 'export content')
+  expect(await page.evaluate(() => typeof window.__exportData === 'function')).toBe(true)
+  expect(await page.evaluate(() => typeof window.__doImport === 'function')).toBe(true)
+  // Import by calling upsertNote directly (same as __doImport but without reload)
+  await page.evaluate(() => {
+    const { upsertNote, addLabel } = window.__keepSync || {}
+    if (!upsertNote) return
+    addLabel?.('importlbl')
+    upsertNote({
+      id: 'imp1', title: 'ImportedNote', content: 'imported', type: 'text',
+      checklist: [], color: '#faafa8', background: '', pinned: false,
+      archived: false, deleted: false, deletedAt: null, labels: ['importlbl'],
+      sortOrder: Date.now() - 1000, createdAt: Date.now(), updatedAt: Date.now()
+    })
+  })
+  await page.waitForTimeout(500)
+  await expect(page.locator('.note-card:has-text("ImportedNote")')).toBeVisible({ timeout: 5000 })
+  // Verify imported note has the right color
+  const bg = await page.locator('.note-card:has-text("ImportedNote")').evaluate(el => getComputedStyle(el).backgroundColor)
+  expect(bg).not.toBe('rgb(255, 255, 255)')
+})
+
+// ═══ Settings persistence ═══
+test('settings persist after reload', async ({ page }) => {
+  await page.click('button[title="Settings"]')
+  const toggle = page.locator('label:has-text("Move checked to bottom") input')
+  // Uncheck it
+  if (await toggle.isChecked()) await toggle.click()
+  await expect(toggle).not.toBeChecked()
+  await page.locator('.fixed.inset-0.z-50').click()
+  // Reload
+  await page.reload()
+  await page.waitForSelector('text=Take a note', { timeout: 10000 })
+  // Verify setting persisted
+  await page.click('button[title="Settings"]')
+  await expect(page.locator('label:has-text("Move checked to bottom") input')).not.toBeChecked()
+})
+
+// ═══ Long text ═══
+test('long title does not overflow card', async ({ page }) => {
+  const longTitle = 'A'.repeat(200)
+  await createNote(page, longTitle, '')
+  const card = page.locator('.note-card').first()
+  const cardBox = await card.boundingBox()
+  const titleBox = await card.locator('.font-medium').boundingBox()
+  expect(titleBox.width).toBeLessThanOrEqual(cardBox.width)
 })
 
 // ═══ Sync — skipped in Liveblocks version (sync is via Liveblocks server, not IndexedDB cross-tab) ═══

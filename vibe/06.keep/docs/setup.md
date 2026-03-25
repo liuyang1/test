@@ -270,9 +270,16 @@ Previously, `addItemAfter()` inserted the new item at the correct array index bu
 
 **Fix**: `addItemAfter()` now computes a `sortOrder` halfway between the current item and the next item, so the new item stays in position.
 
+### Enter at Start of First Item
+
+**Bug**: Pressing Enter at the beginning of the first checklist item's text would insert a new item *after* it instead of *before* it, causing the cursor to jump to the wrong position.
+
+**Fix**: `handleKeyDown` now checks `selectionStart === 0` — if the cursor is at position 0 and the item has text, it calls `addItemBefore()` (inserts before the current item) instead of `addItemAfter()`.
+
 ### Test Coverage
 
 - `new checklist item stays at cursor position, not moved to bottom` — creates items AAA, BBB, CCC, then inserts NEW after AAA and verifies order is AAA, NEW, BBB, CCC
+- `Enter at start of first checklist item inserts before it` — puts cursor at position 0 of AAA, presses Enter, types NEW, verifies order is NEW, AAA, BBB
 
 ## Card Toolbar Fixes
 

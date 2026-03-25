@@ -6,6 +6,7 @@ import { clearAllData, getAllNotes, getAllLabels, upsertNote, addLabel } from '.
 
 // Expose for e2e tests
 ;(window as any).__clearKeepData = clearAllData
+;(window as any).__keepSync = { upsertNote, addLabel, getAllNotes, getAllLabels }
 
 // Export: downloads a JSON file
 ;(window as any).__exportData = () => {
