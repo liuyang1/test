@@ -125,6 +125,24 @@ describe('parseHashTags', () => {
     const { tags } = parseHashTags('see # this')
     expect(tags).toEqual([])
   })
+
+  it('hash fragment in URL not treated as tag', () => {
+    const { clean, tags } = parseHashTags('https://example.com/page#/commits')
+    expect(tags).toEqual([])
+    expect(clean).toBe('https://example.com/page#/commits')
+  })
+
+  it('hash in complex URL preserved', () => {
+    const { clean, tags } = parseHashTags('check https://example.com/reviews/CR-123#/commits')
+    expect(tags).toEqual([])
+    expect(clean).toBe('check https://example.com/reviews/CR-123#/commits')
+  })
+
+  it('tag next to URL works', () => {
+    const { clean, tags } = parseHashTags('#work https://example.com#anchor')
+    expect(tags).toEqual(['work'])
+    expect(clean).toContain('https://example.com#anchor')
+  })
 })
 
 describe('isEmptyHtml', () => {

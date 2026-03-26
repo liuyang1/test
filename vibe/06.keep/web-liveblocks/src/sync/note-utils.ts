@@ -30,7 +30,8 @@ export function createChecklistItemData(text = ''): ChecklistItem {
 /** Parse #tags from text, return cleaned text and extracted tags */
 export function parseHashTags(text: string): { clean: string; tags: string[] } {
   const tags: string[] = []
-  const clean = text.replace(/#(\S+)/g, (_, tag) => { tags.push(tag); return '' }).trim()
+  // Only match #tag at start of string or after whitespace, with word chars only (not URLs like #/commits)
+  const clean = text.replace(/(^|\s)#([a-zA-Z]\w*)/g, (_, pre, tag) => { tags.push(tag); return pre }).trim()
   return { clean, tags }
 }
 
