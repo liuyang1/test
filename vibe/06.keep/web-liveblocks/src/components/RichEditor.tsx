@@ -49,7 +49,7 @@ export const RichEditor = forwardRef<RichEditorHandle, Props>(({ content, onChan
   })
 
   useImperativeHandle(ref, () => ({
-    focus: () => editor?.commands.focus(),
+    focus: () => { editor?.commands.focus(); return editor?.isFocused ?? false },
     getHTML: () => editor?.getHTML() || '',
     editor,
   }), [editor])

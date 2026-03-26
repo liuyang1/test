@@ -125,11 +125,13 @@ export default function App() {
           onDelete={() => { remove(editing.id); setEditing(null) }} onAddLabel={addLabel} />
       )}
 
-      {/* Sync status */}
-      <div className="fixed bottom-3 left-3 flex items-center gap-1.5 text-[11px] text-[#80868b] select-none" title={`Sync: ${syncStatus}`}>
-        <span className={`w-2 h-2 rounded-full ${syncStatus === 'connected' ? 'bg-green-400' : syncStatus === 'connecting' ? 'bg-yellow-400 animate-pulse' : 'bg-red-300'}`} />
-        {syncStatus !== 'connected' && <span>{syncStatus === 'connecting' ? 'Syncing...' : 'Offline'}</span>}
-      </div>
+      {/* Sync status — prominent when offline, subtle when connected */}
+      {syncStatus !== 'connected' && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 rounded-full shadow-lg text-[13px] select-none z-50 bg-white border border-[#e0e0e0]">
+          <span className={`w-2.5 h-2.5 rounded-full ${syncStatus === 'connecting' ? 'bg-yellow-400 animate-pulse' : 'bg-[#d93025]'}`} />
+          <span className="text-[#3c4043]">{syncStatus === 'connecting' ? 'Connecting...' : 'Offline — changes saved locally'}</span>
+        </div>
+      )}
     </div>
     </SettingsContext.Provider>
   )

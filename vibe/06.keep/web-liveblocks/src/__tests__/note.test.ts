@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { createNoteData, createChecklistItemData, parseHashTags } from '../sync/note-utils'
+import { createNoteData, createChecklistItemData, parseHashTags, isEmptyHtml, stripHtml } from '../sync/note-utils'
 import { Note } from '../types/note'
 
 describe('createNoteData', () => {
@@ -125,4 +125,24 @@ describe('parseHashTags', () => {
     const { tags } = parseHashTags('see # this')
     expect(tags).toEqual([])
   })
+})
+
+describe('isEmptyHtml', () => {
+  it('empty string', () => expect(isEmptyHtml('')).toBe(true))
+  it('null-ish', () => expect(isEmptyHtml(undefined as any)).toBe(true))
+  it('empty p', () => expect(isEmptyHtml('<p></p>')).toBe(true))
+  it('p with br', () => expect(isEmptyHtml('<p><br></p>')).toBe(true))
+  it('p with nbsp', () => expect(isEmptyHtml('<p>&nbsp;</p>')).toBe(true))
+  it('nested empty', () => expect(isEmptyHtml('<p><br></p><p></p>')).toBe(true))
+  it('whitespace only', () => expect(isEmptyHtml('<p>  </p>')).toBe(true))
+  it('has text', () => expect(isEmptyHtml('<p>hello</p>')).toBe(false))
+  it('has text in list', () => expect(isEmptyHtml('<ul><li>item</li></ul>')).toBe(false))
+})
+
+describe('stripHtml', () => {
+  it('removes tags', () => expect(stripHtml('<p>hello</p>')).toBe('hello'))
+  it('preserves text between tags', () => expect(stripHtml('<b>bold</b> and <i>italic</i>')).toBe('bold\n and \nitalic'))
+  it('collapses newlines', () => expect(stripHtml('<p>a</p><p>b</p>')).toBe('a\nb'))
+  it('empty', () => expect(stripHtml('')).toBe(''))
+  it('plain text', () => expect(stripHtml('no tags')).toBe('no tags'))
 })

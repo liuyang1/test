@@ -89,9 +89,16 @@ test('Title Enter → content focus', async ({ page }) => {
   await page.keyboard.press('c')
   await page.locator('input[placeholder="Title"]').click()
   await page.keyboard.type('Nav')
+  // Ensure the RichEditor has mounted before pressing Enter
+  await page.waitForSelector('.tiptap.ProseMirror', { timeout: 5000 })
   await page.keyboard.press('Enter')
-  // Content editor should receive focus
-  await expect(page.locator('.tiptap')).toBeFocused({ timeout: 5000 })
+  await page.waitForFunction(
+    () => {
+      const el = document.activeElement
+      return el?.classList?.contains('tiptap') || el?.classList?.contains('ProseMirror') || el?.closest?.('.tiptap') !== null
+    },
+    { timeout: 5000 }
+  )
 })
 test('Backspace in empty content → title', async ({ page }) => {
   await createNote(page, 'BackNav', '')

@@ -52,9 +52,13 @@ function useMasonry(containerRef: React.RefObject<HTMLDivElement | null>, itemCo
 
   useEffect(() => {
     recalc()
-    const ro = new ResizeObserver(() => recalc())
+    let raf: number
+    const ro = new ResizeObserver(() => {
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(recalc)
+    })
     if (containerRef.current) ro.observe(containerRef.current)
-    return () => ro.disconnect()
+    return () => { ro.disconnect(); cancelAnimationFrame(raf) }
   }, [recalc, itemCount])
 
   return { positions, height, recalc }

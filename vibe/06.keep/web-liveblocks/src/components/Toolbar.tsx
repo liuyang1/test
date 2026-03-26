@@ -34,8 +34,14 @@ export const NoteInput = forwardRef<NoteInputHandle, InputProps>(({ onAdd, allLa
   const titleRef = useRef<HTMLInputElement>(null)
   const checklistRef = useRef<ChecklistHandle>(null)
   const richRef = useRef<RichEditorHandle>(null)
+  const richEditorRef = useRef<any>(null)
   const [richEditor, setRichEditor] = useState<any>(null)
   const expanded = expandAs !== false
+
+  const handleEditorReady = (editor: any) => {
+    richEditorRef.current = editor
+    setRichEditor(editor)
+  }
 
   useEffect(() => {
     if (expandAs === 'checklist') { setIsChecklist(true); setChecklist([createChecklistItem()]) }
@@ -81,7 +87,10 @@ export const NoteInput = forwardRef<NoteInputHandle, InputProps>(({ onAdd, allLa
     hashTagSelect(label, start, end)
   }
   const focusTitle = () => { titleRef.current?.focus(); titleRef.current?.setSelectionRange(titleRef.current.value.length, titleRef.current.value.length) }
-  const focusContent = () => { isChecklist ? checklistRef.current?.focusFirst() : richRef.current?.focus() }
+  const focusContent = () => {
+    if (isChecklist) { checklistRef.current?.focusFirst(); return }
+    richEditorRef.current?.commands.focus()
+  }
 
   if (!expanded) return (
     <div className="max-w-xl mx-auto px-3 sm:px-4 mb-6">
@@ -124,7 +133,7 @@ export const NoteInput = forwardRef<NoteInputHandle, InputProps>(({ onAdd, allLa
             </button>
           </div>
           {isChecklist ? <Checklist ref={checklistRef} items={checklist} onChange={setChecklist} onEscape={submit} onBackspaceAtStart={focusTitle} /> : (
-            <RichEditor ref={richRef} content={content} onChange={setContent} placeholder="Take a note... (#tag to label)" onEditorReady={setRichEditor} onBackspaceAtStart={focusTitle} />
+            <RichEditor ref={richRef} content={content} onChange={setContent} placeholder="Take a note... (#tag to label)" onEditorReady={handleEditorReady} onBackspaceAtStart={focusTitle} />
           )}
           {selectedLabels.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2">
