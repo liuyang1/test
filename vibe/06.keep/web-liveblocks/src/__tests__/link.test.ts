@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { extractUrls, getDomain, getFavicon } from '../components/LinkPreview'
+import { extractUrls, getDomain, getFavicon, shortenUrl } from '../components/LinkPreview'
 
 describe('extractUrls', () => {
   it('http', () => expect(extractUrls('visit http://example.com')).toEqual(['http://example.com']))
@@ -29,4 +29,37 @@ describe('getFavicon', () => {
     expect(url).toContain('example.com')
   })
   it('invalid url returns empty', () => expect(getFavicon('bad')).toBe(''))
+})
+
+describe('shortenUrl', () => {
+  it('domain only for root url', () => expect(shortenUrl('https://www.google.com')).toBe('google.com'))
+  it('domain only for root with slash', () => expect(shortenUrl('https://example.com/')).toBe('example.com'))
+  it('shows meaningful path segment', () => {
+    const result = shortenUrl('https://example.com/products/blue-widget')
+    expect(result).toBe('example.com › blue widget')
+  })
+  it('amazon product url shows product name', () => {
+    const url = 'https://www.amazon.com/OREI-Extractor-Extract-Passthrough-HDA-929/dp/B0CDNYH3WN/ref=sr_1_4_sspa'
+    const result = shortenUrl(url)
+    expect(result).toContain('amazon.com')
+    expect(result).toContain('OREI Extractor Extract Passthrough HDA 9')
+    expect(result).not.toContain('B0CDNYH3WN')
+  })
+  it('skips ID-like segments', () => {
+    const url = 'https://example.com/items/ABC12345678/details'
+    const result = shortenUrl(url)
+    expect(result).toContain('example.com')
+    expect(result).toContain('details')
+  })
+  it('truncates very long segment', () => {
+    const url = 'https://example.com/' + 'a'.repeat(60)
+    const result = shortenUrl(url)
+    expect(result.length).toBeLessThan(60)
+    expect(result).toContain('…')
+  })
+  it('invalid url returns as-is', () => expect(shortenUrl('not-a-url')).toBe('not-a-url'))
+  it('decodes percent-encoded path', () => {
+    const result = shortenUrl('https://example.com/caf%C3%A9-menu')
+    expect(result).toContain('café menu')
+  })
 })

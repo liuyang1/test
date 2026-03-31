@@ -1134,6 +1134,54 @@ test('long title does not overflow card', async ({ page }) => {
   expect(titleBox.width).toBeLessThanOrEqual(cardBox.width)
 })
 
+test('long URL in note content does not overflow card', async ({ page }) => {
+  const longUrl = 'https://www.amazon.com/OREI-Extractor-Extract-Passthrough-HDA-929/dp/B0CDNYH3WN/ref=sr_1_4_sspa?crid=1C0HVYBC0V3L&keywords=earc+peri+box&qid=1774602355&sprefix=earc+oeri+box%2Caps%2C334&sr=8-4-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9tdGY&psc=1'
+  await createNote(page, 'LinkNote', '')
+  await page.click('.note-card:has-text("LinkNote")')
+  await page.waitForSelector('.editor-panel', { timeout: 5000 })
+  await page.locator('.editor-panel .tiptap').first().click()
+  await page.keyboard.type(longUrl)
+  await page.keyboard.press('Escape')
+  await page.waitForTimeout(300)
+  const card = page.locator('.note-card:has-text("LinkNote")')
+  const cardBox = await card.boundingBox()
+  const contentBox = await card.locator('.note-content').boundingBox()
+  expect(contentBox.width).toBeLessThanOrEqual(cardBox.width)
+})
+
+test('long URL in checklist item does not overflow card', async ({ page }) => {
+  const longUrl = 'https://download.kbits.build.example.com/build_files/fast_download/grove-gm_fireos_ship_8147/Nightly/3567/userdebug/release-grove-gm-RS8147_userdebug_3567.tgz'
+  await page.keyboard.press('l')
+  await page.fill('input[placeholder="Title"]', 'CLLink')
+  await page.locator('.checklist-item-editor').first().click()
+  await page.keyboard.type('image for earc: ' + longUrl)
+  await page.keyboard.press('Escape')
+  await page.waitForTimeout(300)
+  const card = page.locator('.note-card:has-text("CLLink")')
+  const cardBox = await card.boundingBox()
+  // Card has overflow-hidden, so visually nothing escapes. Verify card itself fits in viewport.
+  expect(cardBox.width).toBeLessThan(1300)
+  // Verify the card has overflow hidden
+  const overflow = await card.evaluate(el => getComputedStyle(el).overflow)
+  expect(overflow).toBe('hidden')
+})
+
+test('long URL in title shows shortened label', async ({ page }) => {
+  const longUrl = 'https://www.amazon.com/OREI-Extractor-Extract-Passthrough-HDA-929/dp/B0CDNYH3WN/ref=sr_1_4_sspa'
+  await page.click('text=Take a note')
+  await page.fill('input[placeholder="Title"]', 'Check ' + longUrl)
+  await page.click('body', { position: { x: 10, y: 10 } })
+  await page.waitForTimeout(300)
+  const card = page.locator('.note-card').first()
+  // Should show shortened URL, not the full raw URL
+  const titleText = await card.locator('.font-medium').textContent()
+  expect(titleText).toContain('amazon.com')
+  expect(titleText).not.toContain('B0CDNYH3WN')
+  // Title link should have full URL in title attribute for hover
+  const link = card.locator('.font-medium a')
+  await expect(link).toHaveAttribute('title', longUrl)
+})
+
 // ═══ Sync — skipped in Liveblocks version (sync is via Liveblocks server, not IndexedDB cross-tab) ═══
 test.skip('sync between tabs via IndexedDB', async ({ context }) => {
   const p1 = await context.newPage()

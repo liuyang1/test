@@ -129,6 +129,7 @@ export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, 
               </button>
             </div>
             <div className={`text-[11pt] leading-[1.38] font-['Google_Sans_Text',Roboto,sans-serif] pt-[3px] [&_strong]:font-medium ${i.checked ? 'line-through text-[#80868b]' : 'text-[#3c4043]'}`}
+              style={{ overflowWrap: 'break-word', minWidth: 0 }}
               dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(i.text) || '\u00A0' }} />
           </div>
         ))}
@@ -251,7 +252,7 @@ function EditRow({ item, checked, autoFocus, onCheck, onChange, onEnter, onBacks
           {checked ? <CheckedSvg /> : <UncheckedSvg />}
         </button>
       </div>
-      <EditorContent editor={editor} />
+      <div className="min-w-0" style={{ overflowWrap: 'break-word' }}><EditorContent editor={editor} /></div>
       <button onClick={onRemove} tabIndex={-1} className="opacity-0 group-hover:opacity-100 text-[#80868b] hover:text-[#5f6368] text-xs px-1 transition-opacity">✕</button>
     </div>
   )

@@ -32,7 +32,7 @@ export function NoteCard({ note, onClick, onUpdate, listView, selected, onSelect
 
   return (
     <div onClick={handleClick}
-      className={`note-card rounded-lg cursor-pointer select-none min-h-[60px] group relative ${listView ? 'flex gap-4 items-start p-3' : 'p-3'} ${selected ? 'ring-2 ring-[#1a73e8]' : ''}`}
+      className={`note-card rounded-lg cursor-pointer select-none min-h-[60px] group relative overflow-hidden ${listView ? 'flex gap-4 items-start p-3' : 'p-3'} ${selected ? 'ring-2 ring-[#1a73e8]' : ''}`}
       style={{ ...getNoteBackground(note.background, note.color), border: `1px solid ${isDefault ? '#e0e0e0' : 'rgba(0,0,0,0.08)'}` }}>
 
       {/* Select checkbox — 20×20 centered on top-left corner via translate(-7,-7) */}
@@ -65,7 +65,8 @@ export function NoteCard({ note, onClick, onUpdate, listView, selected, onSelect
           <Checklist items={note.checklist} onChange={items => onUpdate({ ...note, checklist: items, updatedAt: Date.now() })} preview />
         )}
         {(note.content && !isEmptyHtml(note.content)) ? (
-          <div className={`note-content text-[11pt] leading-[1.38] text-[#3c4043] font-['Google_Sans_Text',Roboto,sans-serif] [&_h1]:text-[18px] [&_h1]:font-medium [&_h2]:text-[15px] [&_h2]:font-medium [&_h2]:italic [&_h2]:text-[#5f6368] [&_strong]:font-medium [&_a]:text-[#1a73e8] [&_a]:underline [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5`}
+          <div className={`note-content text-[11pt] leading-[1.38] text-[#3c4043] font-['Google_Sans_Text',Roboto,sans-serif] [&_h1]:text-[18px] [&_h1]:font-medium [&_h2]:text-[15px] [&_h2]:font-medium [&_h2]:italic [&_h2]:text-[#5f6368] [&_strong]:font-medium [&_a]:text-[#1a73e8] [&_a]:underline [&_a]:break-all [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5`}
+            style={{ overflowWrap: 'break-word' }}
             dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(note.content) }} onClick={e => { if ((e.target as HTMLElement).tagName === 'A') e.stopPropagation() }} />
         ) : null}
         <LinkPreview urls={urls} />
