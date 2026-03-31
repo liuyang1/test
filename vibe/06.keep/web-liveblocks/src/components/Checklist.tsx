@@ -2,8 +2,16 @@ import { useRef, useEffect, useState, forwardRef, useImperativeHandle, useCallba
 import { ChecklistItem } from '../types/note'
 import { createChecklistItemData as createChecklistItem } from '../sync/yjs-sync'
 import { useSettings } from '../hooks/useSettings'
+import { useEditor, EditorContent, Editor } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import Placeholder from '@tiptap/extension-placeholder'
+import Underline from '@tiptap/extension-underline'
+import DOMPurify from 'dompurify'
 
-export interface ChecklistHandle { focusFirst: () => void }
+export interface ChecklistHandle {
+  focusFirst: () => void
+  activeEditor: Editor | null
+}
 
 interface Props {
   items: ChecklistItem[]
@@ -12,6 +20,7 @@ interface Props {
   onEscape?: () => void
   moveCheckedToBottom?: boolean
   onBackspaceAtStart?: () => void
+  onActiveEditorChange?: (editor: Editor | null) => void
 }
 
 /* Google Keep checkbox SVGs — 18×18 square style */
@@ -27,11 +36,12 @@ const CheckedSvg = () => (
   </svg>
 )
 
-export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, preview, onEscape, moveCheckedToBottom: propMoveChecked, onBackspaceAtStart }, ref) => {
+export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, preview, onEscape, moveCheckedToBottom: propMoveChecked, onBackspaceAtStart, onActiveEditorChange }, ref) => {
   const settings = useSettings()
   const moveCheckedToBottom = propMoveChecked ?? settings.moveCheckedToBottom
   const [focusId, setFocusId] = useState<string | null>(null)
   const [showChecked, setShowChecked] = useState(true)
+  const [activeEditor, setActiveEditor] = useState<Editor | null>(null)
   const firstInputRef = useRef<HTMLInputElement>(null)
   const [dragId, setDragId] = useState<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
@@ -40,8 +50,14 @@ export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, 
     focusFirst: () => {
       const uc = items.filter(i => !i.checked)
       if (uc.length) setFocusId(uc[0].id)
-    }
-  }), [items])
+    },
+    activeEditor,
+  }), [items, activeEditor])
+
+  const handleActiveEditorChange = useCallback((editor: Editor | null) => {
+    setActiveEditor(editor)
+    onActiveEditorChange?.(editor)
+  }, [onActiveEditorChange])
 
   const update = (id: string, patch: Partial<ChecklistItem>) => onChange(items.map(i => i.id === id ? { ...i, ...patch } : i))
   const remove = (id: string) => {
@@ -112,9 +128,8 @@ export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, 
                 {(!moveCheckedToBottom ? i.checked : false) ? <CheckedSvg /> : <UncheckedSvg />}
               </button>
             </div>
-            <div className={`text-[11pt] leading-[1.38] font-['Google_Sans_Text',Roboto,sans-serif] pt-[3px] ${i.checked ? 'line-through text-[#80868b]' : 'text-[#3c4043]'}`}>
-              {i.text || '\u00A0'}
-            </div>
+            <div className={`text-[11pt] leading-[1.38] font-['Google_Sans_Text',Roboto,sans-serif] pt-[3px] [&_strong]:font-medium ${i.checked ? 'line-through text-[#80868b]' : 'text-[#3c4043]'}`}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(i.text) || '\u00A0' }} />
           </div>
         ))}
         {checked.length > 0 && <div className="text-[12px] text-[#80868b] pl-[30px] mt-1">+{checked.length} checked</div>}
@@ -122,38 +137,24 @@ export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, 
     )
   }
 
-  // ─── Edit mode — drag handle + checkbox + content ───
-  const handleKeyDown = (e: React.KeyboardEvent, itemId: string, idx: number) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      const input = e.target as HTMLInputElement
-      if (input.selectionStart === 0 && input.value.length > 0) {
-        addItemBefore(itemId)
-      } else {
-        addItemAfter(itemId)
-      }
-    }
-    else if (e.key === 'Backspace' && !items.find(i => i.id === itemId)?.text) {
-      e.preventDefault()
-      if (idx === 0 && unchecked.length <= 1) { onBackspaceAtStart?.(); return }
-      remove(itemId)
-    }
-    else if (e.key === 'Escape') { e.preventDefault(); onEscape?.() }
-    else if (e.key === 'ArrowDown' && idx < unchecked.length - 1) { e.preventDefault(); setFocusId(unchecked[idx + 1].id) }
-    else if (e.key === 'ArrowUp' && idx > 0) { e.preventDefault(); setFocusId(unchecked[idx - 1].id) }
-    else if (e.key === 'Tab') e.preventDefault()
-  }
-
+  // ─── Edit mode — drag handle + checkbox + rich content ───
   return (
     <div>
       {unchecked.map((item, idx) => (
         <EditRow key={item.id} item={item} checked={!moveCheckedToBottom ? item.checked : false} autoFocus={focusId === item.id}
-          inputRef={idx === 0 ? firstInputRef : undefined}
           onCheck={() => update(item.id, { checked: !item.checked })}
           onChange={t => update(item.id, { text: t })}
-          onKeyDown={e => handleKeyDown(e, item.id, idx)}
+          onEnter={(atStart) => atStart ? addItemBefore(item.id) : addItemAfter(item.id)}
+          onBackspace={() => {
+            if (idx === 0 && unchecked.length <= 1) { onBackspaceAtStart?.(); return }
+            remove(item.id)
+          }}
+          onEscape={() => onEscape?.()}
+          onArrowDown={() => { if (idx < unchecked.length - 1) setFocusId(unchecked[idx + 1].id) }}
+          onArrowUp={() => { if (idx > 0) setFocusId(unchecked[idx - 1].id); else onBackspaceAtStart?.() }}
           onRemove={() => remove(item.id)}
           onFocused={() => { if (focusId === item.id) setFocusId(null) }}
+          onEditorFocus={handleActiveEditorChange}
           isDragOver={dragOverId === item.id}
           onDragStart={() => setDragId(item.id)}
           onDragOver={() => setDragOverId(item.id)}
@@ -177,7 +178,8 @@ export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, 
                   <CheckedSvg />
                 </button>
               </div>
-              <div className="text-[14px] line-through text-[#80868b]">{item.text}</div>
+              <div className="text-[14px] line-through text-[#80868b] [&_strong]:font-medium"
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.text) }} />
               <button onClick={() => remove(item.id)} tabIndex={-1} className="opacity-0 group-hover:opacity-100 text-[#80868b] hover:text-[#5f6368] text-xs px-1 transition-opacity">✕</button>
             </div>
           ))}
@@ -187,22 +189,55 @@ export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, 
   )
 })
 
-function EditRow({ item, checked, autoFocus, inputRef: extRef, onCheck, onChange, onKeyDown, onRemove, onFocused, isDragOver, onDragStart, onDragOver, onDrop, onDragEnd }: {
-  item: ChecklistItem; checked: boolean; autoFocus: boolean; inputRef?: React.RefObject<HTMLInputElement | null>
-  onCheck: () => void; onChange: (t: string) => void; onKeyDown: (e: React.KeyboardEvent) => void; onRemove: () => void; onFocused: () => void
+function EditRow({ item, checked, autoFocus, onCheck, onChange, onEnter, onBackspace, onEscape, onArrowDown, onArrowUp, onRemove, onFocused, onEditorFocus, isDragOver, onDragStart, onDragOver, onDrop, onDragEnd }: {
+  item: ChecklistItem; checked: boolean; autoFocus: boolean
+  onCheck: () => void; onChange: (html: string) => void; onEnter: (atStart: boolean) => void; onBackspace: () => void
+  onEscape: () => void; onArrowDown: () => void; onArrowUp: () => void
+  onRemove: () => void; onFocused: () => void; onEditorFocus: (editor: Editor | null) => void
   isDragOver: boolean; onDragStart: () => void; onDragOver: () => void; onDrop: () => void; onDragEnd: () => void
 }) {
-  const localRef = useRef<HTMLInputElement>(null)
-  const r = extRef || localRef
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: false, blockquote: false, codeBlock: false, code: false,
+        horizontalRule: false, bulletList: false, orderedList: false, listItem: false,
+        hardBreak: false,
+      }),
+      Underline,
+      Placeholder.configure({ placeholder: 'List item' }),
+    ],
+    content: item.text,
+    onUpdate: ({ editor: e }) => onChange(e.getHTML()),
+    editorProps: {
+      attributes: { class: `checklist-item-editor outline-none text-[14px] [&_strong]:font-medium ${checked ? 'line-through text-[#80868b]' : 'text-[#3c4043]'} [&_.is-editor-empty:first-child::before]:text-[#bdc1c6] [&_.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.is-editor-empty:first-child::before]:float-left [&_.is-editor-empty:first-child::before]:pointer-events-none` },
+      handleKeyDown: (_view, event) => {
+        if (event.key === 'Enter') { event.preventDefault(); const { from } = _view.state.selection; onEnter(from <= 1 && _view.state.doc.textContent.length > 0); return true }
+        if (event.key === 'Escape') { event.preventDefault(); onEscape(); return true }
+        if (event.key === 'ArrowDown') { event.preventDefault(); onArrowDown(); return true }
+        if (event.key === 'ArrowUp') { event.preventDefault(); onArrowUp(); return true }
+        if (event.key === 'Tab') { event.preventDefault(); return true }
+        if (event.key === 'Backspace') {
+          const { from, empty } = _view.state.selection
+          if (empty && from <= 1 && _view.state.doc.textContent === '') { event.preventDefault(); onBackspace(); return true }
+        }
+        return false
+      },
+    },
+    onFocus: ({ editor: e }) => onEditorFocus(e),
+  })
+
   useEffect(() => {
-    if (autoFocus && r.current) { r.current.focus(); const l = r.current.value.length; r.current.setSelectionRange(l, l); onFocused() }
-  }, [autoFocus])
+    if (autoFocus && editor) { editor.commands.focus('end'); onFocused() }
+  }, [autoFocus, editor])
+
+  useEffect(() => {
+    if (editor && item.text !== editor.getHTML()) editor.commands.setContent(item.text)
+  }, [item.text])
 
   return (
     <div className={`grid min-h-[29px] group items-center ${isDragOver ? 'border-t-2 border-[#1a73e8]' : 'border-t border-transparent'}`}
       style={{ gridTemplateColumns: '24px 30px 1fr auto' }}
       onDragOver={e => { e.preventDefault(); onDragOver() }} onDrop={e => { e.preventDefault(); onDrop() }}>
-      {/* Drag handle — visible on hover */}
       <div className="flex items-center justify-center cursor-grab opacity-0 group-hover:opacity-[.54] transition-opacity"
         draggable onDragStart={onDragStart} onDragEnd={onDragEnd} data-testid="drag-handle">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="#000" style={{ opacity: 0.54 }}>
@@ -211,16 +246,12 @@ function EditRow({ item, checked, autoFocus, inputRef: extRef, onCheck, onChange
           <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
         </svg>
       </div>
-      {/* Checkbox */}
       <div className="w-[22px] flex items-center">
         <button onClick={onCheck} className="cursor-pointer outline-none" tabIndex={-1}>
           {checked ? <CheckedSvg /> : <UncheckedSvg />}
         </button>
       </div>
-      {/* Input */}
-      <input ref={r} type="text" value={item.text} onChange={e => onChange(e.target.value)} onKeyDown={onKeyDown}
-        placeholder="List item" className={`bg-transparent outline-none text-[14px] placeholder:text-[#bdc1c6] ${checked ? 'line-through text-[#80868b]' : 'text-[#3c4043]'}`} />
-      {/* Remove button */}
+      <EditorContent editor={editor} />
       <button onClick={onRemove} tabIndex={-1} className="opacity-0 group-hover:opacity-100 text-[#80868b] hover:text-[#5f6368] text-xs px-1 transition-opacity">✕</button>
     </div>
   )

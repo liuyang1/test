@@ -29,7 +29,9 @@ test('create text note', async ({ page }) => { await createNote(page, 'TextNote'
 test('create checklist via L', async ({ page }) => {
   await page.keyboard.press('l')
   await page.fill('input[placeholder="Title"]', 'List')
-  await page.fill('input[placeholder="List item"]', 'Item1')
+  const li = page.locator('.checklist-item-editor').first()
+  await li.click()
+  await page.keyboard.type('Item1')
   await page.keyboard.press('Enter'); await page.keyboard.type('Item2')
   await page.keyboard.press('Escape')
   await expect(page.locator('.note-card:has-text("Item1")')).toBeVisible()
@@ -221,7 +223,7 @@ test('check on card directly', async ({ page }) => {
   await page.keyboard.press('l')
   await page.locator('input[placeholder="Title"]').click()
   await page.keyboard.type('CardCheck')
-  await page.locator('input[placeholder="List item"]').first().click()
+  await page.locator('.checklist-item-editor').first().click()
   await page.keyboard.type('Do')
   await page.keyboard.press('Escape')
   await page.locator('.note-card:has-text("CardCheck") .checklist-check').first().click({ force: true })
@@ -230,7 +232,7 @@ test('check on card directly', async ({ page }) => {
 test('checklist Enter adds item', async ({ page }) => {
   await page.keyboard.press('l')
   await page.fill('input[placeholder="Title"]', 'EnterCheck')
-  await page.locator('input[placeholder="List item"]').first().click()
+  await page.locator('.checklist-item-editor').first().click()
   await page.keyboard.type('First')
   await page.keyboard.press('Enter')
   await page.keyboard.type('Second')
@@ -426,12 +428,14 @@ test('new checklist item stays at cursor position, not moved to bottom', async (
   // Create checklist note with 3 items via the input
   await page.keyboard.press('l')
   await page.fill('input[placeholder="Title"]', 'OrderTest')
-  const li = page.locator('input[placeholder="List item"]')
-  await li.first().click()
-  await li.first().fill('AAA')
+  const li = page.locator('.checklist-item-editor').first()
+  await li.click()
+  await page.keyboard.type('AAA')
   await page.keyboard.press('Enter')
+  await page.waitForTimeout(100)
   await page.keyboard.type('BBB')
   await page.keyboard.press('Enter')
+  await page.waitForTimeout(100)
   await page.keyboard.type('CCC')
   await page.keyboard.press('Escape')
   await expect(page.locator('.note-card:has-text("OrderTest")')).toBeVisible()
@@ -439,40 +443,139 @@ test('new checklist item stays at cursor position, not moved to bottom', async (
   await page.click('.note-card:has-text("OrderTest")')
   await page.waitForSelector('.editor-panel', { timeout: 5000 })
   await page.waitForTimeout(300)
-  // Focus the AAA input and press Enter to insert after it
-  const aaaInput = page.locator('.editor-panel input[value="AAA"]')
-  await expect(aaaInput).toBeVisible()
-  await aaaInput.click()
+  // Focus the AAA item and press Enter to insert after it
+  const aaaItem = page.locator('.editor-panel .checklist-item-editor:has-text("AAA")')
+  await expect(aaaItem).toBeVisible()
+  await aaaItem.click()
+  await page.waitForTimeout(100)
+  // Ensure cursor is at end of AAA
+  await page.keyboard.press('End')
+  await page.waitForTimeout(50)
   await page.keyboard.press('Enter')
+  await page.waitForTimeout(150)
   await page.keyboard.type('NEW')
   await page.waitForTimeout(200)
   // Verify order: AAA, NEW, BBB, CCC
-  const texts = await page.locator('.editor-panel input[type="text"]').evaluateAll(
-    els => els.map(e => e.value).filter(v => v)
+  const texts = await page.locator('.editor-panel .checklist-item-editor').evaluateAll(
+    els => els.map(e => e.textContent?.trim()).filter(v => v)
   )
   expect(texts).toEqual(['AAA', 'NEW', 'BBB', 'CCC'])
 })
 test('Enter at start of first checklist item inserts before it', async ({ page }) => {
   await page.keyboard.press('l')
   await page.fill('input[placeholder="Title"]', 'BeforeTest')
-  await page.locator('input[placeholder="List item"]').first().click()
+  await page.locator('.checklist-item-editor').first().click()
   await page.keyboard.type('AAA')
   await page.keyboard.press('Enter')
+  await page.waitForTimeout(100)
   await page.keyboard.type('BBB')
   await page.keyboard.press('Escape')
   await page.click('.note-card:has-text("BeforeTest")')
   await page.waitForSelector('.editor-panel', { timeout: 5000 })
-  // Put cursor at position 0 of AAA and press Enter
-  const aaaInput = page.locator('.editor-panel input[value="AAA"]')
-  await aaaInput.click()
+  // Put cursor at start of AAA and press Enter
+  const aaaItem = page.locator('.editor-panel .checklist-item-editor:has-text("AAA")')
+  await aaaItem.click()
   await page.keyboard.press('Home')
   await page.keyboard.press('Enter')
+  await page.waitForTimeout(100)
   await page.keyboard.type('NEW')
   await page.waitForTimeout(200)
-  const texts = await page.locator('.editor-panel input[type="text"]').evaluateAll(
-    els => els.map(e => e.value).filter(v => v)
+  const texts = await page.locator('.editor-panel .checklist-item-editor').evaluateAll(
+    els => els.map(e => e.textContent?.trim()).filter(v => v)
   )
   expect(texts).toEqual(['NEW', 'AAA', 'BBB'])
+})
+
+test('checklist and rich text coexist in same note', async ({ page }) => {
+  // Create a text note with content
+  await createNote(page, 'Hybrid', 'some text')
+  await page.click('.note-card:has-text("Hybrid")')
+  await page.waitForSelector('.editor-panel', { timeout: 5000 })
+  // Toggle to checklist — content should remain
+  await page.click('.editor-panel button[title="Checklist"]')
+  await page.waitForTimeout(200)
+  // Add a checklist item (now a tiptap editor, not an input)
+  const li = page.locator('.editor-panel .checklist-item-editor').first()
+  await li.click()
+  await page.keyboard.type('todo item')
+  // Both should be visible in editor
+  await expect(page.locator('.editor-panel .checklist-item-editor').first()).toBeVisible()
+  await expect(page.locator('.editor-panel :text("todo item")')).toBeVisible()
+  await page.keyboard.press('Escape')
+  await page.waitForTimeout(300)
+  // Card should show both checklist and text content
+  const card = page.locator('.note-card:has-text("Hybrid")')
+  await expect(card.locator('.checklist-check').first()).toBeVisible()
+  await expect(card.locator(':text("some text")')).toBeVisible()
+})
+
+test('checklist item supports bold formatting via format bar', async ({ page }) => {
+  await createNote(page, 'BoldCheck', '')
+  await page.click('.note-card:has-text("BoldCheck")')
+  await page.waitForSelector('.editor-panel', { timeout: 5000 })
+  // Toggle to checklist
+  await page.click('.editor-panel button[title="Checklist"]')
+  await page.waitForTimeout(200)
+  // Type in the checklist item
+  const li = page.locator('.editor-panel .checklist-item-editor').first()
+  await li.click()
+  await page.keyboard.type('boldtext')
+  await page.waitForTimeout(100)
+  // Select all and apply bold via Ctrl+A then Ctrl+B
+  await page.keyboard.press('Control+a')
+  await page.waitForTimeout(50)
+  await page.keyboard.press('Control+b')
+  await page.waitForTimeout(200)
+  // Verify bold tag exists in the editor
+  await expect(page.locator('.editor-panel .checklist-item-editor strong')).toBeVisible({ timeout: 3000 })
+  // Format bar should be visible in checklist mode
+  await expect(page.locator('[data-testid="format-bar"]')).toBeVisible()
+  // Close and verify card shows bold text
+  await page.keyboard.press('Escape')
+  await page.waitForTimeout(300)
+  const card = page.locator('.note-card:has-text("BoldCheck")')
+  await expect(card.locator('strong')).toBeVisible()
+})
+
+test('text→checklist converts each line to a checklist item', async ({ page }) => {
+  await createNote(page, 'MultiLine', '')
+  await page.click('.note-card:has-text("MultiLine")')
+  await page.waitForSelector('.editor-panel', { timeout: 5000 })
+  await page.locator('.editor-panel .tiptap').first().click()
+  await page.keyboard.type('line one')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('line two')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('line three')
+  await page.waitForTimeout(200)
+  await page.click('.editor-panel button[title="Checklist"]')
+  await page.waitForTimeout(300)
+  const items = await page.locator('.editor-panel .checklist-item-editor').evaluateAll(
+    els => els.map(e => e.textContent?.trim()).filter(v => v)
+  )
+  expect(items).toEqual(['line one', 'line two', 'line three'])
+})
+
+test('checklist↔text bidirectional toggle', async ({ page }) => {
+  await createNote(page, 'BiToggle', '')
+  await page.click('.note-card:has-text("BiToggle")')
+  await page.waitForSelector('.editor-panel', { timeout: 5000 })
+  await page.locator('.editor-panel .tiptap').first().click()
+  await page.keyboard.type('alpha')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('beta')
+  await page.waitForTimeout(200)
+  // text → checklist
+  await page.click('.editor-panel button[title="Checklist"]')
+  await page.waitForTimeout(300)
+  expect(await page.locator('.editor-panel .checklist-item-editor').count()).toBe(2)
+  // checklist → text
+  await expect(page.locator('.editor-panel button[title="Text"]')).toBeVisible()
+  await page.click('.editor-panel button[title="Text"]')
+  await page.waitForTimeout(300)
+  const content = await page.locator('.editor-panel .tiptap').first().textContent()
+  expect(content).toContain('alpha')
+  expect(content).toContain('beta')
 })
 
 // ═══ Labels ═══
@@ -566,7 +669,7 @@ test('checklist uses square checkbox icon (not circle)', async ({ page }) => {
   await expect(page.locator('input[placeholder="Title"]')).toBeVisible()
   await page.locator('input[placeholder="Title"]').click()
   await page.keyboard.type('SquareCheck')
-  await page.locator('input[placeholder="List item"]').first().click()
+  await page.locator('.checklist-item-editor').first().click()
   await page.keyboard.type('Item1')
   await page.keyboard.press('Escape')
   // Card preview should have SVG checkbox, not input[type=checkbox]
@@ -578,7 +681,7 @@ test('checklist checkbox aligns to top of content, not center', async ({ page })
   await page.keyboard.press('l')
   await page.locator('input[placeholder="Title"]').click()
   await page.keyboard.type('AlignCheck')
-  await page.locator('input[placeholder="List item"]').first().click()
+  await page.locator('.checklist-item-editor').first().click()
   await page.keyboard.type('Item1')
   await page.keyboard.press('Escape')
   // The checklist row uses CSS grid (not flex items-center), checkbox is top-aligned via pt-[3px]
@@ -591,7 +694,7 @@ test('checklist editor has drag handle', async ({ page }) => {
   await page.keyboard.press('l')
   await page.locator('input[placeholder="Title"]').click()
   await page.keyboard.type('DragCheck')
-  await page.locator('input[placeholder="List item"]').first().click()
+  await page.locator('.checklist-item-editor').first().click()
   await page.keyboard.type('Item1')
   await page.keyboard.press('Enter')
   await page.keyboard.type('Item2')
@@ -603,7 +706,7 @@ test('checklist drag reorder works', async ({ page }) => {
   await page.keyboard.press('l')
   await page.locator('input[placeholder="Title"]').click()
   await page.keyboard.type('ReorderCheck')
-  await page.locator('input[placeholder="List item"]').first().click()
+  await page.locator('.checklist-item-editor').first().click()
   await page.keyboard.type('First')
   await page.keyboard.press('Enter')
   await page.keyboard.type('Second')
@@ -620,9 +723,9 @@ test('checklist drag reorder works', async ({ page }) => {
   await page.mouse.down()
   await page.mouse.move(box1.x + 9, box1.y + 9, { steps: 5 })
   await page.mouse.up()
-  // After reorder, first input should now be "Second"
-  const firstInput = page.locator('input[placeholder="List item"]').first()
-  await expect(firstInput).toHaveValue('Second')
+  // After reorder, first tiptap editor should now be "Second"
+  const firstEditor = page.locator('.checklist-item-editor').first()
+  await expect(firstEditor).toHaveText('Second')
 })
 
 // ═══ Empty HTML content bug ═══
@@ -646,7 +749,7 @@ test('switching text to checklist does not leak HTML tags', async ({ page }) => 
   await page.keyboard.type('SwitchTest')
   // Switch to checklist mode
   await page.locator('button[title="Checklist"]').click()
-  await page.locator('input[placeholder="List item"]').first().click()
+  await page.locator('.checklist-item-editor').first().click()
   await page.keyboard.type('Item1')
   await page.keyboard.press('Escape')
   // Card should show checklist item, not HTML tags
@@ -740,7 +843,7 @@ test('label picker uses square checkbox style', async ({ page }) => {
 test('checklist edit row: checkbox, handle, input vertically centered', async ({ page }) => {
   await page.keyboard.press('l')
   await page.fill('input[placeholder="Title"]', 'AlignTest')
-  await page.locator('input[placeholder="List item"]').first().click()
+  await page.locator('.checklist-item-editor').first().click()
   await page.keyboard.type('test item')
   await page.keyboard.press('Escape')
   await page.click('.note-card:has-text("AlignTest")')
@@ -752,8 +855,8 @@ test('checklist edit row: checkbox, handle, input vertically centered', async ({
     const mid = (e) => { const r = e.getBoundingClientRect(); return r.top + r.height / 2; }
     const handle = el.querySelector('[data-testid="drag-handle"] svg')
     const checkbox = el.querySelector('button svg')
-    const input = el.querySelector('input')
-    return { handle: mid(handle), checkbox: mid(checkbox), input: mid(input) }
+    const editor = el.querySelector('.tiptap')
+    return { handle: mid(handle), checkbox: mid(checkbox), input: mid(editor) }
   })
   // All vertical centers within 2px of each other
   expect(Math.abs(centers.handle - centers.checkbox)).toBeLessThan(2)
@@ -766,12 +869,12 @@ test('favicon is set', async ({ page }) => {
   expect(favicon).toBe('/favicon.svg')
 })
 test('no Liveblocks badge visible', async ({ page }) => {
-  await page.waitForTimeout(2000)
-  const badge = await page.evaluate(() => {
-    const el = document.getElementById('liveblocks-badge')
-    return el ? getComputedStyle(el).display : 'not-found'
+  // In nosync mode, badge shouldn't appear. If it does, CSS hides it.
+  const badge = page.locator('#liveblocks-badge')
+  await expect(badge).toHaveCount(0, { timeout: 3000 }).catch(async () => {
+    // Badge exists but should be hidden by CSS
+    await expect(badge).not.toBeVisible()
   })
-  expect(badge === 'none' || badge === 'not-found').toBe(true)
 })
 
 // ═══ Toolbar position & overlap ═══
@@ -842,7 +945,7 @@ test('checked items move to bottom when setting enabled', async ({ page }) => {
   // Setting is on by default
   await page.keyboard.press('l')
   await page.fill('input[placeholder="Title"]', 'CheckBottom')
-  await page.locator('input[placeholder="List item"]').first().click()
+  await page.locator('.checklist-item-editor').first().click()
   await page.keyboard.type('First')
   await page.keyboard.press('Enter')
   await page.keyboard.type('Second')
@@ -853,8 +956,8 @@ test('checked items move to bottom when setting enabled', async ({ page }) => {
   await page.locator('.editor-panel button.cursor-pointer').first().click()
   await page.waitForTimeout(300)
   // "First" should now be in completed section, "Second" should be the unchecked item
-  const unchecked = await page.locator('.editor-panel input[type="text"]').first().inputValue()
-  expect(unchecked).toBe('Second')
+  const unchecked = await page.locator('.editor-panel .checklist-item-editor').first().textContent()
+  expect(unchecked.trim()).toBe('Second')
 })
 
 // ═══ Card label: remove ═══
@@ -966,7 +1069,7 @@ test('unarchive note from editor', async ({ page }) => {
 test('search checklist content', async ({ page }) => {
   await page.keyboard.press('l')
   await page.fill('input[placeholder="Title"]', 'SearchCL')
-  await page.locator('input[placeholder="List item"]').first().click()
+  await page.locator('.checklist-item-editor').first().click()
   await page.keyboard.type('unique_item_xyz')
   await page.keyboard.press('Escape')
   await page.fill('input[placeholder="Search"]', 'unique_item_xyz')

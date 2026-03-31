@@ -34,12 +34,17 @@ export function NoteEditor({ note, labels, onSave, onClose, onDelete, onAddLabel
   const patch = (p: Partial<Note>) => { const u = { ...draft, ...p }; setDraft(u); onSave(u) }
   const toggleType = () => {
     if (draft.type === 'text') {
+      // Convert each line/paragraph of rich text content into a checklist item
       const text = stripHtml(draft.content)
-      const items = text.split('\n').filter(l => l.trim()).map(l => createChecklistItem(l))
+      const lines = text.split('\n').filter(l => l.trim())
+      const items = lines.map(l => createChecklistItem(l))
       patch({ type: 'checklist', checklist: items.length ? items : [createChecklistItem()], content: '' })
     } else {
-      const text = draft.checklist.map(i => i.text).filter(Boolean)
-      patch({ type: 'text', content: text.length ? `<p>${text.join('</p><p>')}</p>` : '', checklist: [] })
+      // Convert checklist items back to rich text paragraphs, preserving inline formatting
+      const clHtml = draft.checklist.filter(i => !isEmptyHtml(i.text)).map(i => i.text.replace(/<\/?p>/g, '')).filter(Boolean)
+      const extra = clHtml.length ? `<p>${clHtml.join('</p><p>')}</p>` : ''
+      const newContent = draft.content && !isEmptyHtml(draft.content) ? draft.content + extra : extra
+      patch({ type: 'text', content: newContent, checklist: [] })
     }
   }
   const toggleLabel = (l: string) => patch({ labels: draft.labels.includes(l) ? draft.labels.filter(x => x !== l) : [...draft.labels, l] })
@@ -68,7 +73,7 @@ export function NoteEditor({ note, labels, onSave, onClose, onDelete, onAddLabel
             <input ref={titleRef} value={draft.title} onChange={e => { patch({ title: e.target.value }); setTitleCursor(e.target.selectionStart ?? 0) }}
               onKeyUp={e => setTitleCursor((e.target as HTMLInputElement).selectionStart ?? 0)}
               onClick={e => setTitleCursor((e.target as HTMLInputElement).selectionStart ?? 0)}
-              onKeyDown={e => { if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); focusContent() } }}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === 'Tab' || e.key === 'ArrowDown') { e.preventDefault(); focusContent() } }}
               placeholder="Title" className="flex-1 bg-transparent outline-none font-medium text-[18px] text-[#202124] mb-3 placeholder:text-[#80868b]" />
             <HashTagSuggest text={draft.title} cursorPos={titleCursor} allLabels={labels} anchorRef={titleRef}
               onSelect={hashTagSelect} onCreate={hashTagCreate} />
@@ -78,7 +83,7 @@ export function NoteEditor({ note, labels, onSave, onClose, onDelete, onAddLabel
             </button>
           </div>
           {draft.type === 'checklist' ? (
-            <Checklist ref={checklistRef} items={draft.checklist} onChange={cl => patch({ checklist: cl })} onBackspaceAtStart={focusTitle} />
+            <Checklist ref={checklistRef} items={draft.checklist} onChange={cl => patch({ checklist: cl })} onBackspaceAtStart={focusTitle} onActiveEditorChange={setEditor} />
           ) : (
             <RichEditor ref={richRef} content={draft.content} onChange={c => patch({ content: c })} onEditorReady={setEditor} onBackspaceAtStart={focusTitle} />
           )}
@@ -97,14 +102,16 @@ export function NoteEditor({ note, labels, onSave, onClose, onDelete, onAddLabel
         {showColors && <div className="border-t border-black/[0.06] px-3"><ColorPicker current={draft.color} onChange={c => patch({ color: c })} currentBg={draft.background} onBgChange={bg => patch({ background: bg })} /></div>}
         {showLabels && <div className="border-t border-black/[0.06] px-3"><LabelPicker allLabels={labels} selected={draft.labels} onToggle={toggleLabel} onCreateLabel={l => { onAddLabel(l); toggleLabel(l) }} /></div>}
 
-        {/* Format bar — separate row, only for text mode */}
-        {draft.type === 'text' && <FormatBar editor={editor} />}
+        {/* Format bar */}
+        <FormatBar editor={editor} />
 
         {/* Tool buttons — bottom row */}
         <div className="flex items-center px-1.5 sm:px-2 py-1 border-t border-black/[0.06]">
           <TBtn t="Color" onClick={() => { setShowColors(!showColors); setShowLabels(false) }}><PaletteIcon size={18} /></TBtn>
           <TBtn t="Labels" onClick={() => { setShowLabels(!showLabels); setShowColors(false) }}><LabelIcon size={18} /></TBtn>
-          <TBtn t={draft.type === 'text' ? 'Checklist' : 'Text'} onClick={toggleType}>{draft.type === 'text' ? <CheckBoxIcon size={18} /> : <TextIcon size={18} />}</TBtn>
+          {draft.type === 'text'
+            ? <TBtn t="Checklist" onClick={toggleType}><CheckBoxIcon size={18} /></TBtn>
+            : <TBtn t="Text" onClick={toggleType}><TextIcon size={18} /></TBtn>}
           <TBtn t={draft.archived ? 'Unarchive' : 'Archive'} onClick={() => { patch({ archived: !draft.archived }); onClose() }}>{draft.archived ? <UnarchiveIcon size={18} /> : <ArchiveIcon size={18} />}</TBtn>
           <TBtn t="Delete" onClick={onDelete}><DeleteIcon size={18} /></TBtn>
           <TBtn t="More" onClick={() => {}}><MoreIcon size={18} /></TBtn>

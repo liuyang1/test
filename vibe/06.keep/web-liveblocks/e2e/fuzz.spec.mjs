@@ -53,7 +53,7 @@ test('fuzz: random actions do not crash the app', async ({ page }) => {
           const titleInput = page.locator('input[placeholder="Title"]')
           if (await titleInput.count()) {
             await titleInput.fill(randStr())
-            const li = page.locator('input[placeholder="List item"]')
+            const li = page.locator('.checklist-item-editor')
             if (await li.count()) { await li.first().click(); await page.keyboard.type(randStr(10)) }
             await page.keyboard.press('Escape')
           }

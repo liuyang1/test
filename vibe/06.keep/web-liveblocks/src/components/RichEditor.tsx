@@ -42,6 +42,18 @@ export const RichEditor = forwardRef<RichEditorHandle, Props>(({ content, onChan
             return true
           }
         }
+        if (event.key === 'ArrowUp' && onBackspaceAtStart) {
+          const { from, empty } = view.state.selection
+          if (empty) {
+            // Check if cursor is on the first line
+            const coords = view.coordsAtPos(from)
+            const startCoords = view.coordsAtPos(1)
+            if (coords.top <= startCoords.top) {
+              onBackspaceAtStart()
+              return true
+            }
+          }
+        }
         return false
       },
     },

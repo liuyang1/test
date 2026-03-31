@@ -61,9 +61,10 @@ export function NoteCard({ note, onClick, onUpdate, listView, selected, onSelect
             <Linkified text={note.title} />
           </div>
         )}
-        {note.type === 'checklist' ? (
+        {note.type === 'checklist' && (
           <Checklist items={note.checklist} onChange={items => onUpdate({ ...note, checklist: items, updatedAt: Date.now() })} preview />
-        ) : (note.content && !isEmptyHtml(note.content)) ? (
+        )}
+        {(note.content && !isEmptyHtml(note.content)) ? (
           <div className={`note-content text-[11pt] leading-[1.38] text-[#3c4043] font-['Google_Sans_Text',Roboto,sans-serif] [&_h1]:text-[18px] [&_h1]:font-medium [&_h2]:text-[15px] [&_h2]:font-medium [&_h2]:italic [&_h2]:text-[#5f6368] [&_strong]:font-medium [&_a]:text-[#1a73e8] [&_a]:underline [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5`}
             dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(note.content) }} onClick={e => { if ((e.target as HTMLElement).tagName === 'A') e.stopPropagation() }} />
         ) : null}

@@ -82,7 +82,7 @@ export function useNotes() {
       filtered = filtered.filter(n =>
         n.title.toLowerCase().includes(q) ||
         n.content.toLowerCase().includes(q) ||
-        n.checklist.some(item => item.text.toLowerCase().includes(q)) ||
+        n.checklist.some(item => item.text.replace(/<[^>]*>/g, '').toLowerCase().includes(q)) ||
         n.labels.some(l => l.toLowerCase().includes(q))
       )
     }
