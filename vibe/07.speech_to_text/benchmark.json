@@ -1,0 +1,98 @@
+[
+  {
+    "model": "tiny",
+    "audio": "en",
+    "load_s": 0.4,
+    "transcribe_s": 0.6,
+    "language": "en",
+    "text": "the quick brown fox jump over the rainy dog. Machine learning model requires careful optimization to modern speed and accuracy."
+  },
+  {
+    "model": "tiny",
+    "audio": "zh",
+    "load_s": 0.4,
+    "transcribe_s": 0.6,
+    "language": "zh",
+    "text": "堅堅堅其恒恒我們一期七高遠三步吧一堅十邊幾乎快追堅堅堅堅堅堅堅堅恒恒恒的堅堅堅"
+  },
+  {
+    "model": "tiny",
+    "audio": "mixed",
+    "load_s": 0.4,
+    "transcribe_s": 0.9,
+    "language": "en",
+    "text": "The quick brown fox jump sober the rainy dog. Machine learning models require careful optimization to modern speed and accuracy. Machine learning models require careful optimization to modern speed and accuracy to modern speed and accuracy."
+  },
+  {
+    "model": "base",
+    "audio": "en",
+    "load_s": 0.4,
+    "transcribe_s": 0.7,
+    "language": "en",
+    "text": "A quick round fox jump over the lazy dog. Machine learning models require careful optimization to balance speed and accuracy."
+  },
+  {
+    "model": "base",
+    "audio": "zh",
+    "load_s": 0.4,
+    "transcribe_s": 0.9,
+    "language": "th",
+    "text": "กินเย็นเย็นชีขึ้นเข้า ว่ามันอีกชีชื่อต้องอย่างสันผู้พักอยู่ยินสีเบียกิฟู ไฟไฟกินกินเย็นชื่อตัวขึ้นตากินผู้"
+  },
+  {
+    "model": "base",
+    "audio": "mixed",
+    "load_s": 0.4,
+    "transcribe_s": 7.6,
+    "language": "th",
+    "text": "เกียงมากลงเบย Glueคิดเนี่ยนชื่อเธอเห็นตาเกินผู้"
+  },
+  {
+    "model": "small",
+    "audio": "en",
+    "load_s": 0.7,
+    "transcribe_s": 1.8,
+    "language": "en",
+    "text": "The quick brown fox jumps over the lazy dog. Machine learning models require careful optimization to balance speed and accuracy."
+  },
+  {
+    "model": "small",
+    "audio": "zh",
+    "load_s": 0.7,
+    "transcribe_s": 1.8,
+    "language": "zh",
+    "text": "今天天氣很好,我們一起去公園散步吧!語音識別技術在最前幾年去得了很大的進步!"
+  },
+  {
+    "model": "small",
+    "audio": "mixed",
+    "load_s": 0.7,
+    "transcribe_s": 6.7,
+    "language": "en",
+    "text": "The quick brown fox jumps over the lazy dog. Machine learning models require careful optimization to balance speed and accuracy. 天天气很好,我們一起去捉捉鸿山鋪吧. 魚鷹是鸡鸠在雷鸡年去的了很大的鸡鸡鸡."
+  },
+  {
+    "model": "medium",
+    "audio": "en",
+    "load_s": 1.8,
+    "transcribe_s": 4.7,
+    "language": "en",
+    "text": "The quick brown fox jumps over the lazy dog. Machine learning models require careful optimization to balance speed and accuracy."
+  },
+  {
+    "model": "medium",
+    "audio": "zh",
+    "load_s": 1.8,
+    "transcribe_s": 5.0,
+    "language": "zh",
+    "text": "今天天氣很好,我們一起去公園散步吧語音識別技術在最近幾年取得了很大的進步"
+  },
+  {
+    "model": "medium",
+    "audio": "mixed",
+    "load_s": 1.8,
+    "transcribe_s": 4.7,
+    "language": "en",
+    "text": "The quick brown fox jumps over the lazy dog. Machine learning models require careful optimization to balance speed and accuracy."
+  }
+]
