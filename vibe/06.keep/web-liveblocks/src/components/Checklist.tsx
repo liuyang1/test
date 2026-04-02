@@ -172,8 +172,16 @@ export const Checklist = forwardRef<ChecklistHandle, Props>(({ items, onChange, 
             {checked.length} completed
           </button>
           {showChecked && checked.map(item => (
-            <div key={item.id} className="grid min-h-[29px] group items-center" style={{ gridTemplateColumns: '24px 30px 1fr auto' }}>
-              <div />
+            <div key={item.id} className="grid min-h-[29px] group items-center" style={{ gridTemplateColumns: '24px 30px 1fr auto' }}
+              onDragOver={e => { e.preventDefault(); setDragOverId(item.id) }} onDrop={e => { e.preventDefault(); handleDrop(item.id) }}>
+              <div className="flex items-center justify-center cursor-grab opacity-0 group-hover:opacity-[.54] transition-opacity"
+                draggable onDragStart={() => setDragId(item.id)} onDragEnd={() => { setDragId(null); setDragOverId(null) }} data-testid="drag-handle">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#000" style={{ opacity: 0.54 }}>
+                  <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
+                  <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+                  <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
+                </svg>
+              </div>
               <div className="w-[22px] flex items-center">
                 <button onClick={() => update(item.id, { checked: false })} className="cursor-pointer outline-none" tabIndex={-1}>
                   <CheckedSvg />

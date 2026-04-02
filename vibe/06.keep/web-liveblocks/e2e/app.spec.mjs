@@ -960,6 +960,26 @@ test('checked items move to bottom when setting enabled', async ({ page }) => {
   expect(unchecked.trim()).toBe('Second')
 })
 
+test('checked items in completed section have drag handles', async ({ page }) => {
+  await page.keyboard.press('l')
+  await page.fill('input[placeholder="Title"]', 'DragChecked')
+  await page.locator('.checklist-item-editor').first().click()
+  await page.keyboard.type('A')
+  await page.keyboard.press('Enter')
+  await page.waitForTimeout(100)
+  await page.keyboard.type('B')
+  await page.keyboard.press('Escape')
+  await page.click('.note-card:has-text("DragChecked")')
+  await page.waitForSelector('.editor-panel', { timeout: 5000 })
+  // Check first item to move it to completed section
+  await page.locator('.editor-panel button.cursor-pointer').first().click()
+  await page.waitForTimeout(300)
+  // Completed section should have a drag handle
+  const handles = page.locator('.editor-panel [data-testid="drag-handle"]')
+  // 1 for unchecked "B" + 1 for checked "A"
+  await expect(handles).toHaveCount(2)
+})
+
 // ═══ Card label: remove ═══
 test('remove label from card toolbar', async ({ page }) => {
   await createNote(page, 'RemLabel', '')
